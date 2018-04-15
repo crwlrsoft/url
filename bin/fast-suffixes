@@ -1,0 +1,44 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * This script can be used to regenerate the fast suffix list in the Suffixes class.
+ */
+
+// TLDs with most websites according to https://w3techs.com/technologies/overview/top_level_domain/all
+$mostUsed = [
+    'com', 'ru', 'org', 'net', 'de', 'jp', 'uk', 'br', 'it', 'pl', 'fr', 'in', 'ir', 'au', 'info', 'cn', 'nl', 'es',
+    'cz', 'kr', 'ua', 'ca', 'eu', '.co', 'gr', 'ch', 'za', 'ro', 'se', 'tw', 'hu', 'be', 'at', 'mx', 'vn', 'biz', 'tr',
+    'dk', 'me', 'ar', 'sk', 'tv', 'no', 'us', 'fi', 'io', 'cl', 'id', 'pt', 'xyz', 'by', 'il', 'ie', 'nz',
+    'kz', 'lt', 'hk', 'my', 'cc', 'club', 'sg', 'рф', 'bg', 'th', 'edu', 'pro', 'su', 'pk', 'hr', 'rs',
+    'si', 'online', 'lv', 'az', 'pe', 'top', 'ee', 'ae', 'ph', 'ng', 'download', 'cat', 'site', 'pw',
+    'tk'
+];
+
+$commonSecondLevels = ['gov', 'com', 'org', 'edu', 'net', 'co', 'mil', 'ac'];
+
+$fullList = include(__DIR__ . '/../data/suffixes.php');
+$fastList = [];
+
+foreach ($fullList as $suffix => $zero) {
+    if (in_array($suffix, $mostUsed)) {
+        $fastList[$suffix] = 0;
+        continue;
+    }
+
+    $parts = explode('.', $suffix);
+
+    if (count($parts) === 2 && in_array($parts[0], $commonSecondLevels)) {
+        $fastList[$suffix] = 0;
+    }
+}
+
+$printed = "<?php return [";
+
+foreach ($fastList as $suffix => $zero) {
+    $printed .= "'" . $suffix . "'=>0,";
+}
+
+$printed .= '];';
+
+file_put_contents(__DIR__ . '/../data/fast-suffixes', $printed);

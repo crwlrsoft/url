@@ -1,0 +1,13 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$updater = new \Crwlr\Url\Schemes\Updater();
+
+try {
+    $updater->update();
+    echo "Updated scheme list.\n";
+} catch (Exception $e) {
+    echo "Updating scheme list failed: " . $e->getMessage() . "\n";
+}
