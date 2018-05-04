@@ -232,7 +232,7 @@ final class UrlTest extends TestCase
         $this->assertEquals($url->domainSuffix(), 'org');
         $this->assertEquals($url->domain(), 'example.org');
         $this->assertEquals($url->host(), 'sub.sub.example.org');
-        /*$this->assertEquals(
+        $this->assertEquals(
             $url->toString(),
             'https://user:password@sub.sub.example.org:8080/some/path?some=query#fragment'
         );
@@ -244,7 +244,7 @@ final class UrlTest extends TestCase
         $this->assertEquals(
             $url->toString(),
             'https://user:password@sub.sub.example.co.uk:8080/some/path?some=query#fragment'
-        );*/
+        );
     }
 
     /**

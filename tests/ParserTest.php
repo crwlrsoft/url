@@ -60,9 +60,29 @@ final class ParserTest extends TestCase
         $this->assertEquals($parser->getSubdomainFromHost('jobs.example.com'), 'jobs');
     }
 
-    public function testStripFromEnd()
+    /**
+     * This test especially targets a problem in parse_str() which is used in the Parser class to convert a query
+     * string to array. The problem is, that dots within keys in the query string are replaced with underscores.
+     * For more information see https://github.com/crwlrsoft/url/issues/2
+     */
+    public function testQueryStringToArray()
     {
         $parser = new \Crwlr\Url\Parser();
+
+        $this->assertEquals(
+            $parser->queryStringToArray('k.1=v.1&k.2[s.k1]=v.2&k.2[s.k2]=v.3'),
+            [
+                'k.1' => 'v.1',
+                'k.2' => [
+                    's.k1' => 'v.2',
+                    's.k2' => 'v.3',
+                ]
+            ]
+        );
+    }
+
+    public function testStripFromEnd()
+    {
         $this->assertEquals(\Crwlr\Url\Parser::stripFromEnd('examplestring', 'string'), 'example');
         $this->assertEquals(\Crwlr\Url\Parser::stripFromEnd('examplestring', 'strong'), 'examplestring');
     }

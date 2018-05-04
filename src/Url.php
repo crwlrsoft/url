@@ -416,9 +416,7 @@ class Url
                 return [];
             }
 
-            parse_str($this->query, $array);
-
-            return $array;
+            return $this->parser->queryStringToArray($this->query);
         } elseif (is_array($query)) {
             $query = $this->validator->query(http_build_query($query));
 

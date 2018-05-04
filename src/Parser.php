@@ -106,6 +106,56 @@ class Parser
     }
 
     /**
+     * Converts a url query string to array.
+     *
+     * @param string $query
+     * @return array
+     */
+    public function queryStringToArray(string $query = '') : array
+    {
+        parse_str($query, $array);
+
+        if (preg_match('/(?:^|&)([^\[=&]*\.)/', $query)) { // Matches keys in the query that contain a dot
+            return $this->replaceKeysContainingDots($query, $array);
+        }
+
+        return $array;
+    }
+
+    /**
+     * When keys within a url query string contain dots, PHPs parse_str method converts them to underscores. This
+     * method works around this issue so the requested query array returns the proper keys with dots.
+     *
+     * @param string $query
+     * @param array $array
+     * @return array
+     */
+    private function replaceKeysContainingDots(string $query, array $array) : array
+    {
+        // Regex to find keys in query string.
+        preg_match_all('/(?:^|&)([^=&\[]+)(?:[=&\[]|$)/', $query, $matches);
+        $brokenKeys = $fixedArray = [];
+
+        // Create mapping of broken keys to original proper keys.
+        foreach ($matches[1] as $key => $value) {
+            if (strpos($value, '.') !== false) {
+                $brokenKeys[str_replace('.', '_', $value)] = $value;
+            }
+        }
+
+        // Recreate the array with the proper keys.
+        foreach ($array as $key => $value) {
+            if (isset($brokenKeys[$key])) {
+                $fixedArray[$brokenKeys[$key]] = $value;
+            } else {
+                $fixedArray[$key] = $value;
+            }
+        }
+
+        return $fixedArray;
+    }
+
+    /**
      * Strip some string B from the end of a string A that ends with string B.
      * e.g.:
      * $string = 'some.example'
