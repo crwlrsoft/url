@@ -529,6 +529,36 @@ class Url
     }
 
     /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return ($path = $this->path()) ? $path : '';
+    }
+
+    /**
+     * As defined in the interface this method can receive rootless paths, so the provided path will be resolved
+     * to an absolute one.
+     *
+     * @param string $path
+     * @return $this|static
+     */
+    public function withPath($path)
+    {
+        if (!is_string($path)) {
+            $path = '';
+        }
+
+        if (substr($path, 0, 1) !== '/' && trim($path) !== '') {
+            $path = $this->resolver()->resolvePath($path, $this->path());
+        }
+
+        $this->path($path);
+
+        return $this;
+    }
+
+    /**
      * @param null|string|array $query
      * @return string|null|Url
      */
@@ -667,11 +697,7 @@ class Url
      */
     public function resolve(string $relativeUrl = '') : Url
     {
-        if (!$this->resolver) {
-            $this->resolver = new Resolver($this->validator);
-        }
-
-        return $this->resolver->resolve($relativeUrl, $this);
+        return $this->resolver()->resolve($relativeUrl, $this);
     }
 
     /**
@@ -729,6 +755,18 @@ class Url
 
             $this->isInitialized = true;
         }
+    }
+
+    /**
+     * @return Resolver
+     */
+    private function resolver() : Resolver
+    {
+        if (!$this->resolver) {
+            $this->resolver = new Resolver($this->validator);
+        }
+
+        return $this->resolver;
     }
 
     /**

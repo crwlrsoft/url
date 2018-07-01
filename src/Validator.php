@@ -250,22 +250,26 @@ class Validator
     }
 
     /**
-     * Returns the valid $path if it only contains characters that are valid within a url path and starts with a
-     * slash.
+     * Percent-encodes any character, that is not an unreserved, sub-delim, : or @ according to
      * https://tools.ietf.org/html/rfc3986#section-3.3
+     * In case rawurlencode does not return a percent-encoded equivalent the character will be removed.
      *
-     * @param $path
-     * @return bool
+     * @param string $path
+     * @return string
      */
-    public function path($path)
+    public function path(string $path) : string
     {
-        $pattern = '/[^a-zA-Z0-9\-\.\_\~\%\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/';
+        $path = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
+            $encodedCharacter = rawurlencode($match[0]);
 
-        if ($this->isNotEmptyString($path) && substr($path, 0, 1) === '/' && !preg_match($pattern, $path)) {
-            return $path;
-        }
+            if ($match[0] !== $encodedCharacter) {
+                return $encodedCharacter;
+            }
 
-        return false;
+            return '';
+        }, $path);
+
+        return $path;
     }
 
     /**

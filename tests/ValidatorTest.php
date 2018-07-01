@@ -42,6 +42,7 @@ final class ValidatorTest extends TestCase
             'this is not an url',
             '1http://example.com/stuff',
             'mäilto:user@example.com',
+            '/foo/bar',
         ];
 
         foreach ($invalidUrls as $url) {
@@ -212,13 +213,12 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->path('/(foo)/*bar+'), '/(foo)/*bar+');
         $this->assertEquals($validator->path('/foo,bar;baz:'), '/foo,bar;baz:');
         $this->assertEquals($validator->path('/foo=bar@baz'), '/foo=bar@baz');
-        $this->assertEquals($validator->path('/foo%bar'), '/foo%bar');
-
-        $this->assertFalse($validator->path('no/leading/slash'));
-        $this->assertFalse($validator->path('/"foo"'));
-        $this->assertFalse($validator->path('/foo\\bar'));
-        $this->assertFalse($validator->path('/bößer/pfad'));
-        $this->assertFalse($validator->path('/<html>'));
+        $this->assertEquals($validator->path('/foo%bar'), '/foo%25bar');
+        $this->assertEquals($validator->path('no/leading/slash'), 'no/leading/slash');
+        $this->assertEquals($validator->path('/"foo"'), '/%22foo%22');
+        $this->assertEquals($validator->path('/foo\\bar'), '/foo%5Cbar');
+        $this->assertEquals($validator->path('/bößer/pfad'), '/b%C3%B6%C3%9Fer/pfad');
+        $this->assertEquals($validator->path('/<html>'), '/%3Chtml%3E');
     }
 
     public function testValidateQuery()
