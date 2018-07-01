@@ -277,19 +277,15 @@ class Validator
      * https://tools.ietf.org/html/rfc3986#section-3.4
      *
      * @param string $query
-     * @return bool
+     * @return string|bool
      */
     public function query($query = '')
     {
-        if ($this->isNotEmptyString($query)) {
-            if (substr($query, 0, 1) === '?') {
-                $query = substr($query, 1);
-            }
-
-            return $this->queryOrFragment($query);
+        if (substr($query, 0, 1) === '?') {
+            $query = substr($query, 1);
         }
 
-        return false;
+        return $this->queryOrFragment($query);
     }
 
     /**
@@ -316,7 +312,7 @@ class Validator
      * Query and fragment allow the same characters (pchar + / + ?), so we can validate with the same regex.
      *
      * @param string $string
-     * @return bool
+     * @return string|false
      */
     private function queryOrFragment($string = '')
     {

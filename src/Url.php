@@ -572,7 +572,7 @@ class Url
 
         $query = $this->validator->query($query);
 
-        if ($query) {
+        if (is_string($query)) {
             $this->query = $query;
             $this->updateFullUrl();
         }
@@ -602,6 +602,25 @@ class Url
                 $this->updateFullUrl();
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getQuery()
+    {
+        return ($query = $this->query()) ? $query : '';
+    }
+
+    /**
+     * @param string $query
+     * @return $this|static
+     */
+    public function withQuery($query)
+    {
+        $this->query($query);
 
         return $this;
     }
