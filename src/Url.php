@@ -474,6 +474,39 @@ class Url
     }
 
     /**
+     * @return int|null
+     */
+    public function getPort()
+    {
+        return $this->port();
+    }
+
+    /**
+     * @param int|null $port
+     * @return $this|static
+     * @throws \InvalidArgumentException
+     */
+    public function withPort($port) : Url
+    {
+        if ($port !== null && $this->validator->port($port) === false) {
+            throw new \InvalidArgumentException('Port is outside the valid TCP and UDP port ranges.');
+        }
+
+        if ($port === null) {
+            $this->resetPort();
+        } else {
+            $this->port($port);
+        }
+
+        return $this;
+    }
+
+    public function resetPort()
+    {
+        $this->port = null;
+    }
+
+    /**
      * @param null|string $path
      * @return string|null|Url
      */
