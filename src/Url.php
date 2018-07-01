@@ -3,6 +3,7 @@
 namespace Crwlr\Url;
 
 use Crwlr\Url\Exceptions\InvalidUrlException;
+use Psr\Http\Message\UriInterface;
 use TrueBV\Punycode;
 
 /**
@@ -17,7 +18,7 @@ use TrueBV\Punycode;
  * necessary to load the full public suffix list which is pretty big.
  */
 
-class Url
+class Url implements UriInterface
 {
     /**
      * All components of the url.
@@ -677,26 +678,21 @@ class Url
     {
         $this->init();
 
-        $root = $this->scheme() . ':';
+        $root = '';
+        $scheme = $this->scheme();
 
-        if ($this->hasHost()) {
-            $root .= '//';
+        if (!empty($scheme)) {
+            $root .= $scheme . ':';
+        }
 
-            if ($this->user()) {
-                $root .= $this->user();
+        $authority = $this->getAuthority();
 
-                if ($this->password()) {
-                    $root .= ':' . $this->password();
-                }
-
-                $root .= '@';
+        if ($authority !== '') {
+            if ($root !== '') {
+                $root .= '//';
             }
 
-            $root .= $this->host();
-
-            if ($this->port()) {
-                $root .= ':' . $this->port();
-            }
+            $root .= $authority;
         }
 
         return $root;
