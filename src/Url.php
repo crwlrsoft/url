@@ -422,7 +422,7 @@ class Url
     }
 
     /**
-     * @param null|string|int $subdomain
+     * @param null|string $subdomain
      * @return string|null|Url
      */
     public function subdomain($subdomain = null)
@@ -437,12 +437,15 @@ class Url
             return $this->subdomain;
         }
 
-        $subdomain = $this->validator->subdomain($subdomain);
+        // Don't set a subdomain if the current url does not contain a registrable domain.
+        if ($this->hasDomain()) {
+            $subdomain = $this->validator->subdomain($subdomain);
 
-        if ($subdomain) {
-            $this->subdomain = $subdomain;
-            $this->updateHost();
-            $this->updateFullUrl();
+            if ($subdomain) {
+                $this->subdomain = $subdomain;
+                $this->updateHost();
+                $this->updateFullUrl();
+            }
         }
 
         return $this;
