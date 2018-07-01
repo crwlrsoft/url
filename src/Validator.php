@@ -277,7 +277,7 @@ class Validator
      * https://tools.ietf.org/html/rfc3986#section-3.4
      *
      * @param string $query
-     * @return string|bool
+     * @return string|false
      */
     public function query($query = '')
     {
@@ -293,19 +293,15 @@ class Validator
      * https://tools.ietf.org/html/rfc3986#section-3.5
      *
      * @param string $fragment
-     * @return bool
+     * @return string|false
      */
     public function fragment($fragment = '')
     {
-        if ($this->isNotEmptyString($fragment)) {
-            if (substr($fragment, 0, 1) === '#') {
-                $fragment = substr($fragment, 1);
-            }
-
-            return $this->queryOrFragment($fragment);
+        if (substr($fragment, 0, 1) === '#') {
+            $fragment = substr($fragment, 1);
         }
 
-        return false;
+        return $this->queryOrFragment($fragment);
     }
 
     /**

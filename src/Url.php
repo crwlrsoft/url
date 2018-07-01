@@ -639,10 +639,29 @@ class Url
 
         $fragment = $this->validator->fragment($fragment);
 
-        if ($fragment) {
+        if (is_string($fragment)) {
             $this->fragment = $fragment;
             $this->updateFullUrl();
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFragment()
+    {
+        return ($this->fragment()) ? $this->fragment : '';
+    }
+
+    /**
+     * @param string $fragment
+     * @return $this|static
+     */
+    public function withFragment($fragment)
+    {
+        $this->fragment($fragment);
 
         return $this;
     }
