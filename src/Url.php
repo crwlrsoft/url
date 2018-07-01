@@ -351,14 +351,12 @@ class Url
             return $this->domain;
         }
 
-        if ($this->hasDomain()) {
-            $domain = $this->validator->domain($domain);
+        $domain = $this->validator->domain($domain);
 
-            if ($domain) {
-                $this->replaceDomain($domain);
-                $this->updateHost();
-                $this->updateFullUrl();
-            }
+        if ($domain) {
+            $this->replaceDomain($domain);
+            $this->updateHost();
+            $this->updateFullUrl();
         }
 
         return $this;
