@@ -80,7 +80,7 @@ class Validator
      * otherwise it returns false.
      *
      * @param string $scheme
-     * @return bool
+     * @return string|false
      */
     public function scheme($scheme = '')
     {

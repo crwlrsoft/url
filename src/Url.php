@@ -122,6 +122,10 @@ class Url
     }
 
     /**
+     * If param $scheme is null this method will return the current scheme.
+     * If $scheme is a string that's a valid url scheme, it will replace the current scheme.
+     * When $scheme is an empty string the current scheme will be reset to no scheme.
+     *
      * @param null|string $scheme
      * @return string|null|Url
      */
@@ -133,12 +137,34 @@ class Url
             return $this->scheme;
         }
 
-        $scheme = $this->validator->scheme($scheme);
+        $validScheme = $this->validator->scheme($scheme);
 
-        if ($scheme) {
-            $this->scheme = $scheme;
+        if ($validScheme) {
+            $this->scheme = $validScheme;
+            $this->updateFullUrl();
+        } elseif (trim($scheme) === '') {
+            $this->scheme = null;
             $this->updateFullUrl();
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getScheme() : string
+    {
+        return ($scheme = $this->scheme()) ? $scheme : '';
+    }
+
+    /**
+     * @param string $scheme
+     * @return $this|static
+     */
+    public function withScheme($scheme)
+    {
+        $this->scheme($scheme);
 
         return $this;
     }
