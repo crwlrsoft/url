@@ -266,7 +266,31 @@ class Url
     }
 
     /**
-     * @param null|string|int $host
+     * @return string
+     */
+    public function getAuthority() : string
+    {
+        if (empty($this->host())) {
+            return '';
+        }
+
+        $authority = '';
+
+        if (!empty($this->getUserInfo())) {
+            $authority = $this->getUserInfo() . '@';
+        }
+
+        $authority .= $this->host();
+
+        if ($this->port()) {
+            $authority .= ':' . $this->port();
+        }
+
+        return $authority;
+    }
+
+    /**
+     * @param null|string $host
      * @return string|null|Url
      */
     public function host($host = null)
@@ -277,12 +301,34 @@ class Url
             return $this->host;
         }
 
-        $host = $this->validator->host($host);
+        $validHost = $this->validator->host($host);
 
-        if ($host) {
-            $this->replaceHost($host);
+        if ($validHost) {
+            $this->replaceHost($validHost);
+            $this->updateFullUrl();
+        } elseif (trim($host) === '') {
+            $this->host = $this->domain = $this->domainSuffix = $this->subdomain = null;
             $this->updateFullUrl();
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost() : string
+    {
+        return ($host = $this->host()) ? strtolower($host) : '';
+    }
+
+    /**
+     * @param string $host
+     * @return $this|static
+     */
+    public function withHost($host) : Url
+    {
+        $this->host($host);
 
         return $this;
     }
