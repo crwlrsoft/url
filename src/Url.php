@@ -181,10 +181,14 @@ class Url
             return $this->user;
         }
 
-        $user = $this->validator->userOrPassword($user);
+        $validUser = $this->validator->userOrPassword($user);
 
-        if ($user) {
-            $this->user = $user;
+        if ($validUser) {
+            $this->user = $validUser;
+            $this->updateFullUrl();
+        } elseif (trim($user) === '') {
+            $this->user = null;
+            $this->pass = null;
             $this->updateFullUrl();
         }
 
@@ -203,10 +207,13 @@ class Url
             return $this->pass;
         }
 
-        $password = $this->validator->userOrPassword($password);
+        $validPassword = $this->validator->userOrPassword($password);
 
-        if ($password) {
-            $this->pass = $password;
+        if ($validPassword) {
+            $this->pass = $validPassword;
+            $this->updateFullUrl();
+        } elseif (trim($password) === '') {
+            $this->pass = null;
             $this->updateFullUrl();
         }
 
@@ -222,6 +229,40 @@ class Url
     public function pass($pass = null)
     {
         return $this->password($pass);
+    }
+
+    /**
+     * @return string
+     */
+    public function getUserInfo() : string
+    {
+        $userInfo = '';
+
+        if ($this->user()) {
+            $userInfo = $this->user();
+
+            if ($this->password()) {
+                $userInfo .= ':' . $this->password();
+            }
+        }
+
+        return $userInfo;
+    }
+
+    /**
+     * @param string $user
+     * @param null|string $password
+     * @return $this|static
+     */
+    public function withUserInfo($user, $password = null)
+    {
+        $this->user($user);
+
+        if ($password !== null) {
+            $this->pass($password);
+        }
+
+        return $this;
     }
 
     /**

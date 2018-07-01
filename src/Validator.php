@@ -102,12 +102,10 @@ class Validator
      * it's used to separate user and password.
      *
      * @param string $string
-     * @return bool
+     * @return string|false
      */
-    public function userOrPassword($string = '')
+    public function userOrPassword(string $string = '')
     {
-        $string = (string) $string;
-
         $pattern = '/[^a-zA-Z0-9\-\.\_\~\%\!\$\&\'\(\)\*\+\,\;\=]/';
 
         if ($this->isNotEmptyString($string) && !preg_match($pattern, $string)) {
