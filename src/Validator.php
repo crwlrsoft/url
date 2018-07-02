@@ -49,7 +49,7 @@ class Validator
      * @return string
      * @throws InvalidUrlException
      */
-    public function url($url = '')
+    public function url($url = '') : string
     {
         if (!$this->isNotEmptyString($url)) {
             throw new InvalidUrlException('Empty url.');
@@ -82,14 +82,12 @@ class Validator
      * @param string $scheme
      * @return string|false
      */
-    public function scheme($scheme = '')
+    public function scheme(string $scheme = '')
     {
-        if ($this->isNotEmptyString($scheme)) {
-            $scheme = strtolower($scheme);
+        $scheme = strtolower(trim($scheme));
 
-            if ($this->schemes->exists($scheme)) {
-                return $scheme;
-            }
+        if ($this->schemes->exists($scheme)) {
+            return $scheme;
         }
 
         return false;
@@ -108,7 +106,7 @@ class Validator
     {
         $pattern = '/[^a-zA-Z0-9\-\.\_\~\%\!\$\&\'\(\)\*\+\,\;\=]/';
 
-        if ($this->isNotEmptyString($string) && !preg_match($pattern, $string)) {
+        if (!preg_match($pattern, $string)) {
             return $string;
         }
 
@@ -121,7 +119,7 @@ class Validator
      * that is contained in the Mozilla Public Suffix List.
      *
      * @param string $host
-     * @return string|bool
+     * @return string|false
      */
     public function host(string $host)
     {
@@ -139,12 +137,13 @@ class Validator
     }
 
     /**
-     *
+     * Returns the valid domain suffix if it exists.
+     * Also tries to encode characters from internationalized domain names to validate the suffix.
      *
      * @param string $domainSuffix
-     * @return bool
+     * @return string|false
      */
-    public function domainSuffix($domainSuffix = '')
+    public function domainSuffix(string $domainSuffix = '')
     {
         if ($this->isNotEmptyString($domainSuffix)) {
             if (!$this->areValidHostCharacters($domainSuffix)) {
@@ -169,12 +168,10 @@ class Validator
      *
      * @param string $domain
      * @param bool $withoutSuffix
-     * @return bool
+     * @return string|false
      */
-    public function domain($domain = '', $withoutSuffix = false)
+    public function domain(string $domain = '', bool $withoutSuffix = false)
     {
-        $domain = (string) $domain;
-
         if ($this->isNotEmptyString($domain)) {
             if (!$this->areValidHostCharacters($domain)) {
                 $domain = $this->punyCode->encode($domain);
@@ -207,12 +204,10 @@ class Validator
      * that are valid within a host name.
      *
      * @param string $subdomain
-     * @return bool
+     * @return string|false
      */
-    public function subdomain($subdomain = '')
+    public function subdomain(string $subdomain = '')
     {
-        $subdomain = (string) $subdomain;
-
         if ($this->isNotEmptyString($subdomain)) {
             if (!$this->areValidHostCharacters($subdomain)) {
                 $subdomain = $this->punyCode->encode($subdomain);
@@ -232,7 +227,7 @@ class Validator
      * Returns $port as int if it is numeric and between 0 and 65535.
      *
      * @param int|string $port
-     * @return int|bool
+     * @return int|false
      */
     public function port($port = 0)
     {
@@ -277,7 +272,7 @@ class Validator
      * @param string $query
      * @return string|false
      */
-    public function query($query = '')
+    public function query(string $query = '')
     {
         if (substr($query, 0, 1) === '?') {
             $query = substr($query, 1);
@@ -293,7 +288,7 @@ class Validator
      * @param string $fragment
      * @return string|false
      */
-    public function fragment($fragment = '')
+    public function fragment(string $fragment = '')
     {
         if (substr($fragment, 0, 1) === '#') {
             $fragment = substr($fragment, 1);
@@ -308,7 +303,7 @@ class Validator
      * @param string $string
      * @return string|false
      */
-    private function queryOrFragment($string = '')
+    private function queryOrFragment(string $string = '')
     {
         if (!preg_match('/[^a-zA-Z0-9\-\.\_\~\%\!\$\&\'\(\)\*\+\,\;\=\:\@\/\?]/', $string)) {
             return $string;
@@ -324,7 +319,7 @@ class Validator
      * @param bool $noDot
      * @return bool
      */
-    private function areValidHostCharacters($string = '', $noDot = false)
+    private function areValidHostCharacters(string $string = '', bool $noDot = false) : bool
     {
         $pattern = '/[^a-zA-Z0-9\-\.]/';
 
@@ -347,7 +342,7 @@ class Validator
      * @param string $url
      * @return string
      */
-    private function encodeIdnHostInUrl($url = '')
+    private function encodeIdnHostInUrl(string $url = '') : string
     {
         $host = $this->getHostFromIdnUrl($url);
 
@@ -364,9 +359,9 @@ class Validator
 
     /**
      * @param string $url
-     * @return bool
+     * @return string|false
      */
-    private function getHostFromIdnUrl($url = '')
+    private function getHostFromIdnUrl(string $url = '')
     {
         $urlWithoutScheme = $this->stripSchemeFromIdnUrl($url);
 
@@ -387,9 +382,9 @@ class Validator
 
     /**
      * @param string $url
-     * @return bool|string
+     * @return string|false
      */
-    private function stripSchemeFromIdnUrl($url = '')
+    private function stripSchemeFromIdnUrl(string $url = '')
     {
         $splitAtColon = explode(':', $url);
 
@@ -409,7 +404,7 @@ class Validator
      * @param string $host
      * @return bool
      */
-    private function hostHasEmptyLabel($host = '')
+    private function hostHasEmptyLabel(string $host = '') : bool
     {
         foreach (explode('.', $host) as $label) {
             if (trim($label) === '') {
@@ -426,7 +421,7 @@ class Validator
      * @param $string
      * @return bool
      */
-    private function isNotEmptyString($string)
+    private function isNotEmptyString($string) : bool
     {
         if (is_string($string) && trim($string) !== '') {
             return true;
