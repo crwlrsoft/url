@@ -479,6 +479,9 @@ final class UrlTest extends TestCase
         $url = $url->withUserInfo('otsch', 'crwlr');
         $this->assertEquals($url->getUserInfo(), 'otsch:crwlr');
         $this->assertEquals($url->getAuthority(), 'otsch:crwlr@www.example.com');
+        $url = $url->withUserInfo('otsch', '');
+        $this->assertEquals($url->getUserInfo(), 'otsch');
+        $this->assertEquals($url->getAuthority(), 'otsch@www.example.com');
         $url = $url->withUserInfo('');
         $this->assertEquals($url->getUserInfo(), '');
         $this->assertEquals($url->getAuthority(), 'www.example.com');
