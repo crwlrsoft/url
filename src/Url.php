@@ -161,9 +161,9 @@ class Url implements UriInterface
 
     /**
      * @param string $scheme
-     * @return $this|static
+     * @return self
      */
-    public function withScheme($scheme)
+    public function withScheme($scheme) : self
     {
         $this->scheme($scheme);
 
@@ -253,9 +253,9 @@ class Url implements UriInterface
     /**
      * @param string $user
      * @param null|string $password
-     * @return $this|static
+     * @return self
      */
-    public function withUserInfo($user, $password = null)
+    public function withUserInfo($user, $password = null) : self
     {
         $this->user($user);
 
@@ -325,9 +325,9 @@ class Url implements UriInterface
 
     /**
      * @param string $host
-     * @return $this|static
+     * @return self
      */
-    public function withHost($host) : Url
+    public function withHost($host) : self
     {
         $this->host($host);
 
@@ -484,10 +484,10 @@ class Url implements UriInterface
 
     /**
      * @param int|null $port
-     * @return $this|static
+     * @return self
      * @throws \InvalidArgumentException
      */
-    public function withPort($port) : Url
+    public function withPort($port) : self
     {
         if ($port !== null && $this->validator->port($port) === false) {
             throw new \InvalidArgumentException('Port is outside the valid TCP and UDP port ranges.');
@@ -542,9 +542,9 @@ class Url implements UriInterface
      * to an absolute one.
      *
      * @param string $path
-     * @return $this|static
+     * @return self
      */
-    public function withPath($path)
+    public function withPath($path) : self
     {
         if (!is_string($path)) {
             $path = '';
@@ -620,9 +620,9 @@ class Url implements UriInterface
 
     /**
      * @param string $query
-     * @return $this|static
+     * @return self
      */
-    public function withQuery($query)
+    public function withQuery($query) : self
     {
         $this->query($query);
 
@@ -664,9 +664,9 @@ class Url implements UriInterface
 
     /**
      * @param string $fragment
-     * @return $this|static
+     * @return self
      */
-    public function withFragment($fragment)
+    public function withFragment($fragment) : self
     {
         $this->fragment($fragment);
 
