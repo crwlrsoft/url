@@ -283,8 +283,8 @@ class Url implements UriInterface
 
         $authority .= $this->host();
 
-        if ($this->port()) {
-            $authority .= ':' . $this->port();
+        if ($this->getPort()) {
+            $authority .= ':' . $this->getPort();
         }
 
         return $authority;
@@ -479,7 +479,23 @@ class Url implements UriInterface
      */
     public function getPort()
     {
-        return $this->port();
+        $port = $this->port();
+
+        if (!$port) {
+            return $port;
+        }
+
+        $scheme = $this->scheme();
+
+        if ($scheme) {
+            $standardPort = self::getStandardPortByScheme($scheme);
+
+            if ($port === $standardPort) {
+                return null;
+            }
+        }
+
+        return $port;
     }
 
     /**
@@ -923,5 +939,32 @@ class Url implements UriInterface
         }
 
         return false;
+    }
+
+    /**
+     * @param string $scheme
+     * @return int|null
+     */
+    public static function getStandardPortByScheme(string $scheme)
+    {
+        $scheme = strtolower(trim($scheme));
+
+        if ($scheme === '') {
+            return null;
+        }
+
+        $standardPortTcp = getservbyname($scheme, 'tcp');
+
+        if ($standardPortTcp) {
+            return (int) $standardPortTcp;
+        }
+
+        $standardPortUdp = getservbyname($scheme, 'udp');
+
+        if ($standardPortUdp) {
+            return (int) $standardPortUdp;
+        }
+
+        return null;
     }
 }

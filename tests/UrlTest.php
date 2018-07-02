@@ -494,6 +494,9 @@ final class UrlTest extends TestCase
         $this->assertNull($url->getPort());
         $url = $url->withPort(1234);
         $this->assertEquals($url->getPort(), 1234);
+        $url = $url->withPort(80);
+        $this->assertNull($url->getPort()); // As 80 is standard http port it shouldn't be returned (see UriInterface)
+        $url = $url->withPort(1234);
 
         // As the host is mandatory for an authority component, the getAuthority() method should not return ':1234'
         $this->assertEquals($url->getAuthority(), '');
@@ -503,6 +506,8 @@ final class UrlTest extends TestCase
         $this->assertEquals($url->getAuthority(), 'einstein@www.example.com:1234');
         $url = $url->withUserInfo('einstein', 'albert');
         $this->assertEquals($url->getAuthority(), 'einstein:albert@www.example.com:1234');
+        $url = $url->withPort(80);
+        $this->assertEquals($url->getAuthority(), 'einstein:albert@www.example.com');
         $url = $url->withPort(null);
         $this->assertNull($url->getPort());
 
@@ -527,6 +532,22 @@ final class UrlTest extends TestCase
         $url = $url->withFragment('');
         $this->assertEquals($url->getFragment(), '');
         $this->assertNull($url->fragment());
+    }
+
+    public function testGetStandardPortsByScheme()
+    {
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('ftp'), 21);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('git'), 9418);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('http'), 80);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('https'), 443);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('imap'), 143);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('irc'), 194);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('nfs'), 2049);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('rsync'), 873);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('sftp'), 115);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('smtp'), 25);
+
+        $this->assertNull(\Crwlr\Url\Url::getStandardPortByScheme('unknownscheme'));
     }
 
     /**
