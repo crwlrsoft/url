@@ -120,6 +120,8 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->host('example.xn--80asehdb'), 'example.xn--80asehdb');
         $this->assertEquals($validator->host('example.онлайн'), 'example.xn--80asehdb');
         $this->assertEquals($validator->host('12.34.56.78'), '12.34.56.78');
+        $this->assertEquals($validator->host('localhost'), 'localhost');
+        $this->assertEquals($validator->host('dev.local'), 'dev.local');
 
         $this->assertFalse($validator->host('slash/example.com'));
         $this->assertFalse($validator->host('exclamation!mark.co'));

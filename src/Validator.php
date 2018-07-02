@@ -121,12 +121,10 @@ class Validator
      * that is contained in the Mozilla Public Suffix List.
      *
      * @param string $host
-     * @return bool
+     * @return string|bool
      */
-    public function host($host = '')
+    public function host(string $host)
     {
-        $host = (string) $host;
-
         if ($this->isNotEmptyString($host)) {
             if (!$this->areValidHostCharacters($host)) {
                 $host = $this->punyCode->encode($host);
