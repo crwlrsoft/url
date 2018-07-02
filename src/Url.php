@@ -573,8 +573,11 @@ class Url implements UriInterface
 
         $query = $this->validator->query($query);
 
-        if (is_string($query)) {
+        if ($query) {
             $this->query = $query;
+            $this->updateFullUrl();
+        } elseif (trim($query) === '') {
+            $this->query = null;
             $this->updateFullUrl();
         }
 
@@ -640,8 +643,11 @@ class Url implements UriInterface
 
         $fragment = $this->validator->fragment($fragment);
 
-        if (is_string($fragment)) {
+        if ($fragment) {
             $this->fragment = $fragment;
+            $this->updateFullUrl();
+        } elseif (trim($fragment) === '') {
+            $this->fragment = null;
             $this->updateFullUrl();
         }
 
