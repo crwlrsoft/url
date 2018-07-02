@@ -32,7 +32,7 @@ class Updater extends \Crwlr\Url\Lists\Updater
         $schemes = [];
 
         foreach (explode("\n", $content) as $lineNumber => $line) {
-            if ($lineNumber === 0) {
+            if ($lineNumber === 0 || substr($line, 0, 1) === ' ') {
                 continue;
             }
 
