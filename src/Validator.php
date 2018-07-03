@@ -266,19 +266,30 @@ class Validator
     }
 
     /**
-     * Returns the valid $query string if it consists of characters that are valid within a query string.
+     * Percent-encodes any character that needs to be in a query string according to
      * https://tools.ietf.org/html/rfc3986#section-3.4
+     * In case rawurlencode does not return a percent-encoded equivalent the character will be removed.
      *
      * @param string $query
-     * @return string|false
+     * @return string
      */
-    public function query(string $query = '')
+    public function query(string $query = '') : string
     {
         if (substr($query, 0, 1) === '?') {
             $query = substr($query, 1);
         }
 
-        return $this->queryOrFragment($query);
+        $query = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
+            $encodedCharacter = rawurlencode($match[0]);
+
+            if ($match[0] !== $encodedCharacter) {
+                return $encodedCharacter;
+            }
+
+            return '';
+        }, $query);
+
+        return $query;
     }
 
     /**

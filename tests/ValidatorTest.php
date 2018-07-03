@@ -231,16 +231,15 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->query('?foo=bar'), 'foo=bar');
         $this->assertEquals($validator->query('foo1=bar&foo2=baz'), 'foo1=bar&foo2=baz');
         $this->assertEquals($validator->query('.foo-=_bar~'), '.foo-=_bar~');
-        $this->assertEquals($validator->query('%foo!=$bar\''), '%foo!=$bar\'');
+        $this->assertEquals($validator->query('%foo!=$bar\''), '%25foo!=$bar\'');
         $this->assertEquals($validator->query('(foo)=*bar+'), '(foo)=*bar+');
         $this->assertEquals($validator->query('f,o;o==bar:'), 'f,o;o==bar:');
-        $this->assertEquals($validator->query('?@foo=/bar?'), '@foo=/bar?');
-
-        $this->assertFalse($validator->query('"foo"=bar'));
-        $this->assertFalse($validator->query('foo#=bar'));
-        $this->assertFalse($validator->query('föo=bar'));
-        $this->assertFalse($validator->query('boeßer=query'));
-        $this->assertFalse($validator->query('foo`=bar'));
+        $this->assertEquals($validator->query('?@foo=/bar?'), '@foo=/bar%3F');
+        $this->assertEquals($validator->query('"foo"=bar'), '%22foo%22=bar');
+        $this->assertEquals($validator->query('foo#=bar'), 'foo%23=bar');
+        $this->assertEquals($validator->query('föo=bar'), 'f%C3%B6o=bar');
+        $this->assertEquals($validator->query('boeßer=query'), 'boe%C3%9Fer=query');
+        $this->assertEquals($validator->query('foo`=bar'), 'foo%60=bar');
     }
 
     public function testValidateFragment()
