@@ -250,16 +250,15 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->fragment('#fragment'), 'fragment');
         $this->assertEquals($validator->fragment('fragment1234567890'), 'fragment1234567890');
         $this->assertEquals($validator->fragment('-.fragment_~'), '-.fragment_~');
-        $this->assertEquals($validator->fragment('%!fragment$&'), '%!fragment$&');
+        $this->assertEquals($validator->fragment('%!fragment$&'), '%25!fragment$&');
         $this->assertEquals($validator->fragment('(\'fragment*)'), '(\'fragment*)');
         $this->assertEquals($validator->fragment('#+,fragment;:'), '+,fragment;:');
         $this->assertEquals($validator->fragment('@=fragment/?'), '@=fragment/?');
-
-        $this->assertFalse($validator->fragment('#"fragment"'));
-        $this->assertFalse($validator->fragment('#fragment#'));
-        $this->assertFalse($validator->fragment('##fragment'));
-        $this->assertFalse($validator->fragment('frägment'));
-        $this->assertFalse($validator->fragment('boeßesfragment'));
-        $this->assertFalse($validator->fragment('fragment`'));
+        $this->assertEquals($validator->fragment('#"fragment"'), '%22fragment%22');
+        $this->assertEquals($validator->fragment('#fragment#'), 'fragment%23');
+        $this->assertEquals($validator->fragment('##fragment'), '%23fragment');
+        $this->assertEquals($validator->fragment('frägment'), 'fr%C3%A4gment');
+        $this->assertEquals($validator->fragment('boeßesfragment'), 'boe%C3%9Fesfragment');
+        $this->assertEquals($validator->fragment('fragment`'), 'fragment%60');
     }
 }

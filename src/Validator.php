@@ -253,13 +253,7 @@ class Validator
     public function path(string $path) : string
     {
         $path = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
-            $encodedCharacter = rawurlencode($match[0]);
-
-            if ($match[0] !== $encodedCharacter) {
-                return $encodedCharacter;
-            }
-
-            return '';
+            return $this->urlEncodeCharacter($match[0]);
         }, $path);
 
         return $path;
@@ -280,13 +274,7 @@ class Validator
         }
 
         $query = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
-            $encodedCharacter = rawurlencode($match[0]);
-
-            if ($match[0] !== $encodedCharacter) {
-                return $encodedCharacter;
-            }
-
-            return '';
+            return $this->urlEncodeCharacter($match[0]);
         }, $query);
 
         return $query;
@@ -305,22 +293,26 @@ class Validator
             $fragment = substr($fragment, 1);
         }
 
-        return $this->queryOrFragment($fragment);
+        $fragment = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\?]/', function ($match) {
+            return $this->urlEncodeCharacter($match[0]);
+        }, $fragment);
+
+        return $fragment;
     }
 
     /**
-     * Query and fragment allow the same characters (pchar + / + ?), so we can validate with the same regex.
-     *
-     * @param string $string
-     * @return string|false
+     * @param string $character
+     * @return string
      */
-    private function queryOrFragment(string $string = '')
+    private function urlEncodeCharacter(string $character = '') : string
     {
-        if (!preg_match('/[^a-zA-Z0-9\-\.\_\~\%\!\$\&\'\(\)\*\+\,\;\=\:\@\/\?]/', $string)) {
-            return $string;
+        $encodedCharacter = rawurlencode($character);
+
+        if ($character !== $encodedCharacter) {
+            return $encodedCharacter;
         }
 
-        return false;
+        return '';
     }
 
     /**
