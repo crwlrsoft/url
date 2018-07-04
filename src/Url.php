@@ -781,6 +781,36 @@ class Url implements UriInterface
     }
 
     /**
+     * Try to get the standard port of a url scheme using PHP's built-in getservbyname() function.
+     * If no standard port is found it returns null.
+     *
+     * @param string $scheme
+     * @return int|null
+     */
+    public static function getStandardPortByScheme(string $scheme)
+    {
+        $scheme = strtolower(trim($scheme));
+
+        if ($scheme === '') {
+            return null;
+        }
+
+        $standardPortTcp = getservbyname($scheme, 'tcp');
+
+        if ($standardPortTcp) {
+            return (int) $standardPortTcp;
+        }
+
+        $standardPortUdp = getservbyname($scheme, 'udp');
+
+        if ($standardPortUdp) {
+            return (int) $standardPortUdp;
+        }
+
+        return null;
+    }
+
+    /**
      * @return string
      */
     public function __toString() : string
@@ -939,32 +969,5 @@ class Url implements UriInterface
         }
 
         return false;
-    }
-
-    /**
-     * @param string $scheme
-     * @return int|null
-     */
-    public static function getStandardPortByScheme(string $scheme)
-    {
-        $scheme = strtolower(trim($scheme));
-
-        if ($scheme === '') {
-            return null;
-        }
-
-        $standardPortTcp = getservbyname($scheme, 'tcp');
-
-        if ($standardPortTcp) {
-            return (int) $standardPortTcp;
-        }
-
-        $standardPortUdp = getservbyname($scheme, 'udp');
-
-        if ($standardPortUdp) {
-            return (int) $standardPortUdp;
-        }
-
-        return null;
     }
 }
