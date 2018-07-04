@@ -13,6 +13,7 @@ the __domain suffix__ and the __subdomain__ parts of the host separately
 point to the same host or domain)
 * Thanks to [true/punycode](https://github.com/true/php-punycode) it's also no 
 problem to parse __internationalized domain names (IDN)__.
+* Implements [PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php).
 
 ## Installation
 
@@ -43,17 +44,17 @@ Further code examples skip the above.
 ```php
 $url = Url::parse('https://john:123@www.example.com:8080/foo?bar=baz');
  
-// Accessing url components as properties
-$scheme = $url->scheme;                 // => "https"
-$user = $url->user;                     // => "john"
-$host = $url->host;                     // => "www.example.com"
-$domain = $url->domain;                 // => "example.com"
- 
-// Or via method calls
+// Accessing url components via method calls
 $port = $url->port();                   // => 8080
 $domainSuffix = $url->domainSuffix();   // => "com"
 $path = $url->path();                   // => "/foo"
 $fragment = $url->fragment();           // => NULL
+ 
+// Or as properties
+$scheme = $url->scheme;                 // => "https"
+$user = $url->user;                     // => "john"
+$host = $url->host;                     // => "www.example.com"
+$domain = $url->domain;                 // => "example.com"
 ```
 
 #### Available url components
@@ -131,6 +132,37 @@ array(2) {
   string(5) "value"
 }
 
+```
+
+#### PSR-7 UriInterface methods
+
+The component methods of the Url class are designed to combine getting 
+and setting components with one method and therefore also have short names 
+(`->scheme()` instead of `->getScheme()`). But to be compatible with other
+libraries it also implements the 
+[PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php) 
+and therefore also provides these methods: 
+
+```php
+$url = 'https://user:password@www.example.com:1234/foo/bar?some=query#fragment';
+$url = \Crwlr\Url\Url::parse($url);
+var_dump($url->getScheme());        // => 'https'
+var_dump($url->getAuthority());     // => 'user:password@www.example.com:1234'
+var_dump($url->getUserInfo());      // => 'user:password'
+var_dump($url->getHost());          // => 'www.example.com'
+var_dump($url->getPort());          // => 1234
+var_dump($url->getPath());          // => '/foo/bar'
+var_dump($url->getQuery());         // => 'some=query'
+var_dump($url->getFragment());      // => 'fragment'
+
+var_dump($url->withScheme('http')->getScheme());        // => 'http'
+var_dump($url->withUserInfo('u', 'p')->getUserInfo());  // => 'u:p'
+var_dump($url->withHost('foo.bar.com')->getHost());     // => 'foo.bar.com'
+var_dump($url->withPort(666)->getPort());               // => 666
+var_dump($url->withPath('/path')->getPath());           // => '/path'
+var_dump($url->withQuery('foo=bar')->getQuery());       // => 'foo=bar'
+var_dump($url->withFragment('baz')->getFragment());     // => 'baz'
+var_dump($url->__toString()); // => 'http://u:p@foo.bar.com:666/path?foo=bar#baz'
 ```
 
 ### Modifying urls
