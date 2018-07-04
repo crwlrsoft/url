@@ -42,6 +42,7 @@ final class ValidatorTest extends TestCase
             'this is not an url',
             '1http://example.com/stuff',
             'mäilto:user@example.com',
+            '/foo/bar',
         ];
 
         foreach ($invalidUrls as $url) {
@@ -119,6 +120,8 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->host('example.xn--80asehdb'), 'example.xn--80asehdb');
         $this->assertEquals($validator->host('example.онлайн'), 'example.xn--80asehdb');
         $this->assertEquals($validator->host('12.34.56.78'), '12.34.56.78');
+        $this->assertEquals($validator->host('localhost'), 'localhost');
+        $this->assertEquals($validator->host('dev.local'), 'dev.local');
 
         $this->assertFalse($validator->host('slash/example.com'));
         $this->assertFalse($validator->host('exclamation!mark.co'));
@@ -212,13 +215,12 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->path('/(foo)/*bar+'), '/(foo)/*bar+');
         $this->assertEquals($validator->path('/foo,bar;baz:'), '/foo,bar;baz:');
         $this->assertEquals($validator->path('/foo=bar@baz'), '/foo=bar@baz');
-        $this->assertEquals($validator->path('/foo%bar'), '/foo%bar');
-
-        $this->assertFalse($validator->path('no/leading/slash'));
-        $this->assertFalse($validator->path('/"foo"'));
-        $this->assertFalse($validator->path('/foo\\bar'));
-        $this->assertFalse($validator->path('/bößer/pfad'));
-        $this->assertFalse($validator->path('/<html>'));
+        $this->assertEquals($validator->path('/foo%bar'), '/foo%25bar');
+        $this->assertEquals($validator->path('no/leading/slash'), 'no/leading/slash');
+        $this->assertEquals($validator->path('/"foo"'), '/%22foo%22');
+        $this->assertEquals($validator->path('/foo\\bar'), '/foo%5Cbar');
+        $this->assertEquals($validator->path('/bößer/pfad'), '/b%C3%B6%C3%9Fer/pfad');
+        $this->assertEquals($validator->path('/<html>'), '/%3Chtml%3E');
     }
 
     public function testValidateQuery()
@@ -229,16 +231,15 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->query('?foo=bar'), 'foo=bar');
         $this->assertEquals($validator->query('foo1=bar&foo2=baz'), 'foo1=bar&foo2=baz');
         $this->assertEquals($validator->query('.foo-=_bar~'), '.foo-=_bar~');
-        $this->assertEquals($validator->query('%foo!=$bar\''), '%foo!=$bar\'');
+        $this->assertEquals($validator->query('%foo!=$bar\''), '%25foo!=$bar\'');
         $this->assertEquals($validator->query('(foo)=*bar+'), '(foo)=*bar+');
         $this->assertEquals($validator->query('f,o;o==bar:'), 'f,o;o==bar:');
-        $this->assertEquals($validator->query('?@foo=/bar?'), '@foo=/bar?');
-
-        $this->assertFalse($validator->query('"foo"=bar'));
-        $this->assertFalse($validator->query('foo#=bar'));
-        $this->assertFalse($validator->query('föo=bar'));
-        $this->assertFalse($validator->query('boeßer=query'));
-        $this->assertFalse($validator->query('foo`=bar'));
+        $this->assertEquals($validator->query('?@foo=/bar?'), '@foo=/bar%3F');
+        $this->assertEquals($validator->query('"foo"=bar'), '%22foo%22=bar');
+        $this->assertEquals($validator->query('foo#=bar'), 'foo%23=bar');
+        $this->assertEquals($validator->query('föo=bar'), 'f%C3%B6o=bar');
+        $this->assertEquals($validator->query('boeßer=query'), 'boe%C3%9Fer=query');
+        $this->assertEquals($validator->query('foo`=bar'), 'foo%60=bar');
     }
 
     public function testValidateFragment()
@@ -249,16 +250,15 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->fragment('#fragment'), 'fragment');
         $this->assertEquals($validator->fragment('fragment1234567890'), 'fragment1234567890');
         $this->assertEquals($validator->fragment('-.fragment_~'), '-.fragment_~');
-        $this->assertEquals($validator->fragment('%!fragment$&'), '%!fragment$&');
+        $this->assertEquals($validator->fragment('%!fragment$&'), '%25!fragment$&');
         $this->assertEquals($validator->fragment('(\'fragment*)'), '(\'fragment*)');
         $this->assertEquals($validator->fragment('#+,fragment;:'), '+,fragment;:');
         $this->assertEquals($validator->fragment('@=fragment/?'), '@=fragment/?');
-
-        $this->assertFalse($validator->fragment('#"fragment"'));
-        $this->assertFalse($validator->fragment('#fragment#'));
-        $this->assertFalse($validator->fragment('##fragment'));
-        $this->assertFalse($validator->fragment('frägment'));
-        $this->assertFalse($validator->fragment('boeßesfragment'));
-        $this->assertFalse($validator->fragment('fragment`'));
+        $this->assertEquals($validator->fragment('#"fragment"'), '%22fragment%22');
+        $this->assertEquals($validator->fragment('#fragment#'), 'fragment%23');
+        $this->assertEquals($validator->fragment('##fragment'), '%23fragment');
+        $this->assertEquals($validator->fragment('frägment'), 'fr%C3%A4gment');
+        $this->assertEquals($validator->fragment('boeßesfragment'), 'boe%C3%9Fesfragment');
+        $this->assertEquals($validator->fragment('fragment`'), 'fragment%60');
     }
 }

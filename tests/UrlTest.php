@@ -80,10 +80,10 @@ final class UrlTest extends TestCase
         $this->assertEquals($url->relative, '/some/path?some=query#fragment');
 
         // other class properties that aren't components of the parsed url should not be available.
-        $this->assertEquals($url->parser, null);
-        $this->assertEquals($url->validator, null);
-        $this->assertEquals($url->resolver, null);
-        $this->assertEquals($url->isInitialized, null);
+        $this->assertNull($url->parser);
+        $this->assertNull($url->validator);
+        $this->assertNull($url->resolver);
+        $this->assertNull($url->isInitialized);
     }
 
     /**
@@ -455,6 +455,102 @@ final class UrlTest extends TestCase
         $this->assertTrue($url->compare($equalUrl, 'relative'));
         $equalUrl->path('/different/path');
         $this->assertFalse($url->compare($equalUrl, 'relative'));
+    }
+
+    public function testUriInterfaceMethods()
+    {
+        $url = \Crwlr\Url\Url::parse('http://www.example.com/foo/bar?query=string#fragment');
+
+        $this->assertEquals($url->getScheme(), 'http');
+        $url = $url->withScheme('https');
+        $this->assertEquals($url->getScheme(), 'https');
+        $url = $url->withScheme('');
+        $this->assertEquals($url->getScheme(), '');
+        $url = $url->withScheme('http');
+
+        $this->assertEquals($url->getAuthority(), 'www.example.com');
+        $url = $url->withHost('www.eggsample.com');
+        $this->assertEquals($url->getAuthority(), 'www.eggsample.com');
+        $url = $url->withHost('');
+        $this->assertEquals($url->getAuthority(), '');
+        $url = $url->withHost('www.example.com');
+
+        $this->assertEquals($url->getUserInfo(), '');
+        $url = $url->withUserInfo('otsch', 'crwlr');
+        $this->assertEquals($url->getUserInfo(), 'otsch:crwlr');
+        $this->assertEquals($url->getAuthority(), 'otsch:crwlr@www.example.com');
+        $url = $url->withUserInfo('otsch', '');
+        $this->assertEquals($url->getUserInfo(), 'otsch');
+        $this->assertEquals($url->getAuthority(), 'otsch@www.example.com');
+        $url = $url->withUserInfo('');
+        $this->assertEquals($url->getUserInfo(), '');
+        $this->assertEquals($url->getAuthority(), 'www.example.com');
+        $this->assertNull($url->password()); // When the user is reset, password should also be.
+
+        $this->assertEquals($url->getHost(), 'www.example.com');
+        $url = $url->withHost('foo.bar.example.com');
+        $this->assertEquals($url->getHost(), 'foo.bar.example.com');
+        $url = $url->withHost('');
+        $this->assertEquals($url->getHost(), '');
+        $this->assertEquals($url->getAuthority(), '');
+
+        $this->assertNull($url->getPort());
+        $url = $url->withPort(1234);
+        $this->assertEquals($url->getPort(), 1234);
+        $url = $url->withPort(80);
+        $this->assertNull($url->getPort()); // As 80 is standard http port it shouldn't be returned (see UriInterface)
+        $url = $url->withPort(1234);
+
+        // As the host is mandatory for an authority component, the getAuthority() method should not return ':1234'
+        $this->assertEquals($url->getAuthority(), '');
+        $url = $url->withUserInfo('einstein');
+        $this->assertEquals($url->getAuthority(), '');
+        $url = $url->withHost('www.example.com');
+        $this->assertEquals($url->getAuthority(), 'einstein@www.example.com:1234');
+        $url = $url->withUserInfo('einstein', 'albert');
+        $this->assertEquals($url->getAuthority(), 'einstein:albert@www.example.com:1234');
+        $url = $url->withPort(80);
+        $this->assertEquals($url->getAuthority(), 'einstein:albert@www.example.com');
+        $url = $url->withPort(null);
+        $this->assertNull($url->getPort());
+
+        $this->assertEquals($url->getPath(), '/foo/bar');
+        $url = $url->withPath('baz');
+        $this->assertEquals($url->getPath(), '/foo/baz');
+        $url = $url->withPath('/bar/foo?baz=query#chapter3');
+        $this->assertEquals($url->getPath(), '/bar/foo%3Fbaz=query%23chapter3');
+        $url = $url->withPath('//foo/bar');
+        $this->assertEquals($url->getPath(), '//foo/bar');
+
+        $this->assertEquals($url->getQuery(), 'query=string');
+        $url = $url->withQuery('key=value&key2=value2');
+        $this->assertEquals($url->getQuery(), 'key=value&key2=value2');
+        $url = $url->withQuery('');
+        $this->assertEquals($url->getQuery(), '');
+        $this->assertNull($url->query());
+
+        $this->assertEquals($url->getFragment(), 'fragment');
+        $url = $url->withFragment('differentfragment');
+        $this->assertEquals($url->getFragment(), 'differentfragment');
+        $url = $url->withFragment('');
+        $this->assertEquals($url->getFragment(), '');
+        $this->assertNull($url->fragment());
+    }
+
+    public function testGetStandardPortsByScheme()
+    {
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('ftp'), 21);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('git'), 9418);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('http'), 80);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('https'), 443);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('imap'), 143);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('irc'), 194);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('nfs'), 2049);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('rsync'), 873);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('sftp'), 115);
+        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('smtp'), 25);
+
+        $this->assertNull(\Crwlr\Url\Url::getStandardPortByScheme('unknownscheme'));
     }
 
     /**

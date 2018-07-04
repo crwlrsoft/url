@@ -3,6 +3,7 @@
 namespace Crwlr\Url;
 
 use Crwlr\Url\Exceptions\InvalidUrlException;
+use Psr\Http\Message\UriInterface;
 use TrueBV\Punycode;
 
 /**
@@ -17,7 +18,7 @@ use TrueBV\Punycode;
  * necessary to load the full public suffix list which is pretty big.
  */
 
-class Url
+class Url implements UriInterface
 {
     /**
      * All components of the url.
@@ -122,6 +123,10 @@ class Url
     }
 
     /**
+     * If param $scheme is null this method will return the current scheme.
+     * If $scheme is a string that's a valid url scheme, it will replace the current scheme.
+     * When $scheme is an empty string the current scheme will be reset to no scheme.
+     *
      * @param null|string $scheme
      * @return string|null|Url
      */
@@ -133,12 +138,34 @@ class Url
             return $this->scheme;
         }
 
-        $scheme = $this->validator->scheme($scheme);
+        $validScheme = $this->validator->scheme($scheme);
 
-        if ($scheme) {
-            $this->scheme = $scheme;
+        if ($validScheme) {
+            $this->scheme = $validScheme;
+            $this->updateFullUrl();
+        } elseif (trim($scheme) === '') {
+            $this->scheme = null;
             $this->updateFullUrl();
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getScheme() : string
+    {
+        return ($scheme = $this->scheme()) ? $scheme : '';
+    }
+
+    /**
+     * @param string $scheme
+     * @return self
+     */
+    public function withScheme($scheme) : self
+    {
+        $this->scheme($scheme);
 
         return $this;
     }
@@ -155,10 +182,14 @@ class Url
             return $this->user;
         }
 
-        $user = $this->validator->userOrPassword($user);
+        $validUser = $this->validator->userOrPassword($user);
 
-        if ($user) {
-            $this->user = $user;
+        if ($validUser) {
+            $this->user = $validUser;
+            $this->updateFullUrl();
+        } elseif (trim($user) === '') {
+            $this->user = null;
+            $this->pass = null;
             $this->updateFullUrl();
         }
 
@@ -177,10 +208,13 @@ class Url
             return $this->pass;
         }
 
-        $password = $this->validator->userOrPassword($password);
+        $validPassword = $this->validator->userOrPassword($password);
 
-        if ($password) {
-            $this->pass = $password;
+        if ($validPassword) {
+            $this->pass = $validPassword;
+            $this->updateFullUrl();
+        } elseif (trim($password) === '') {
+            $this->pass = null;
             $this->updateFullUrl();
         }
 
@@ -199,7 +233,65 @@ class Url
     }
 
     /**
-     * @param null|string|int $host
+     * @return string
+     */
+    public function getUserInfo() : string
+    {
+        $userInfo = '';
+
+        if ($this->user()) {
+            $userInfo = $this->user();
+
+            if ($this->password()) {
+                $userInfo .= ':' . $this->password();
+            }
+        }
+
+        return $userInfo;
+    }
+
+    /**
+     * @param string $user
+     * @param null|string $password
+     * @return self
+     */
+    public function withUserInfo($user, $password = null) : self
+    {
+        $this->user($user);
+
+        if ($password !== null) {
+            $this->pass($password);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getAuthority() : string
+    {
+        if (empty($this->host())) {
+            return '';
+        }
+
+        $authority = '';
+
+        if (!empty($this->getUserInfo())) {
+            $authority = $this->getUserInfo() . '@';
+        }
+
+        $authority .= $this->host();
+
+        if ($this->getPort()) {
+            $authority .= ':' . $this->getPort();
+        }
+
+        return $authority;
+    }
+
+    /**
+     * @param null|string $host
      * @return string|null|Url
      */
     public function host($host = null)
@@ -210,12 +302,34 @@ class Url
             return $this->host;
         }
 
-        $host = $this->validator->host($host);
+        $validHost = $this->validator->host($host);
 
-        if ($host) {
-            $this->replaceHost($host);
+        if ($validHost) {
+            $this->replaceHost($validHost);
+            $this->updateFullUrl();
+        } elseif (trim($host) === '') {
+            $this->host = $this->domain = $this->domainSuffix = $this->subdomain = null;
             $this->updateFullUrl();
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHost() : string
+    {
+        return ($host = $this->host()) ? strtolower($host) : '';
+    }
+
+    /**
+     * @param string $host
+     * @return self
+     */
+    public function withHost($host) : self
+    {
+        $this->host($host);
 
         return $this;
     }
@@ -238,14 +352,12 @@ class Url
             return $this->domain;
         }
 
-        if ($this->hasDomain()) {
-            $domain = $this->validator->domain($domain);
+        $domain = $this->validator->domain($domain);
 
-            if ($domain) {
-                $this->replaceDomain($domain);
-                $this->updateHost();
-                $this->updateFullUrl();
-            }
+        if ($domain) {
+            $this->replaceDomain($domain);
+            $this->updateHost();
+            $this->updateFullUrl();
         }
 
         return $this;
@@ -311,7 +423,7 @@ class Url
     }
 
     /**
-     * @param null|string|int $subdomain
+     * @param null|string $subdomain
      * @return string|null|Url
      */
     public function subdomain($subdomain = null)
@@ -326,12 +438,15 @@ class Url
             return $this->subdomain;
         }
 
-        $subdomain = $this->validator->subdomain($subdomain);
+        // Don't set a subdomain if the current url does not contain a registrable domain.
+        if ($this->hasDomain()) {
+            $subdomain = $this->validator->subdomain($subdomain);
 
-        if ($subdomain) {
-            $this->subdomain = $subdomain;
-            $this->updateHost();
-            $this->updateFullUrl();
+            if ($subdomain) {
+                $this->subdomain = $subdomain;
+                $this->updateHost();
+                $this->updateFullUrl();
+            }
         }
 
         return $this;
@@ -360,6 +475,55 @@ class Url
     }
 
     /**
+     * @return int|null
+     */
+    public function getPort()
+    {
+        $port = $this->port();
+
+        if (!$port) {
+            return $port;
+        }
+
+        $scheme = $this->scheme();
+
+        if ($scheme) {
+            $standardPort = self::getStandardPortByScheme($scheme);
+
+            if ($port === $standardPort) {
+                return null;
+            }
+        }
+
+        return $port;
+    }
+
+    /**
+     * @param int|null $port
+     * @return self
+     * @throws \InvalidArgumentException
+     */
+    public function withPort($port) : self
+    {
+        if ($port !== null && $this->validator->port($port) === false) {
+            throw new \InvalidArgumentException('Port is outside the valid TCP and UDP port ranges.');
+        }
+
+        if ($port === null) {
+            $this->resetPort();
+        } else {
+            $this->port($port);
+        }
+
+        return $this;
+    }
+
+    public function resetPort()
+    {
+        $this->port = null;
+    }
+
+    /**
      * @param null|string $path
      * @return string|null|Url
      */
@@ -382,6 +546,36 @@ class Url
     }
 
     /**
+     * @return string
+     */
+    public function getPath()
+    {
+        return ($path = $this->path()) ? $path : '';
+    }
+
+    /**
+     * As defined in the interface this method can receive rootless paths, so the provided path will be resolved
+     * to an absolute one.
+     *
+     * @param string $path
+     * @return self
+     */
+    public function withPath($path) : self
+    {
+        if (!is_string($path)) {
+            $path = '';
+        }
+
+        if (substr($path, 0, 1) !== '/' && trim($path) !== '') {
+            $path = $this->resolver()->resolvePath($path, $this->path());
+        }
+
+        $this->path($path);
+
+        return $this;
+    }
+
+    /**
      * @param null|string|array $query
      * @return string|null|Url
      */
@@ -397,6 +591,9 @@ class Url
 
         if ($query) {
             $this->query = $query;
+            $this->updateFullUrl();
+        } elseif (trim($query) === '') {
+            $this->query = null;
             $this->updateFullUrl();
         }
 
@@ -430,6 +627,25 @@ class Url
     }
 
     /**
+     * @return string
+     */
+    public function getQuery()
+    {
+        return ($query = $this->query()) ? $query : '';
+    }
+
+    /**
+     * @param string $query
+     * @return self
+     */
+    public function withQuery($query) : self
+    {
+        $this->query($query);
+
+        return $this;
+    }
+
+    /**
      * @param null|string $fragment
      * @return string|null|Url
      */
@@ -446,7 +662,29 @@ class Url
         if ($fragment) {
             $this->fragment = $fragment;
             $this->updateFullUrl();
+        } elseif (trim($fragment) === '') {
+            $this->fragment = null;
+            $this->updateFullUrl();
         }
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFragment()
+    {
+        return ($this->fragment()) ? $this->fragment : '';
+    }
+
+    /**
+     * @param string $fragment
+     * @return self
+     */
+    public function withFragment($fragment) : self
+    {
+        $this->fragment($fragment);
 
         return $this;
     }
@@ -462,26 +700,21 @@ class Url
     {
         $this->init();
 
-        $root = $this->scheme() . ':';
+        $root = '';
+        $scheme = $this->scheme();
 
-        if ($this->hasHost()) {
-            $root .= '//';
+        if (!empty($scheme)) {
+            $root .= $scheme . ':';
+        }
 
-            if ($this->user()) {
-                $root .= $this->user();
+        $authority = $this->getAuthority();
 
-                if ($this->password()) {
-                    $root .= ':' . $this->password();
-                }
-
-                $root .= '@';
+        if ($authority !== '') {
+            if ($root !== '') {
+                $root .= '//';
             }
 
-            $root .= $this->host();
-
-            if ($this->port()) {
-                $root .= ':' . $this->port();
-            }
+            $root .= $authority;
         }
 
         return $root;
@@ -520,11 +753,7 @@ class Url
      */
     public function resolve(string $relativeUrl = '') : Url
     {
-        if (!$this->resolver) {
-            $this->resolver = new Resolver($this->validator);
-        }
-
-        return $this->resolver->resolve($relativeUrl, $this);
+        return $this->resolver()->resolve($relativeUrl, $this);
     }
 
     /**
@@ -549,6 +778,36 @@ class Url
         }
 
         return false;
+    }
+
+    /**
+     * Try to get the standard port of a url scheme using PHP's built-in getservbyname() function.
+     * If no standard port is found it returns null.
+     *
+     * @param string $scheme
+     * @return int|null
+     */
+    public static function getStandardPortByScheme(string $scheme)
+    {
+        $scheme = strtolower(trim($scheme));
+
+        if ($scheme === '') {
+            return null;
+        }
+
+        $standardPortTcp = getservbyname($scheme, 'tcp');
+
+        if ($standardPortTcp) {
+            return (int) $standardPortTcp;
+        }
+
+        $standardPortUdp = getservbyname($scheme, 'udp');
+
+        if ($standardPortUdp) {
+            return (int) $standardPortUdp;
+        }
+
+        return null;
     }
 
     /**
@@ -582,6 +841,18 @@ class Url
 
             $this->isInitialized = true;
         }
+    }
+
+    /**
+     * @return Resolver
+     */
+    private function resolver() : Resolver
+    {
+        if (!$this->resolver) {
+            $this->resolver = new Resolver($this->validator);
+        }
+
+        return $this->resolver;
     }
 
     /**

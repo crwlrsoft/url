@@ -61,6 +61,16 @@ class Resolver
     }
 
     /**
+     * @param string $resolvePath
+     * @param string $basePath
+     * @return string
+     */
+    public function resolvePath(string $resolvePath, string $basePath) : string
+    {
+        return $this->resolveDots($resolvePath, $basePath);
+    }
+
+    /**
      * Resolve all . in the subject path with the base path.
      * e.g.:
      * subject: ./foo/../bar/./baz
