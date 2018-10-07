@@ -16,63 +16,98 @@ use TrueBV\Punycode;
 class Validator
 {
     /**
-     * @var Suffixes
-     */
-    private $suffixes;
-
-    /**
-     * @var Schemes
-     */
-    private $schemes;
-
-    /**
      * @var Punycode
      */
     private $punyCode;
 
     /**
-     * @param Suffixes|null $suffixes
-     * @param Schemes|null $schemes
      * @param Punycode|null $punyCode
      */
-    public function __construct(Suffixes $suffixes = null, Schemes $schemes = null, Punycode $punyCode = null)
+    public function __construct(Punycode $punyCode = null)
     {
-        $this->suffixes = ($suffixes instanceof Suffixes) ? $suffixes : new Suffixes();
-        $this->schemes = ($schemes instanceof Schemes) ? $schemes : new Schemes();
         $this->punyCode = ($punyCode instanceof Punycode) ? $punyCode : new Punycode();
     }
 
     /**
-     * Validates a url, throws an Exception when url is invalid.
+     * Validates a url.
+     * Returns an array with the valid url and all it's valid components separately.
+     * Returns null when url is invalid.
      *
      * @param string $url
-     * @return string
-     * @throws InvalidUrlException
+     * @param bool $absoluteUrl  Set to true when only an absolute url should return a valid result.
+     * @return array|null
      */
-    public function url($url = '') : string
+    public function url(string $url = '', bool $absoluteUrl = false)
     {
-        if (!$this->isNotEmptyString($url)) {
-            throw new InvalidUrlException('Empty url.');
+        if (trim($url) === '') {
+            if ($absoluteUrl) {
+                return null;
+            }
+
+            return ['url' => '', 'path' => ''];
         }
 
-        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-            $url = str_replace(' ', '%20', trim($url));
+        if (substr($url, 0, 4) === 'www.') {
+            $url = '//' . $url;
         }
 
-        if (filter_var($url, FILTER_VALIDATE_URL) === false) {
-            $url = $this->encodeIdnHostInUrl($url);
-        }
+        $components = parse_url($url);
 
-        if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
-            // filter_var() doesn't check for a valid url scheme, so validate if it has one.
-            $splitAtColon = explode(':', $url);
-
-            if (count($splitAtColon) > 1 && $this->scheme($splitAtColon[0])) {
-                return $url;
+        if (is_array($components) && array_key_exists('host', $components)) {
+            try {
+                $url = $this->encodeIdnHostInUrl($url);
+                $components = parse_url($url);
+            } catch (InvalidUrlException $exception) {
+                return null;
             }
         }
 
-        throw new InvalidUrlException($url . ' is not a valid url.');
+        if (
+            is_array($components) &&
+            !empty($components) &&
+            ($absoluteUrl === false || filter_var($url, FILTER_VALIDATE_URL) !== false)
+        ) {
+            $validComponents = $this->validateComponents($components);
+
+            if (!empty($validComponents)) {
+                $validComponents['url'] = Helpers::buildUrlFromComponents($validComponents);
+
+                return $validComponents;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param array $components
+     * @return array
+     */
+    private function validateComponents(array $components) : array
+    {
+        foreach ($components as $componentName => $componentValue) {
+            if (method_exists($this, $componentName)) {
+                if ($componentName === 'path') {
+                    $hasAuthority = false;
+
+                    if (isset($components['host'])) {
+                        $hasAuthority = true;
+                    }
+
+                    $validComponent = $this->path($componentValue, $hasAuthority);
+                } else {
+                    $validComponent = $this->{$componentName}($componentValue);
+                }
+
+                if ($validComponent === false) {
+                    return [];
+                }
+
+                $components[$componentName] = $validComponent;
+            }
+        }
+
+        return $components;
     }
 
     /**
@@ -86,7 +121,7 @@ class Validator
     {
         $scheme = strtolower(trim($scheme));
 
-        if ($this->schemes->exists($scheme)) {
+        if (Helpers::schemes()->exists($scheme)) {
             return $scheme;
         }
 
@@ -124,11 +159,11 @@ class Validator
     public function host(string $host)
     {
         if ($this->isNotEmptyString($host)) {
-            if (!$this->areValidHostCharacters($host)) {
+            if (Helpers::containsCharactersNotAllowedInHost($host)) {
                 $host = $this->punyCode->encode($host);
             }
 
-            if ($this->areValidHostCharacters($host) && !$this->hostHasEmptyLabel($host)) {
+            if (!Helpers::containsCharactersNotAllowedInHost($host) && !$this->hostHasEmptyLabel($host)) {
                 return $host;
             }
         }
@@ -146,13 +181,16 @@ class Validator
     public function domainSuffix(string $domainSuffix = '')
     {
         if ($this->isNotEmptyString($domainSuffix)) {
-            if (!$this->areValidHostCharacters($domainSuffix)) {
+            if (Helpers::containsCharactersNotAllowedInHost($domainSuffix)) {
                 $domainSuffix = $this->punyCode->encode($domainSuffix);
             }
 
             $domainSuffix = strtolower(trim($domainSuffix));
 
-            if ($this->areValidHostCharacters($domainSuffix) && $this->suffixes->exists($domainSuffix)) {
+            if (
+                !Helpers::containsCharactersNotAllowedInHost($domainSuffix) &&
+                Helpers::suffixes()->exists($domainSuffix)
+            ) {
                 return $domainSuffix;
             }
         }
@@ -173,16 +211,16 @@ class Validator
     public function domain(string $domain = '', bool $withoutSuffix = false)
     {
         if ($this->isNotEmptyString($domain)) {
-            if (!$this->areValidHostCharacters($domain)) {
+            if (Helpers::containsCharactersNotAllowedInHost($domain)) {
                 $domain = $this->punyCode->encode($domain);
             }
 
             $domain = strtolower(trim($domain));
 
-            if ($withoutSuffix === true && $this->areValidHostCharacters($domain, true)) {
+            if ($withoutSuffix === true && !Helpers::containsCharactersNotAllowedInHost($domain, true)) {
                 return $domain;
-            } elseif ($withoutSuffix === false && $this->areValidHostCharacters($domain)) {
-                $suffix = $this->suffixes->getByHost($domain);
+            } elseif ($withoutSuffix === false && !Helpers::containsCharactersNotAllowedInHost($domain)) {
+                $suffix = Helpers::getDomainSuffixFromHost($domain);
 
                 if ($suffix) {
                     // The registrable domain part of the host doesn't contain a subdomain, so if $domain
@@ -209,13 +247,13 @@ class Validator
     public function subdomain(string $subdomain = '')
     {
         if ($this->isNotEmptyString($subdomain)) {
-            if (!$this->areValidHostCharacters($subdomain)) {
+            if (Helpers::containsCharactersNotAllowedInHost($subdomain)) {
                 $subdomain = $this->punyCode->encode($subdomain);
             }
 
             $subdomain = strtolower(trim($subdomain));
 
-            if ($this->areValidHostCharacters($subdomain)) {
+            if (!Helpers::containsCharactersNotAllowedInHost($subdomain)) {
                 return $subdomain;
             }
         }
@@ -248,10 +286,26 @@ class Validator
      * In case rawurlencode does not return a percent-encoded equivalent the character will be removed.
      *
      * @param string $path
-     * @return string
+     * @param bool $hasAuthority
+     * @return string|false
      */
-    public function path(string $path) : string
+    public function path(string $path, bool $hasAuthority = true)
     {
+        if (
+            ($hasAuthority === true && trim($path) !== '' && substr($path, 0, 1) !== '/') ||
+            ($hasAuthority !== true && substr($path, 0, 2) === '//')
+        ) {
+            return false;
+        }
+
+        if ($hasAuthority === false && substr($path, 0, 1) !== '/') {
+            $splitAtSlash = explode('/', $path);
+
+            if (strpos($splitAtSlash[0], ':') !== false) {
+                return false;
+            }
+        }
+
         $path = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
             return $this->urlEncodeCharacter($match[0]);
         }, $path);
@@ -273,11 +327,9 @@ class Validator
             $query = substr($query, 1);
         }
 
-        $query = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
+        return preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\[\]]/', function ($match) {
             return $this->urlEncodeCharacter($match[0]);
-        }, $query);
-
-        return $query;
+        }, $this->encodeBracketsInQuery($query));
     }
 
     /**
@@ -316,40 +368,19 @@ class Validator
     }
 
     /**
-     * Returns true if $string only contains characters that are allowed within a host.
-     *
-     * @param string $string
-     * @param bool $noDot
-     * @return bool
-     */
-    private function areValidHostCharacters(string $string = '', bool $noDot = false) : bool
-    {
-        $pattern = '/[^a-zA-Z0-9\-\.]/';
-
-        if ($noDot === true) {
-            $pattern = '/[^a-zA-Z0-9\-]/';
-        }
-
-        if ($this->isNotEmptyString($string) && !preg_match($pattern, $string)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Validating a url with an Internationalized domain name with filter_var() returns false, so the
      * host part in the url needs to be encoded first. parse_url may break special characters in the IDN
      * host name, so extracting the host from the url is done manually in getHostFromIdnUrl().
      *
      * @param string $url
      * @return string
+     * @throws InvalidUrlException
      */
     private function encodeIdnHostInUrl(string $url = '') : string
     {
         $host = $this->getHostFromIdnUrl($url);
 
-        if (is_string($host) && $host !== '' && strpos($url, $host) !== false) {
+        if (is_string($host) && $host !== '' && Helpers::containsCharactersNotAllowedInHost($host)) {
             $encodedHost = $this->punyCode->encode($host);
             $hostPositionInUrl = strpos($url, $host);
             $preHost = substr($url, 0, $hostPositionInUrl);
@@ -363,13 +394,18 @@ class Validator
     /**
      * @param string $url
      * @return string|false
+     * @throws InvalidUrlException
      */
     private function getHostFromIdnUrl(string $url = '')
     {
-        $urlWithoutScheme = $this->stripSchemeFromIdnUrl($url);
+        $firstTwoChars = substr($url, 0, 2);
 
-        if ($urlWithoutScheme === false) {
+        if (substr($url, 0, 1) === '/' && $firstTwoChars !== '//') {
             return false;
+        } elseif ($firstTwoChars === '//') {
+            $urlWithoutScheme = $url;
+        } else {
+            $urlWithoutScheme = $this->stripSchemeFromIdnUrl($url);
         }
 
         $splitAtSlash = explode('/', $urlWithoutScheme);
@@ -386,17 +422,19 @@ class Validator
     /**
      * @param string $url
      * @return string|false
+     * @throws InvalidUrlException
      */
     private function stripSchemeFromIdnUrl(string $url = '')
     {
         $splitAtColon = explode(':', $url);
 
         if (count($splitAtColon) === 1) {
-            return false;
+            throw new InvalidUrlException('Url does not start with / and also does not include a scheme component.');
         }
 
         unset($splitAtColon[0]);
-        return implode('', $splitAtColon);
+
+        return implode(':', $splitAtColon);
     }
 
     /**
@@ -416,6 +454,75 @@ class Validator
         }
 
         return false;
+    }
+
+    /**
+     * @param string $query
+     * @return string
+     */
+    public function encodeBracketsInQuery(string $query) : string
+    {
+        if (strpos($query, '[') !== false) {
+            list($keyValues, $keyPartsWithoutBrackets, $keyPartsContainingBrackets) = $this->splitQuery($query);
+
+            foreach ($keyValues as $index => $keyValue) {
+                if (isset($keyPartsContainingBrackets[$index]) && $keyPartsContainingBrackets[$index] !== '') {
+                    $start = $keyPartsWithoutBrackets[$index];
+                    $replacement = str_replace(['[', ']'], ['%5B', '%5D'], $keyPartsContainingBrackets[$index]);
+                    $end = substr($keyValues[$index], strlen($start) + strlen($keyPartsContainingBrackets[$index]));
+                    $keyValues[$index] = $start . $replacement . $end;
+                }
+            }
+
+            $query = '';
+
+            foreach ($keyValues as $keyValue) {
+                $query .= $keyValue;
+            }
+        }
+
+        return $query;
+    }
+
+    /**
+     * This helper method is for usage in the encodeBracketsInQuery() method above and splits a query string
+     * into an array using preg_match_all().
+     *
+     * From the resulting array, index 0 contains all full matches
+     * (=> ['key1=value1', 'key2=value2', 'key]that[Contains[Useless[Brackets=value3'])
+     *
+     * index 1 contains all keys
+     * (=> ['key1', 'key2[stuff]', 'key]that[Contains[Useless[Brackets'])
+     *
+     * index 2 contains parts of the keys that contain brackets that should be encoded
+     * (=> ['', '', ']that[Contains[Useless[Brackets'])
+     *
+     * index 3 contains all values
+     * (=> ['value1', 'value2', 'value3'])
+     *
+     * @param string $query
+     * @return array
+     */
+    private function splitQuery(string $query) : array
+    {
+        preg_match_all(
+            '/' .
+            '(?:' .
+            '([^=&\[]+)' .                // Any character that isn't '=', '&' or '['
+            '(?:' .
+            '(?:\[[^=&\[\]]*\])*' .     // Either array syntax [indexName1][indexName2]...
+            '|' .
+            '([^=&]*)' .                // Or any character that isn't '=' or '&'
+            ')' .
+            ')' .
+            '(?:\=(?:[^&]*|$))?' .            // Optional: '=' and possibly a value
+            '(?:&|$)' .                         // Either & or end of string
+            '/',
+            $query,
+            $splitQuery
+        );
+
+        return $splitQuery;
     }
 
     /**

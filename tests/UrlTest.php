@@ -1,39 +1,50 @@
 <?php
 declare(strict_types=1);
 
+use Crwlr\Url\Exceptions\InvalidUrlException;
+use Crwlr\Url\Url;
 use PHPUnit\Framework\TestCase;
 
 final class UrlTest extends TestCase
 {
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testCanBeCreatedFromValidUrl()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertInstanceOf(\Crwlr\Url\Url::class, $url);
+        $this->assertInstanceOf(Url::class, $url);
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testInvalidUrlThrowsException()
     {
-        $this->expectException(\Crwlr\Url\Exceptions\InvalidUrlException::class);
-        $url = new \Crwlr\Url\Url('this is not a valid url');
+        $this->expectException(InvalidUrlException::class);
+        $url = new Url('https://');
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
+     */
+    public function testCanBeCreatedFromRelativeUrl()
+    {
+        $url = new Url('/foo/bar?query=string');
+        $this->assertInstanceOf(Url::class, $url);
+    }
+
+    /**
+     * @throws InvalidUrlException
      */
     public function testCanBeCreatedViaFactoryMethod()
     {
-        $url = \Crwlr\Url\Url::parse('http://www.example.com');
-        $this->assertInstanceOf(\Crwlr\Url\Url::class, $url);
+        $url = Url::parse('http://www.example.com');
+        $this->assertInstanceOf(Url::class, $url);
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testParseUrl()
     {
@@ -57,7 +68,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testClassPropertyAccess()
     {
@@ -83,22 +94,21 @@ final class UrlTest extends TestCase
         $this->assertNull($url->parser);
         $this->assertNull($url->validator);
         $this->assertNull($url->resolver);
-        $this->assertNull($url->isInitialized);
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testParseIdnUrl()
     {
-        $url = new \Crwlr\Url\Url('https://www.юбилейный.онлайн');
+        $url = new Url('https://www.юбилейный.онлайн');
         $this->assertEquals($url->host(), 'www.xn--90aiifajq6iua.xn--80asehdb');
         $this->assertEquals($url->domainSuffix(), 'xn--80asehdb');
         $this->assertEquals($url->subdomain(), 'www');
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceScheme()
     {
@@ -114,7 +124,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceUser()
     {
@@ -130,7 +140,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplacePassword()
     {
@@ -156,7 +166,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceHost()
     {
@@ -176,7 +186,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceSubdomain()
     {
@@ -193,7 +203,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceDomain()
     {
@@ -221,7 +231,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceDomainSuffix()
     {
@@ -248,7 +258,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplacePort()
     {
@@ -264,7 +274,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplacePath()
     {
@@ -280,7 +290,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceQueryString()
     {
@@ -306,7 +316,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceFragment()
     {
@@ -322,7 +332,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testReplaceComponentsWithUnexpectedDataTypes()
     {
@@ -349,7 +359,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testChainReplacementCalls()
     {
@@ -366,7 +376,7 @@ final class UrlTest extends TestCase
             ->query('key=value')
             ->fragment('anchor');
 
-        $this->assertInstanceOf(\Crwlr\Url\Url::class, $url);
+        $this->assertInstanceOf(Url::class, $url);
 
         $this->assertEquals(
             $url->toString(),
@@ -375,7 +385,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testResolveRelativeUrl()
     {
@@ -390,7 +400,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testCompareUrls()
     {
@@ -457,109 +467,13 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->compare($equalUrl, 'relative'));
     }
 
-    public function testUriInterfaceMethods()
-    {
-        $url = \Crwlr\Url\Url::parse('http://www.example.com/foo/bar?query=string#fragment');
-
-        $this->assertEquals($url->getScheme(), 'http');
-        $url = $url->withScheme('https');
-        $this->assertEquals($url->getScheme(), 'https');
-        $url = $url->withScheme('');
-        $this->assertEquals($url->getScheme(), '');
-        $url = $url->withScheme('http');
-
-        $this->assertEquals($url->getAuthority(), 'www.example.com');
-        $url = $url->withHost('www.eggsample.com');
-        $this->assertEquals($url->getAuthority(), 'www.eggsample.com');
-        $url = $url->withHost('');
-        $this->assertEquals($url->getAuthority(), '');
-        $url = $url->withHost('www.example.com');
-
-        $this->assertEquals($url->getUserInfo(), '');
-        $url = $url->withUserInfo('otsch', 'crwlr');
-        $this->assertEquals($url->getUserInfo(), 'otsch:crwlr');
-        $this->assertEquals($url->getAuthority(), 'otsch:crwlr@www.example.com');
-        $url = $url->withUserInfo('otsch', '');
-        $this->assertEquals($url->getUserInfo(), 'otsch');
-        $this->assertEquals($url->getAuthority(), 'otsch@www.example.com');
-        $url = $url->withUserInfo('');
-        $this->assertEquals($url->getUserInfo(), '');
-        $this->assertEquals($url->getAuthority(), 'www.example.com');
-        $this->assertNull($url->password()); // When the user is reset, password should also be.
-
-        $this->assertEquals($url->getHost(), 'www.example.com');
-        $url = $url->withHost('foo.bar.example.com');
-        $this->assertEquals($url->getHost(), 'foo.bar.example.com');
-        $url = $url->withHost('');
-        $this->assertEquals($url->getHost(), '');
-        $this->assertEquals($url->getAuthority(), '');
-
-        $this->assertNull($url->getPort());
-        $url = $url->withPort(1234);
-        $this->assertEquals($url->getPort(), 1234);
-        $url = $url->withPort(80);
-        $this->assertNull($url->getPort()); // As 80 is standard http port it shouldn't be returned (see UriInterface)
-        $url = $url->withPort(1234);
-
-        // As the host is mandatory for an authority component, the getAuthority() method should not return ':1234'
-        $this->assertEquals($url->getAuthority(), '');
-        $url = $url->withUserInfo('einstein');
-        $this->assertEquals($url->getAuthority(), '');
-        $url = $url->withHost('www.example.com');
-        $this->assertEquals($url->getAuthority(), 'einstein@www.example.com:1234');
-        $url = $url->withUserInfo('einstein', 'albert');
-        $this->assertEquals($url->getAuthority(), 'einstein:albert@www.example.com:1234');
-        $url = $url->withPort(80);
-        $this->assertEquals($url->getAuthority(), 'einstein:albert@www.example.com');
-        $url = $url->withPort(null);
-        $this->assertNull($url->getPort());
-
-        $this->assertEquals($url->getPath(), '/foo/bar');
-        $url = $url->withPath('baz');
-        $this->assertEquals($url->getPath(), '/foo/baz');
-        $url = $url->withPath('/bar/foo?baz=query#chapter3');
-        $this->assertEquals($url->getPath(), '/bar/foo%3Fbaz=query%23chapter3');
-        $url = $url->withPath('//foo/bar');
-        $this->assertEquals($url->getPath(), '//foo/bar');
-
-        $this->assertEquals($url->getQuery(), 'query=string');
-        $url = $url->withQuery('key=value&key2=value2');
-        $this->assertEquals($url->getQuery(), 'key=value&key2=value2');
-        $url = $url->withQuery('');
-        $this->assertEquals($url->getQuery(), '');
-        $this->assertNull($url->query());
-
-        $this->assertEquals($url->getFragment(), 'fragment');
-        $url = $url->withFragment('differentfragment');
-        $this->assertEquals($url->getFragment(), 'differentfragment');
-        $url = $url->withFragment('');
-        $this->assertEquals($url->getFragment(), '');
-        $this->assertNull($url->fragment());
-    }
-
-    public function testGetStandardPortsByScheme()
-    {
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('ftp'), 21);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('git'), 9418);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('http'), 80);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('https'), 443);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('imap'), 143);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('irc'), 194);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('nfs'), 2049);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('rsync'), 873);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('sftp'), 115);
-        $this->assertEquals(\Crwlr\Url\Url::getStandardPortByScheme('smtp'), 25);
-
-        $this->assertNull(\Crwlr\Url\Url::getStandardPortByScheme('unknownscheme'));
-    }
-
     /**
-     * @return \Crwlr\Url\Url
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @return Url
+     * @throws InvalidUrlException
      */
     private function createDefaultUrlObject()
     {
-        $url = new \Crwlr\Url\Url('https://user:password@sub.sub.example.com:8080/some/path?some=query#fragment');
+        $url = new Url('https://user:password@sub.sub.example.com:8080/some/path?some=query#fragment');
         return $url;
     }
 }

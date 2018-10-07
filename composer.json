@@ -25,7 +25,7 @@
         }
     },
     "scripts": {
-        "test": "@php vendor/bin/phpunit --bootstrap vendor/autoload.php tests",
+        "test": "@php vendor/bin/phpunit",
         "update-suffixes": "@php bin/update-suffixes",
         "update-schemes": "@php bin/update-schemes"
     }

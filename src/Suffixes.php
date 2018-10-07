@@ -51,6 +51,10 @@ class Suffixes extends Store
      */
     public function getByHost($host = '')
     {
+        if (Helpers::containsCharactersNotAllowedInHost($host)) {
+            $host = $this->punyCode->encode($host);
+        }
+
         foreach ($this->getPossibleSuffixes($host) as $suffix) {
             if ($this->exists($suffix)) {
                 return $suffix;
@@ -117,7 +121,7 @@ class Suffixes extends Store
      */
     private function getPossibleSuffixes($host = '')
     {
-        if (!is_string($host) || trim($host) === '') {
+        if (!is_string($host) || $host === '') {
             return [];
         }
 

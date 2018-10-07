@@ -3,35 +3,33 @@
 namespace Crwlr\Url;
 
 use Crwlr\Url\Exceptions\InvalidUrlException;
-use Psr\Http\Message\UriInterface;
-use TrueBV\Punycode;
 
 /**
  * Class Url
  *
  * This class is the central unit of this package. It represents a url, gives access to its components and also
- * to some functionality that is implemented in other classes like resolving relative to absolute urls (class Resolver).
- * As it has a __toString method it can also be used like a string.
+ * to further functionality like resolving relative urls to absolute ones and comparing single components of different
+ * urls.
  *
- * For performance reasons the actual parsing of url components is deferred until some component is queried,
- * especially the parts of the host (registrable domain, domain suffix, subdomain), because therefore it's perhaps
- * necessary to load the full public suffix list which is pretty big.
+ * @author otsch
+ * @link https://www.crwlr.software/packages/url Documentation
  */
 
-class Url implements UriInterface
+class Url
 {
     /**
-     * All components of the url.
+     * All url components.
      *
      * @var string
      */
     private $url, $scheme, $user, $pass, $host, $domain, $domainSuffix, $subdomain, $port, $path, $query, $fragment;
 
     /**
-     * Again all components including alias method names.
+     * List of all components including alias method names.
+     *
      * Used to verify if a private property can be accessed via magic __get() and __set().
      *
-     * @var array
+     * @var string[]|array
      */
     private $components = [
         'scheme',
@@ -53,11 +51,6 @@ class Url implements UriInterface
     ];
 
     /**
-     * @var Parser
-     */
-    private $parser;
-
-    /**
      * @var Validator
      */
     private $validator;
@@ -68,31 +61,19 @@ class Url implements UriInterface
     private $resolver;
 
     /**
-     * @var bool
-     */
-    private $isInitialized = false;
-
-    /**
-     * @param string $url
+     * @param string|Url $url
+     * @param Validator $validator
      * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
      */
-    public function __construct(string $url = '')
+    public function __construct($url, $validator = null)
     {
-        $punyCode = new Punycode();
-        $suffixes = new Suffixes($punyCode);
-        $this->validator = new Validator($suffixes, null, $punyCode);
-        $this->parser = new Parser($suffixes);
-        $this->url = $this->validator->url($url);
-    }
+        if (!is_string($url) && !$url instanceof Url) {
+            throw new \InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
+        }
 
-    /**
-     * @param string $url
-     * @return Url
-     * @throws InvalidUrlException
-     */
-    public static function parse(string $url = '')
-    {
-        return new self($url);
+        $this->validator = ($validator instanceof Validator) ? $validator : new Validator(Helpers::punyCode());
+        $this->decorate($url);
     }
 
     /**
@@ -123,102 +104,74 @@ class Url implements UriInterface
     }
 
     /**
-     * If param $scheme is null this method will return the current scheme.
-     * If $scheme is a string that's a valid url scheme, it will replace the current scheme.
-     * When $scheme is an empty string the current scheme will be reset to no scheme.
+     * Returns a new Url instance with param $url.
+     *
+     * @param string $url
+     * @return Url
+     * @throws InvalidUrlException
+     */
+    public static function parse(string $url = '')
+    {
+        return new self($url);
+    }
+
+    /**
+     * Get or set the scheme component.
      *
      * @param null|string $scheme
      * @return string|null|Url
      */
     public function scheme(string $scheme = null)
     {
-        $this->init();
-
         if ($scheme === null) {
             return $this->scheme;
-        }
-
-        $validScheme = $this->validator->scheme($scheme);
-
-        if ($validScheme) {
-            $this->scheme = $validScheme;
-            $this->updateFullUrl();
-        } elseif (trim($scheme) === '') {
+        } elseif ($scheme === '') {
             $this->scheme = null;
-            $this->updateFullUrl();
+        } else {
+            $this->scheme = $this->validator->scheme($scheme) ?: $this->scheme;
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
-     * @return string
-     */
-    public function getScheme() : string
-    {
-        return ($scheme = $this->scheme()) ? $scheme : '';
-    }
-
-    /**
-     * @param string $scheme
-     * @return self
-     */
-    public function withScheme($scheme) : self
-    {
-        $this->scheme($scheme);
-
-        return $this;
-    }
-
-    /**
+     * Get or set the user component.
+     *
+     * When param $user is an empty string, the pass(word) component will also be reset.
+     *
      * @param null|string|int $user
      * @return string|null|Url
      */
     public function user($user = null)
     {
-        $this->init();
-
         if ($user === null) {
             return $this->user;
+        } elseif ($user === '') {
+            $this->user = $this->pass = null;
+        } else {
+            $this->user = $this->validator->userOrPassword($user) ?: $this->user;
         }
 
-        $validUser = $this->validator->userOrPassword($user);
-
-        if ($validUser) {
-            $this->user = $validUser;
-            $this->updateFullUrl();
-        } elseif (trim($user) === '') {
-            $this->user = null;
-            $this->pass = null;
-            $this->updateFullUrl();
-        }
-
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
+     * Get or set the password component.
+     *
      * @param null|string|int $password
      * @return string|null|Url
      */
     public function password($password = null)
     {
-        $this->init();
-
         if ($password === null) {
             return $this->pass;
-        }
-
-        $validPassword = $this->validator->userOrPassword($password);
-
-        if ($validPassword) {
-            $this->pass = $validPassword;
-            $this->updateFullUrl();
-        } elseif (trim($password) === '') {
+        } elseif ($password === '') {
             $this->pass = null;
-            $this->updateFullUrl();
+        } else {
+            $this->pass = $this->validator->userOrPassword($password) ?: $this->pass;
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -233,123 +186,60 @@ class Url implements UriInterface
     }
 
     /**
+     * Get the url authority (= [userinfo"@"]host[":"port]).
+     *
      * @return string
      */
-    public function getUserInfo() : string
+    public function authority() : string
     {
-        $userInfo = '';
-
-        if ($this->user()) {
-            $userInfo = $this->user();
-
-            if ($this->password()) {
-                $userInfo .= ':' . $this->password();
-            }
-        }
-
-        return $userInfo;
-    }
-
-    /**
-     * @param string $user
-     * @param null|string $password
-     * @return self
-     */
-    public function withUserInfo($user, $password = null) : self
-    {
-        $this->user($user);
-
-        if ($password !== null) {
-            $this->pass($password);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAuthority() : string
-    {
-        if (empty($this->host())) {
-            return '';
-        }
-
         $authority = '';
 
-        if (!empty($this->getUserInfo())) {
-            $authority = $this->getUserInfo() . '@';
-        }
+        if ($this->host()) {
+            if ($this->user()) {
+                $authority .= $this->user() . ($this->pass() ? ':' . $this->pass() : '') . '@';
+            }
 
-        $authority .= $this->host();
-
-        if ($this->getPort()) {
-            $authority .= ':' . $this->getPort();
+            $authority .= $this->host() . ($this->port() ? ':' . $this->port() : '');
         }
 
         return $authority;
     }
 
     /**
+     * Get or set the host component.
+     *
      * @param null|string $host
      * @return string|null|Url
      */
     public function host($host = null)
     {
-        $this->init();
-
         if ($host === null) {
             return $this->host;
-        }
-
-        $validHost = $this->validator->host($host);
-
-        if ($validHost) {
-            $this->replaceHost($validHost);
-            $this->updateFullUrl();
-        } elseif (trim($host) === '') {
+        } elseif ($host === '') {
             $this->host = $this->domain = $this->domainSuffix = $this->subdomain = null;
-            $this->updateFullUrl();
+        } else {
+            $validHost = $this->validator->host($host);
+
+            if ($validHost) {
+                $this->replaceHost($validHost);
+            }
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
-     * @return string
-     */
-    public function getHost() : string
-    {
-        return ($host = $this->host()) ? strtolower($host) : '';
-    }
-
-    /**
-     * @param string $host
-     * @return self
-     */
-    public function withHost($host) : self
-    {
-        $this->host($host);
-
-        return $this;
-    }
-
-    /**
-     * The registrable domain, but as this would be very long to type it's just called domain.
+     * Get or set the registrable domain.
+     *
+     * As all component names are rather short it's just called domain() instead of registrableDomain().
      *
      * @param null|string $domain
      * @return string|null|Url
      */
     public function domain(string $domain = null)
     {
-        $this->init();
-
         if ($domain === null) {
-            if ($this->domain === null && $this->hasHost()) {
-                $this->domain = $this->parser->getDomainFromHost($this->host, $this->domainSuffix());
-            }
-
-            return $this->domain;
+            return $this->returnDomain();
         }
 
         $domain = $this->validator->domain($domain);
@@ -364,22 +254,21 @@ class Url implements UriInterface
     }
 
     /**
+     * Get or set the domain label.
+     *
+     * That's the registrable domain without the domain suffix (e.g. domain: "crwlr.software" => domain label: "crwlr").
+     * It can only be set when the current url contains a host with a registrable domain.
+     *
      * @param null|string|int $domainLabel
      * @return string|null|Url
      */
     public function domainLabel($domainLabel = null)
     {
         if ($domainLabel === null) {
-            $domain = $this->domain();
-
-            if ($domain) {
-                return Parser::stripFromEnd($domain, '.' . $this->domainSuffix());
-            }
-
-            return null;
+            return $this->domain() ? Helpers::getDomainLabelFromDomain($this->domain()) : null;
         }
 
-        if ($this->hasDomain()) {
+        if (!empty($this->domain())) {
             $domainLabel = $this->validator->domain($domainLabel, true);
 
             if ($domainLabel) {
@@ -393,23 +282,25 @@ class Url implements UriInterface
     }
 
     /**
+     * Get or set the domain suffix.
+     *
+     * domain: "crwlr.software" => domain suffix: "software"
+     * It can only be set when the current url contains a host with a registrable domain.
+     *
      * @param null|string $domainSuffix
      * @return string|null|Url
      */
     public function domainSuffix(string $domainSuffix = null)
     {
-        $this->init();
-
         if ($domainSuffix === null) {
-            if ($this->domainSuffix === null && $this->hasHost()) {
-                $this->domainSuffix = $this->parser->getDomainSuffixFromHost($this->host);
+            if ($this->domainSuffix === null && !empty($this->host)) {
+                $this->domainSuffix = Helpers::getDomainSuffixFromHost($this->host);
             }
 
             return $this->domainSuffix;
         }
 
-        // You can't replace the suffix in a url that doesn't contain a registrable domain.
-        if ($this->hasDomain()) {
+        if (!empty($this->domain())) {
             $domainSuffix = $this->validator->domainSuffix($domainSuffix);
 
             if ($domainSuffix) {
@@ -423,23 +314,25 @@ class Url implements UriInterface
     }
 
     /**
+     * Get or set the subdomain.
+     *
+     * host: "www.crwlr.software" => subdomain: "www"
+     * It can only be set when the current url contains a host with a registrable domain.
+     *
      * @param null|string $subdomain
      * @return string|null|Url
      */
     public function subdomain($subdomain = null)
     {
-        $this->init();
-
         if ($subdomain === null) {
-            if ($this->subdomain === null && $this->hasHost()) {
-                $this->subdomain = $this->parser->getSubdomainFromHost($this->host, $this->domain());
+            if ($this->subdomain === null && !empty($this->host)) {
+                $this->subdomain = Helpers::getSubdomainFromHost($this->host, $this->domain());
             }
 
             return $this->subdomain;
         }
 
-        // Don't set a subdomain if the current url does not contain a registrable domain.
-        if ($this->hasDomain()) {
+        if (!empty($this->domain())) {
             $subdomain = $this->validator->subdomain($subdomain);
 
             if ($subdomain) {
@@ -453,14 +346,20 @@ class Url implements UriInterface
     }
 
     /**
+     * Get or set the port component.
+     *
      * @param null|int|string $port
      * @return int|null|Url
      */
     public function port($port = null)
     {
-        $this->init();
-
         if ($port === null) {
+            $scheme = $this->scheme();
+
+            if ($scheme && $this->port === Helpers::getStandardPortByScheme($scheme)) {
+                return null;
+            }
+
             return $this->port;
         }
 
@@ -474,70 +373,27 @@ class Url implements UriInterface
         return $this;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getPort()
-    {
-        $port = $this->port();
-
-        if (!$port) {
-            return $port;
-        }
-
-        $scheme = $this->scheme();
-
-        if ($scheme) {
-            $standardPort = self::getStandardPortByScheme($scheme);
-
-            if ($port === $standardPort) {
-                return null;
-            }
-        }
-
-        return $port;
-    }
-
-    /**
-     * @param int|null $port
-     * @return self
-     * @throws \InvalidArgumentException
-     */
-    public function withPort($port) : self
-    {
-        if ($port !== null && $this->validator->port($port) === false) {
-            throw new \InvalidArgumentException('Port is outside the valid TCP and UDP port ranges.');
-        }
-
-        if ($port === null) {
-            $this->resetPort();
-        } else {
-            $this->port($port);
-        }
-
-        return $this;
-    }
-
     public function resetPort()
     {
         $this->port = null;
+        $this->updateFullUrl();
     }
 
     /**
+     * Get or set the path component.
+     *
      * @param null|string $path
      * @return string|null|Url
      */
     public function path(string $path = null)
     {
-        $this->init();
-
         if ($path === null) {
             return $this->path;
         }
 
         $path = $this->validator->path($path);
 
-        if ($path) {
+        if ($path || $path === '') {
             $this->path = $path;
             $this->updateFullUrl();
         }
@@ -546,43 +402,13 @@ class Url implements UriInterface
     }
 
     /**
-     * @return string
-     */
-    public function getPath()
-    {
-        return ($path = $this->path()) ? $path : '';
-    }
-
-    /**
-     * As defined in the interface this method can receive rootless paths, so the provided path will be resolved
-     * to an absolute one.
+     * Get or set the query component (as string).
      *
-     * @param string $path
-     * @return self
-     */
-    public function withPath($path) : self
-    {
-        if (!is_string($path)) {
-            $path = '';
-        }
-
-        if (substr($path, 0, 1) !== '/' && trim($path) !== '') {
-            $path = $this->resolver()->resolvePath($path, $this->path());
-        }
-
-        $this->path($path);
-
-        return $this;
-    }
-
-    /**
      * @param null|string|array $query
      * @return string|null|Url
      */
     public function query($query = null)
     {
-        $this->init();
-
         if ($query === null) {
             return $this->query;
         }
@@ -601,19 +427,19 @@ class Url implements UriInterface
     }
 
     /**
+     * Get or set the query component as array.
+     *
      * @param null|array $query
      * @return array|Url
      */
     public function queryArray(array $query = null)
     {
-        $this->init();
-
         if ($query === null) {
             if (!$this->query) {
                 return [];
             }
 
-            return $this->parser->queryStringToArray($this->query);
+            return Helpers::queryStringToArray($this->query);
         } elseif (is_array($query)) {
             $query = $this->validator->query(http_build_query($query));
 
@@ -627,32 +453,13 @@ class Url implements UriInterface
     }
 
     /**
-     * @return string
-     */
-    public function getQuery()
-    {
-        return ($query = $this->query()) ? $query : '';
-    }
-
-    /**
-     * @param string $query
-     * @return self
-     */
-    public function withQuery($query) : self
-    {
-        $this->query($query);
-
-        return $this;
-    }
-
-    /**
+     * Get or set the fragment component.
+     *
      * @param null|string $fragment
      * @return string|null|Url
      */
     public function fragment(string $fragment = null)
     {
-        $this->init();
-
         if ($fragment === null) {
             return $this->fragment;
         }
@@ -671,82 +478,39 @@ class Url implements UriInterface
     }
 
     /**
-     * @return string
-     */
-    public function getFragment()
-    {
-        return ($this->fragment()) ? $this->fragment : '';
-    }
-
-    /**
-     * @param string $fragment
-     * @return self
-     */
-    public function withFragment($fragment) : self
-    {
-        $this->fragment($fragment);
-
-        return $this;
-    }
-
-    /**
-     * Get the root url. e.g.:
-     * Full url: https://www.example.com/path?query=string
-     * Root url: https://www.example.com
+     * Returns scheme + authority.
+     *
+     * https://www.example.com/path?query=string => https://www.example.com
      *
      * @return string
      */
     public function root() : string
     {
-        $this->init();
-
-        $root = '';
-        $scheme = $this->scheme();
-
-        if (!empty($scheme)) {
-            $root .= $scheme . ':';
-        }
-
-        $authority = $this->getAuthority();
-
-        if ($authority !== '') {
-            if ($root !== '') {
-                $root .= '//';
-            }
-
-            $root .= $authority;
-        }
-
-        return $root;
+        return (!empty($this->scheme) ? $this->scheme . ':' : '') .
+            ($this->authority() === '' ? '' : '//' . $this->authority());
     }
 
     /**
-     * Returns the path, query and fragment components of the url combined, like a relative url.
+     * Returns path + query + fragment.
+     *
+     * https://www.example.com/path?query=string#fragment => /path?query=string#fragment
      *
      * @return string
      */
     public function relative() : string
     {
-        $this->init();
-
-        if ($this->path()) {
-            $relative = $this->path();
-        } else {
-            $relative = '/';
-        }
-
-        if ($this->query()) {
-            $relative .= '?' . $this->query();
-        }
-
-        if ($this->fragment()) {
-            $relative .= '#' . $this->fragment();
-        }
-
-        return $relative;
+        return ($this->path() ?: '') .
+            ($this->query() ? '?' . $this->query() : '') .
+            ($this->fragment() ? '#' . $this->fragment() : '');
     }
 
     /**
+     * Resolve a relative (or absolute) url against the url of the current instance.
+     *
+     * That basically means you get an absolute url from any href link attribute found on a web page.
+     * When the provided input already is an absolute url, it's just returned as it is (except for validation changes
+     * like percent encoding).
+     *
      * @param string $relativeUrl
      * @return Url
      * @throws InvalidUrlException
@@ -757,57 +521,29 @@ class Url implements UriInterface
     }
 
     /**
-     * @param Url|string $compareWith
-     * @param string $compareWhat
+     * Compare component X (e.g. host) of the current instance url and the url from input parameter $compareWithUrl.
+     *
+     * @param Url|string $compareWithUrl
+     * @param string $componentName
      * @return bool
      */
-    public function compare($compareWith, string $compareWhat) : bool
+    public function compare($compareWithUrl, string $componentName) : bool
     {
-        if (is_string($compareWith)) {
+        if (is_string($compareWithUrl)) {
             try {
-                $compareWith = new Url($compareWith);
+                $compareWithUrl = new Url($compareWithUrl);
             } catch (\Exception $exception) {
                 return false;
             }
-        } elseif (!$compareWith instanceof Url) {
+        } elseif (!$compareWithUrl instanceof Url) {
             return false;
         }
 
-        if (in_array($compareWhat, $this->components)) {
-            return ($this->{$compareWhat}() === $compareWith->{$compareWhat}());
+        if (in_array($componentName, $this->components)) {
+            return ($this->{$componentName}() === $compareWithUrl->{$componentName}());
         }
 
         return false;
-    }
-
-    /**
-     * Try to get the standard port of a url scheme using PHP's built-in getservbyname() function.
-     * If no standard port is found it returns null.
-     *
-     * @param string $scheme
-     * @return int|null
-     */
-    public static function getStandardPortByScheme(string $scheme)
-    {
-        $scheme = strtolower(trim($scheme));
-
-        if ($scheme === '') {
-            return null;
-        }
-
-        $standardPortTcp = getservbyname($scheme, 'tcp');
-
-        if ($standardPortTcp) {
-            return (int) $standardPortTcp;
-        }
-
-        $standardPortUdp = getservbyname($scheme, 'udp');
-
-        if ($standardPortUdp) {
-            return (int) $standardPortUdp;
-        }
-
-        return null;
     }
 
     /**
@@ -827,32 +563,69 @@ class Url implements UriInterface
     }
 
     /**
-     * Parse the url provided in the constructor and set the parsed properties.
-     * Validating the url already happened in the constructor, so there should be no problem parsing it.
+     * Validate the input url and decorate the current instance with components.
+     *
+     * The input url must either be a string or an instance of this class. Decoration from another instance is just
+     * like cloning and it's necessary for the PSR-7 UriInterface Adapter class.
+     *
+     * In case the input url is a string the validate() method below returns an array with valid components (or
+     * throws an InvalidUrlException).
+     *
+     * @param $url
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
      */
-    private function init()
+    private function decorate($url)
     {
-        if ($this->isInitialized === false) {
-            foreach ($this->parser->parse($this->url) as $property => $value) {
-                if (property_exists($this, $property)) {
-                    $this->{$property} = $value;
+        $url = $this->validate($url);
+        $this->url = $url instanceof Url ? $url->toString() : $url['url'];
+
+        foreach ($this->components as $componentName) {
+            if (property_exists($this, $componentName)) {
+                if ($url instanceof Url) {
+                    $this->{$componentName} = $url->{$componentName};
+                } elseif (isset($url[$componentName])) {
+                    $this->{$componentName} = $url[$componentName];
                 }
             }
-
-            $this->isInitialized = true;
         }
     }
 
     /**
-     * @return Resolver
+     * Parse and validate $url in case it's a string, return when it's an instance of Url or throw an Exception.
+     *
+     * @param $url
+     * @return array|Url
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
      */
-    private function resolver() : Resolver
+    private function validate($url)
     {
-        if (!$this->resolver) {
-            $this->resolver = new Resolver($this->validator);
+        if (is_string($url)) {
+            $validComponents = $this->validator->url($url);
+
+            if (!is_array($validComponents)) {
+                throw new InvalidUrlException($url . ' is not a valid url.');
+            }
+        } elseif (!$url instanceof Url) {
+            throw new \InvalidArgumentException('Provided url must either be a string or an Url object.');
         }
 
-        return $this->resolver;
+        return isset($validComponents) ? $validComponents : $url;
+    }
+
+    /**
+     * Regenerate the full host string after changing a part of the host (subdomain, domain, suffix).
+     */
+    private function updateHost()
+    {
+        $host = ($this->subdomain() ? $this->subdomain() . '.' : '') . ($this->domain() ?: '');
+
+        if ($host !== '') {
+            $this->host = $host;
+        } else {
+            $this->host = null;
+        }
     }
 
     /**
@@ -864,41 +637,21 @@ class Url implements UriInterface
     }
 
     /**
-     * After changing a part of the host (subdomain, domain, suffix), regenerate the full host string.
-     */
-    private function updateHost()
-    {
-        $host = '';
-
-        if ($this->subdomain()) {
-            $host .= $this->subdomain;
-        }
-
-        if ($this->domain()) {
-            $host .= ($host !== '' ? '.' : '') . $this->domain();
-        }
-
-        if ($host !== '') {
-            $this->host = $host;
-        } else {
-            $this->host = null;
-        }
-    }
-
-    /**
-     * Replace the host. If it contains a registrable domain, update the domain parts, otherwise set them to null.
+     * Replace the host.
+     *
+     * If it contains a registrable domain, update the domain parts, otherwise set them to null.
      *
      * @param string $newHost
      */
     private function replaceHost(string $newHost = '')
     {
         $this->host = $newHost;
-        $newSuffix = $this->parser->getDomainSuffixFromHost($newHost);
+        $newSuffix = Helpers::getDomainSuffixFromHost($newHost);
 
         if ($newSuffix) {
-            $this->domain = $this->parser->getDomainFromHost($newHost, $newSuffix);
+            $this->domain = Helpers::getDomainFromHost($newHost, $newSuffix);
             $this->domainSuffix = $newSuffix;
-            $this->subdomain = $this->parser->getSubdomainFromHost($this->host, $this->domain);
+            $this->subdomain = Helpers::getSubdomainFromHost($this->host, $this->domain);
         } else {
             $this->domain = null;
             $this->domainSuffix = null;
@@ -914,20 +667,21 @@ class Url implements UriInterface
     private function replaceDomainSuffix(string $newSuffix = '')
     {
         // It can be a problem if the subdomain class property isn't set at this point (parsing the host parts is
-        // deferred in the init() method), because when the full host will be updated through concatenating the host
+        // deferred in the decorate() method), because when the full host will be updated through concatenating the host
         // parts, after replacing the domain suffix here, it will try to extract the subdomain from host minus domain.
         // When the domain is already updated and the host isn't, this will return a broken subdomain. So call the
         // subdomain method here, so the class property gets filled and will just be returned when recreating the host.
         $this->subdomain();
 
         $currentSuffix = $this->domainSuffix();
-        $this->domain = Parser::stripFromEnd($this->domain, $currentSuffix) . $newSuffix;
+        $this->domain = Helpers::stripFromEnd($this->domain, $currentSuffix) . $newSuffix;
         $this->domainSuffix = $newSuffix;
     }
 
     /**
-     * Replace the registrable domain (or only the domain label if $withoutSuffix = true).
-     * If suffix is included, extract it and update the suffix too.
+     * Replace the registrable domain.
+     *
+     * Or only the domain label if $withoutSuffix = true. If suffix is included, extract it and update the suffix too.
      *
      * @param string $newDomain
      * @param bool $withoutSuffix
@@ -940,34 +694,43 @@ class Url implements UriInterface
         if ($withoutSuffix === true) {
             $this->domain = $newDomain . '.' . $this->domainSuffix;
         } else {
-            // The following shouldn't return null, because the new domain should have been validated already
-            // in the domain() method. The validation should include a check for a domain suffix.
-            $this->domainSuffix = $this->parser->getDomainSuffixFromHost($newDomain);
+            $this->domainSuffix = Helpers::getDomainSuffixFromHost($newDomain);
             $this->domain = $newDomain;
         }
     }
 
     /**
-     * @return bool
+     * Return the registrable domain within the host component of the current url (when it has both).
+     *
+     * @return null|string
      */
-    private function hasHost() : bool
+    private function returnDomain()
     {
-        if (is_string($this->host) && $this->host !== '') {
-            return true;
+        if ($this->domain === null && !empty($this->host)) {
+            $this->domain = Helpers::getDomainFromHost($this->host, $this->domainSuffix());
         }
 
-        return false;
+        return $this->domain;
     }
 
     /**
-     * @return bool
+     * @return Url
      */
-    private function hasDomain() : bool
+    private function updateFullUrlAndReturnInstance() : Url
     {
-        if (is_string($this->domain()) && $this->domain() !== '') {
-            return true;
+        $this->updateFullUrl();
+        return $this;
+    }
+
+    /**
+     * @return Resolver
+     */
+    private function resolver() : Resolver
+    {
+        if (!$this->resolver) {
+            $this->resolver = new Resolver($this->validator);
         }
 
-        return false;
+        return $this->resolver;
     }
 }

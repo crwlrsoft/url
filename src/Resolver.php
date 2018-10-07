@@ -22,7 +22,7 @@ class Resolver
      */
     public function __construct(Validator $validator = null)
     {
-        $this->validator = ($validator instanceof Validator) ? $validator : new Validator();
+        $this->validator = ($validator instanceof Validator) ? $validator : new Validator(Helpers::punyCode());
     }
 
     /**
@@ -39,11 +39,11 @@ class Resolver
      */
     public function resolve(string $subject = '', Url $base) : Url
     {
-        try {
-            $subject = trim(str_replace(' ', '%20', $subject));
-            $validUrl = $this->validator->url($subject);
-            return new Url($validUrl); // If subject is not a relative url but a full valid url, return it immediately.
-        } catch (InvalidUrlException $e) { }
+        $urlAndComponents = $this->validator->url($subject, true);
+
+        if (is_array($urlAndComponents) && isset($urlAndComponents['url'])) {
+            return new Url($urlAndComponents['url']);
+        }
 
         $firstChar = substr($subject, 0, 1);
 
@@ -56,6 +56,8 @@ class Resolver
         if (substr($subject, 0, 2) === '//') {
             return new Url($base->scheme() . ':' . $subject);
         }
+
+        //$subject = $this->resolveDots($subject, $base->path());
 
         return new Url($base->root() . $subject);
     }
@@ -150,10 +152,10 @@ class Resolver
             return $path;
         }
 
-        $path = Parser::stripFromEnd($path, '/');
+        $path = Helpers::stripFromEnd($path, '/');
         $splitBySlash = explode('/', $path);
 
-        return Parser::stripFromEnd($path, end($splitBySlash));
+        return Helpers::stripFromEnd($path, end($splitBySlash));
     }
 
     /**
@@ -171,6 +173,6 @@ class Resolver
 
         $splitBySlash = explode('/', $path);
 
-        return Parser::stripFromEnd($path, end($splitBySlash));
+        return Helpers::stripFromEnd($path, end($splitBySlash));
     }
 }

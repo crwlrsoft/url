@@ -2,6 +2,7 @@
 
 namespace Crwlr\Url\Suffixes;
 
+use Crwlr\Url\Helpers;
 use Crwlr\Url\Suffixes;
 
 /**
@@ -49,6 +50,6 @@ class Updater extends \Crwlr\Url\Lists\Updater
      */
     protected function getListStorePath() : string
     {
-        return (new Suffixes())->getStorePath();
+        return (new Suffixes(Helpers::punyCode()))->getStorePath();
     }
 }

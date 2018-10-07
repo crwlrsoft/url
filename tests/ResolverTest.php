@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Crwlr\Url\Resolver;
 use PHPUnit\Framework\TestCase;
 
 final class ResolverTest extends TestCase
@@ -78,8 +79,39 @@ final class ResolverTest extends TestCase
 
         $resolved = $resolver->resolve('/one/./two/./../three/four/..', $baseUrlObject);
         $this->assertEquals($resolved->toString(), 'https://www.example.com/one/three/');
+
+        $relativeBaseUrl = new Crwlr\Url\Url('/foo/bar/baz?query=string#fragment');
+        $resolved = $resolver->resolve('.././one/./two/./../three', $relativeBaseUrl);
+        $this->assertEquals('/foo/one/three', $resolved->toString());
     }
 
+    /**
+     * When resolve() is called with an absolute url as subject, it should just return this absolute url.
+     *
+     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     */
+    public function testResolveAbsoluteUrl()
+    {
+        $baseUrlObject = $this->getBaseUrlObject();
+        $resolver = new Resolver();
+
+        $resolved = $resolver->resolve('http://www.crwlr.software/blog', $baseUrlObject);
+        $this->assertEquals('http://www.crwlr.software/blog', $resolved->toString());
+
+        $resolved = $resolver->resolve('mailto:john@example.com', $baseUrlObject);
+        $this->assertEquals('mailto:john@example.com', $resolved->toString());
+
+        $resolved = $resolver->resolve('//www.crwlr.software/blog', $baseUrlObject);
+        $this->assertEquals('https://www.crwlr.software/blog', $resolved->toString());
+
+        $relativeBaseUrl = new Crwlr\Url\Url('/foo/bar?query=string#fragment');
+        $resolved = $resolver->resolve('https://www.example.com/examples', $relativeBaseUrl);
+        $this->assertEquals('https://www.example.com/examples', $resolved);
+    }
+
+    /**
+     * Resolve a relative path against an absolute path.
+     */
     public function testResolvePaths()
     {
         $resolver = new \Crwlr\Url\Resolver();

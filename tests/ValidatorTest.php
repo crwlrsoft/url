@@ -1,59 +1,86 @@
 <?php
 declare(strict_types=1);
 
+use Crwlr\Url\Validator;
 use PHPUnit\Framework\TestCase;
 
 final class ValidatorTest extends TestCase
 {
-    /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
-     */
     public function testValidateUrl()
     {
-        $validator = new \Crwlr\Url\Validator();
-
-        $this->assertEquals(
-            $validator->url('https://www.crwlr.software'),
-            'https://www.crwlr.software'
-        );
-        $this->assertEquals(
-            $validator->url('mailto:you@example.com?subject=crwlr software'),
-            'mailto:you@example.com?subject=crwlr%20software'
-        );
-        $this->assertEquals(
-            $validator->url('  https://wwww.example.com  '),
-            'https://wwww.example.com'
-        );
-        $this->assertEquals(
-            $validator->url('ssh://username@host:/path/to/somewhere'),
-            'ssh://username@host:/path/to/somewhere'
-        );
-        $this->assertEquals(
-            $validator->url('ftp://username:password@example.org'),
-            'ftp://username:password@example.org'
-        );
-        $this->assertEquals(
-            $validator->url('http://www.example.онлайн/stuff'),
-            'http://www.example.xn--80asehdb/stuff'
+        $this->urlValidationResultContains(
+            (new Validator())->url('https://www.crwlr.software/packages/url/v0.1.2#installation'),
+            [
+                'url' => 'https://www.crwlr.software/packages/url/v0.1.2#installation',
+                'scheme' => 'https',
+                'host' => 'www.crwlr.software',
+                'path' => '/packages/url/v0.1.2',
+                'fragment' => 'installation',
+            ]
         );
 
-        $invalidUrls = [
-            null,
-            'this is not an url',
-            '1http://example.com/stuff',
-            'mäilto:user@example.com',
-            '/foo/bar',
-        ];
+        $this->urlValidationResultContains(
+            (new Validator())->url('ftp://username:password@example.org'),
+            [
+                'url' => 'ftp://username:password@example.org',
+                'scheme' => 'ftp',
+                'user' => 'username',
+                'pass' => 'password',
+                'host' => 'example.org',
+            ]
+        );
 
-        foreach ($invalidUrls as $url) {
-            $this->expectException(\Crwlr\Url\Exceptions\InvalidUrlException::class);
-            $validator->url($url);
-        }
+        $this->urlValidationResultContains(
+            (new Validator())->url('mailto:you@example.com?subject=crwlr software'),
+            ['url' => 'mailto:you@example.com?subject=crwlr%20software']
+        );
+    }
+
+    public function testValidateIdnUrl()
+    {
+        $this->urlValidationResultContains(
+            (new Validator())->url('http://✪df.ws/123'),
+            [
+                'url' => 'http://xn--df-oiy.ws/123',
+                'scheme' => 'http',
+                'host' => 'xn--df-oiy.ws',
+                'path' => '/123',
+            ]
+        );
+
+        $this->urlValidationResultContains(
+            (new Validator())->url('https://www.example.онлайн/stuff'),
+            [
+                'url' => 'https://www.example.xn--80asehdb/stuff',
+                'scheme' => 'https',
+                'host' => 'www.example.xn--80asehdb',
+                'path' => '/stuff',
+            ]
+        );
+    }
+
+    /**
+     * Invalid url strings.
+     */
+    public function testValidateInvalidUrl()
+    {
+        $this->assertNull((new Validator())->url('1http://example.com/stuff'));
+        $this->assertNull((new Validator())->url('  https://wwww.example.com  '));
+        $this->assertNull((new Validator())->url('http://'));
+        $this->assertNull((new Validator())->url('http://.'));
+        $this->assertNull((new Validator())->url('https://..'));
+        $this->assertNull((new Validator())->url('https://../'));
+        $this->assertNull((new Validator())->url('http://?'));
+        $this->assertNull((new Validator())->url('http://#'));
+        $this->assertNull((new Validator())->url('//'));
+        $this->assertNull((new Validator())->url('///foo'));
+        $this->assertNull((new Validator())->url('http:///foo'));
+        $this->assertNull((new Validator())->url('://'));
     }
 
     public function testValidateScheme()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->scheme('http'), 'http');
         $this->assertEquals($validator->scheme('mailto'), 'mailto');
@@ -69,7 +96,7 @@ final class ValidatorTest extends TestCase
 
     public function testValidateUserOrPassword()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->userOrPassword('user'), 'user');
         $this->assertEquals($validator->userOrPassword('pASS123'), 'pASS123');
@@ -106,7 +133,7 @@ final class ValidatorTest extends TestCase
 
     public function testValidateHost()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->host('example.com'), 'example.com');
         $this->assertEquals($validator->host('www.example.com'), 'www.example.com');
@@ -141,7 +168,7 @@ final class ValidatorTest extends TestCase
 
     public function testValidateDomainSuffix()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->domainSuffix('com'), 'com');
         $this->assertEquals($validator->domainSuffix('org'), 'org');
@@ -166,7 +193,7 @@ final class ValidatorTest extends TestCase
 
     public function testValidateDomain()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->domain('google.com'), 'google.com');
         $this->assertEquals($validator->domain('example.xn--80asehdb'), 'example.xn--80asehdb');
@@ -180,7 +207,7 @@ final class ValidatorTest extends TestCase
 
     public function testValidateSubdomain()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->subdomain('www'), 'www');
         $this->assertEquals($validator->subdomain('sub.domain'), 'sub.domain');
@@ -191,7 +218,7 @@ final class ValidatorTest extends TestCase
 
     public function testValidatePort()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->port(0), 0);
         $this->assertEquals($validator->port('0'), 0);
@@ -207,7 +234,7 @@ final class ValidatorTest extends TestCase
 
     public function testValidatePath()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->path('/FoO/bAr'), '/FoO/bAr');
         $this->assertEquals($validator->path('/foo-123/bar_456'), '/foo-123/bar_456');
@@ -216,16 +243,24 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->path('/foo,bar;baz:'), '/foo,bar;baz:');
         $this->assertEquals($validator->path('/foo=bar@baz'), '/foo=bar@baz');
         $this->assertEquals($validator->path('/foo%bar'), '/foo%25bar');
-        $this->assertEquals($validator->path('no/leading/slash'), 'no/leading/slash');
         $this->assertEquals($validator->path('/"foo"'), '/%22foo%22');
         $this->assertEquals($validator->path('/foo\\bar'), '/foo%5Cbar');
         $this->assertEquals($validator->path('/bößer/pfad'), '/b%C3%B6%C3%9Fer/pfad');
         $this->assertEquals($validator->path('/<html>'), '/%3Chtml%3E');
+
+        // By default the path validation method assumes the uri where the path is contained contains an authority
+        // component. According to RFC 3986 (3.3. Path) a uri that contains an authority must be empty or begin with a
+        // slash.
+        $this->assertFalse($validator->path('no/leading/slash'));
+
+        // If the uri that contains the given path component has no authority component you can set the $hasAuthority
+        // parameter to false and it should work with a relative path that does not begin with slash.
+        $this->assertEquals('no/leading/slash', $validator->path('no/leading/slash', false));
     }
 
     public function testValidateQuery()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->query('foo=bar'), 'foo=bar');
         $this->assertEquals($validator->query('?foo=bar'), 'foo=bar');
@@ -244,7 +279,7 @@ final class ValidatorTest extends TestCase
 
     public function testValidateFragment()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $validator = new Validator();
 
         $this->assertEquals($validator->fragment('fragment'), 'fragment');
         $this->assertEquals($validator->fragment('#fragment'), 'fragment');
@@ -260,5 +295,19 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->fragment('frägment'), 'fr%C3%A4gment');
         $this->assertEquals($validator->fragment('boeßesfragment'), 'boe%C3%9Fesfragment');
         $this->assertEquals($validator->fragment('fragment`'), 'fragment%60');
+    }
+
+    /**
+     * @param $validationResult
+     * @param array $contains
+     */
+    private function urlValidationResultContains($validationResult, array $contains)
+    {
+        $this->assertInternalType('array', $validationResult);
+
+        foreach ($contains as $key => $value) {
+            $this->assertArrayHasKey($key, $validationResult);
+            $this->assertEquals($value, $validationResult[$key]);
+        }
     }
 }
