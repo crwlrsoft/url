@@ -220,7 +220,6 @@ class Url
             return $this->updateFullUrlAndReturnInstance();
         }
 
-                $this->replaceHost($validHost);
         $validHost = $this->validator->host($host);
 
         if ($validHost) {
