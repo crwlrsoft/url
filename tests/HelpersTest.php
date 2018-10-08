@@ -5,92 +5,15 @@ use Crwlr\Url\Helpers;
 use Crwlr\Url\Schemes;
 use Crwlr\Url\Suffixes;
 use PHPUnit\Framework\TestCase;
+use TrueBV\Punycode;
 
 final class HelpersTest extends TestCase
 {
-    public function testGetSuffixesAndSchemesInstances()
+    public function testGetHelperClassInstancesStatically()
     {
         $this->assertInstanceOf(Suffixes::class, Helpers::suffixes());
         $this->assertInstanceOf(Schemes::class, Helpers::schemes());
-    }
-
-    public function testGetDomainFromHost()
-    {
-        $testCases = [
-            'www.example.com' => 'example.com',
-            'www.example.org' => 'example.org',
-            'sub.domain.example.edu.tt' => 'example.edu.tt',
-            'jobs.example.sálat.no' => 'example.xn--slat-5na.no',
-            'example' => null,
-            '127.0.0.1' => null,
-        ];
-
-        foreach ($testCases as $host => $domain) {
-            $this->assertEquals($domain, Helpers::getDomainFromHost($host));
-        }
-    }
-
-    public function testGetDomainLabelFromHost()
-    {
-        $testCases = [
-            'www.label.com' => 'label',
-            'sub.domain.something.org' => 'something',
-            'jobs.exámple.sálat.no' => 'xn--exmple-qta',
-            'example' => null,
-            '127.0.0.1' => null,
-        ];
-
-        foreach ($testCases as $host => $domain) {
-            $this->assertEquals($domain, Helpers::getDomainLabelFromHost($host));
-        }
-    }
-
-    public function testGetDomainSuffixFromHost()
-    {
-        $testCases = [
-            'www.example.com' => 'com',
-            'example.co.uk' => 'co.uk',
-            'foo.bar' => 'bar',
-            'foo.bar.foo.bar' => 'bar',
-            'something.anything.kawasaki.jp' => 'anything.kawasaki.jp',
-            'example.målselv.no' => 'xn--mlselv-iua.no',
-            'localhost' => null,
-        ];
-
-        foreach ($testCases as $host => $domainSuffix) {
-            $this->assertEquals($domainSuffix, Helpers::getDomainSuffixFromHost($host));
-        }
-    }
-
-    public function testGetDomainLabelFromDomain()
-    {
-        $testCases = [
-            'label.com' => 'label',
-            'something.org' => 'something',
-            'exámple.sálat.no' => 'xn--exmple-qta',
-            'example' => null,
-            '127.0.0.1' => null,
-        ];
-
-        foreach ($testCases as $host => $domain) {
-            $this->assertEquals($domain, Helpers::getDomainLabelFromHost($host));
-        }
-    }
-
-    public function testGetSubdomainFromHost()
-    {
-        $testCases = [
-            'www.example.com' => 'www',
-            'jobs.example.com' => 'jobs',
-            'sub.domain.example.com' => 'sub.domain',
-            'some.ridiculously.123.long.sub.domain.example.com' => 'some.ridiculously.123.long.sub.domain',
-            'foo.bár.báz.sálat.no' => 'foo.xn--br-mia',
-            'example.com' => null,
-        ];
-
-        foreach ($testCases as $host => $subdomain) {
-            $this->assertEquals($subdomain, Helpers::getSubdomainFromHost($host));
-        }
+        $this->assertInstanceOf(Punycode::class, Helpers::punyCode());
     }
 
     public function testBuildUrlFromComponents()

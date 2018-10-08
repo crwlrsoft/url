@@ -22,12 +22,12 @@ class Url
      *
      * @var string
      */
-    private $url, $scheme, $user, $pass, $host, $domain, $domainSuffix, $subdomain, $port, $path, $query, $fragment;
+    private $url, $scheme, $user, $pass, $host, $port, $path, $query, $fragment;
 
     /**
      * List of all components including alias method names.
      *
-     * Used to verify if a private property can be accessed via magic __get() and __set().
+     * Used to verify if a private property (or host component) can be accessed via magic __get() and __set().
      *
      * @var string[]|array
      */
@@ -214,15 +214,17 @@ class Url
     public function host($host = null)
     {
         if ($host === null) {
-            return $this->host;
+            return $this->host instanceof Host ? $this->host->__toString() : null;
         } elseif ($host === '') {
-            $this->host = $this->domain = $this->domainSuffix = $this->subdomain = null;
-        } else {
-            $validHost = $this->validator->host($host);
+            $this->host = null;
+            return $this->updateFullUrlAndReturnInstance();
+        }
 
-            if ($validHost) {
                 $this->replaceHost($validHost);
-            }
+        $validHost = $this->validator->host($host);
+
+        if ($validHost) {
+            $this->host = new Host($host);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -239,18 +241,20 @@ class Url
     public function domain(string $domain = null)
     {
         if ($domain === null) {
-            return $this->returnDomain();
+            return $this->host instanceof Host ? $this->host->domain() : null;
         }
 
         $domain = $this->validator->domain($domain);
 
         if ($domain) {
-            $this->replaceDomain($domain);
-            $this->updateHost();
-            $this->updateFullUrl();
+            if ($this->host instanceof Host) {
+                $this->host->domain($domain);
+            } else {
+                $this->host = new Host($domain);
+            }
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -265,20 +269,18 @@ class Url
     public function domainLabel($domainLabel = null)
     {
         if ($domainLabel === null) {
-            return $this->domain() ? Helpers::getDomainLabelFromDomain($this->domain()) : null;
+            return $this->host instanceof Host ? $this->host->domainLabel() : null;
         }
 
-        if (!empty($this->domain())) {
+        if ($this->host instanceof Host && !empty($this->host->domain())) {
             $domainLabel = $this->validator->domain($domainLabel, true);
 
             if ($domainLabel) {
-                $this->replaceDomain($domainLabel, true);
-                $this->updateHost();
-                $this->updateFullUrl();
+                $this->host->domainLabel($domainLabel);
             }
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -293,24 +295,16 @@ class Url
     public function domainSuffix(string $domainSuffix = null)
     {
         if ($domainSuffix === null) {
-            if ($this->domainSuffix === null && !empty($this->host)) {
-                $this->domainSuffix = Helpers::getDomainSuffixFromHost($this->host);
-            }
-
-            return $this->domainSuffix;
-        }
-
-        if (!empty($this->domain())) {
+            return $this->host instanceof Host ? $this->host->domainSuffix() : null;
+        } elseif ($this->host instanceof Host && !empty($this->host->domain())) {
             $domainSuffix = $this->validator->domainSuffix($domainSuffix);
 
             if ($domainSuffix) {
-                $this->replaceDomainSuffix($domainSuffix);
-                $this->updateHost();
-                $this->updateFullUrl();
+                $this->host->domainSuffix($domainSuffix);
             }
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -325,24 +319,16 @@ class Url
     public function subdomain($subdomain = null)
     {
         if ($subdomain === null) {
-            if ($this->subdomain === null && !empty($this->host)) {
-                $this->subdomain = Helpers::getSubdomainFromHost($this->host, $this->domain());
-            }
-
-            return $this->subdomain;
-        }
-
-        if (!empty($this->domain())) {
+            return $this->host instanceof Host ? $this->host->subdomain() : null;
+        } elseif ($this->host instanceof Host && !empty($this->host->domain())) {
             $subdomain = $this->validator->subdomain($subdomain);
 
             if ($subdomain) {
-                $this->subdomain = $subdomain;
-                $this->updateHost();
-                $this->updateFullUrl();
+                $this->host->subdomain($subdomain);
             }
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -585,7 +571,11 @@ class Url
                 if ($url instanceof Url) {
                     $this->{$componentName} = $url->{$componentName};
                 } elseif (isset($url[$componentName])) {
-                    $this->{$componentName} = $url[$componentName];
+                    if ($componentName === 'host') {
+                        $this->{$componentName} = new Host($url[$componentName]);
+                    } else {
+                        $this->{$componentName} = $url[$componentName];
+                    }
                 }
             }
         }
@@ -615,102 +605,11 @@ class Url
     }
 
     /**
-     * Regenerate the full host string after changing a part of the host (subdomain, domain, suffix).
-     */
-    private function updateHost()
-    {
-        $host = ($this->subdomain() ? $this->subdomain() . '.' : '') . ($this->domain() ?: '');
-
-        if ($host !== '') {
-            $this->host = $host;
-        } else {
-            $this->host = null;
-        }
-    }
-
-    /**
      * Regenerate the full url after changing components.
      */
     private function updateFullUrl()
     {
         $this->url = $this->root() . $this->relative();
-    }
-
-    /**
-     * Replace the host.
-     *
-     * If it contains a registrable domain, update the domain parts, otherwise set them to null.
-     *
-     * @param string $newHost
-     */
-    private function replaceHost(string $newHost = '')
-    {
-        $this->host = $newHost;
-        $newSuffix = Helpers::getDomainSuffixFromHost($newHost);
-
-        if ($newSuffix) {
-            $this->domain = Helpers::getDomainFromHost($newHost, $newSuffix);
-            $this->domainSuffix = $newSuffix;
-            $this->subdomain = Helpers::getSubdomainFromHost($this->host, $this->domain);
-        } else {
-            $this->domain = null;
-            $this->domainSuffix = null;
-            $this->subdomain = null;
-        }
-    }
-
-    /**
-     * Set a new domain suffix and replace it in the full registrable domain.
-     *
-     * @param string $newSuffix
-     */
-    private function replaceDomainSuffix(string $newSuffix = '')
-    {
-        // It can be a problem if the subdomain class property isn't set at this point (parsing the host parts is
-        // deferred in the decorate() method), because when the full host will be updated through concatenating the host
-        // parts, after replacing the domain suffix here, it will try to extract the subdomain from host minus domain.
-        // When the domain is already updated and the host isn't, this will return a broken subdomain. So call the
-        // subdomain method here, so the class property gets filled and will just be returned when recreating the host.
-        $this->subdomain();
-
-        $currentSuffix = $this->domainSuffix();
-        $this->domain = Helpers::stripFromEnd($this->domain, $currentSuffix) . $newSuffix;
-        $this->domainSuffix = $newSuffix;
-    }
-
-    /**
-     * Replace the registrable domain.
-     *
-     * Or only the domain label if $withoutSuffix = true. If suffix is included, extract it and update the suffix too.
-     *
-     * @param string $newDomain
-     * @param bool $withoutSuffix
-     */
-    private function replaceDomain(string $newDomain = '', bool $withoutSuffix = false)
-    {
-        // This is for the same reason as explained in the comment in the replaceDomainSuffix() method above.
-        $this->subdomain();
-
-        if ($withoutSuffix === true) {
-            $this->domain = $newDomain . '.' . $this->domainSuffix;
-        } else {
-            $this->domainSuffix = Helpers::getDomainSuffixFromHost($newDomain);
-            $this->domain = $newDomain;
-        }
-    }
-
-    /**
-     * Return the registrable domain within the host component of the current url (when it has both).
-     *
-     * @return null|string
-     */
-    private function returnDomain()
-    {
-        if ($this->domain === null && !empty($this->host)) {
-            $this->domain = Helpers::getDomainFromHost($this->host, $this->domainSuffix());
-        }
-
-        return $this->domain;
     }
 
     /**
