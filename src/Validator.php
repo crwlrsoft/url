@@ -215,12 +215,12 @@ class Validator
                 $domain = $this->punyCode->encode($domain);
             }
 
-            $domain = strtolower(trim($domain));
+            $domain = strtolower($domain);
 
             if ($withoutSuffix === true && !Helpers::containsCharactersNotAllowedInHost($domain, true)) {
                 return $domain;
             } elseif ($withoutSuffix === false && !Helpers::containsCharactersNotAllowedInHost($domain)) {
-                $suffix = Helpers::getDomainSuffixFromHost($domain);
+                $suffix = Helpers::suffixes()->getByHost($domain);
 
                 if ($suffix) {
                     // The registrable domain part of the host doesn't contain a subdomain, so if $domain
