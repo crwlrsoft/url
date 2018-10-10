@@ -22,6 +22,6 @@ final class DomainTest extends TestCase
         $this->assertInstanceOf(Domain::class, $domain);
         $this->assertNull($domain->label());
         $this->assertNull($domain->suffix());
-        $this->assertEquals('', $domain->__toString());
+        $this->assertEmpty($domain->__toString());
     }
 }

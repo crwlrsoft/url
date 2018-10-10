@@ -49,22 +49,22 @@ final class UrlTest extends TestCase
     public function testParseUrl()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->scheme(), 'https');
-        $this->assertEquals($url->user(), 'user');
-        $this->assertEquals($url->password(), 'password');
-        $this->assertEquals($url->pass(), 'password');
-        $this->assertEquals($url->host(), 'sub.sub.example.com');
-        $this->assertEquals($url->domain(), 'example.com');
-        $this->assertEquals($url->domainLabel(), 'example');
-        $this->assertEquals($url->domainSuffix(), 'com');
-        $this->assertEquals($url->subdomain(), 'sub.sub');
-        $this->assertEquals($url->port(), 8080);
-        $this->assertEquals($url->path(), '/some/path');
-        $this->assertEquals($url->query(), 'some=query');
-        $this->assertEquals($url->queryArray(), ['some' => 'query']);
-        $this->assertEquals($url->fragment(), 'fragment');
-        $this->assertEquals($url->root(), 'https://user:password@sub.sub.example.com:8080');
-        $this->assertEquals($url->relative(), '/some/path?some=query#fragment');
+        $this->assertEquals('https', $url->scheme());
+        $this->assertEquals('user', $url->user());
+        $this->assertEquals('password', $url->password());
+        $this->assertEquals('password', $url->pass());
+        $this->assertEquals('sub.sub.example.com', $url->host());
+        $this->assertEquals('example.com', $url->domain());
+        $this->assertEquals('example', $url->domainLabel());
+        $this->assertEquals('com', $url->domainSuffix());
+        $this->assertEquals('sub.sub', $url->subdomain());
+        $this->assertEquals(8080, $url->port());
+        $this->assertEquals('/some/path', $url->path());
+        $this->assertEquals('some=query', $url->query());
+        $this->assertEquals(['some' => 'query'], $url->queryArray());
+        $this->assertEquals('fragment', $url->fragment());
+        $this->assertEquals('https://user:password@sub.sub.example.com:8080', $url->root());
+        $this->assertEquals('/some/path?some=query#fragment', $url->relative());
     }
 
     /**
@@ -73,22 +73,22 @@ final class UrlTest extends TestCase
     public function testClassPropertyAccess()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->scheme, 'https');
-        $this->assertEquals($url->user, 'user');
-        $this->assertEquals($url->password, 'password');
-        $this->assertEquals($url->pass, 'password');
-        $this->assertEquals($url->host, 'sub.sub.example.com');
-        $this->assertEquals($url->domain, 'example.com');
-        $this->assertEquals($url->domainLabel, 'example');
-        $this->assertEquals($url->domainSuffix, 'com');
-        $this->assertEquals($url->subdomain, 'sub.sub');
-        $this->assertEquals($url->port, 8080);
-        $this->assertEquals($url->path, '/some/path');
-        $this->assertEquals($url->query, 'some=query');
-        $this->assertEquals($url->queryArray, ['some' => 'query']);
-        $this->assertEquals($url->fragment, 'fragment');
-        $this->assertEquals($url->root, 'https://user:password@sub.sub.example.com:8080');
-        $this->assertEquals($url->relative, '/some/path?some=query#fragment');
+        $this->assertEquals('https', $url->scheme);
+        $this->assertEquals('user', $url->user);
+        $this->assertEquals('password', $url->password);
+        $this->assertEquals('password', $url->pass);
+        $this->assertEquals('sub.sub.example.com', $url->host);
+        $this->assertEquals('example.com', $url->domain);
+        $this->assertEquals('example', $url->domainLabel);
+        $this->assertEquals('com', $url->domainSuffix);
+        $this->assertEquals('sub.sub', $url->subdomain);
+        $this->assertEquals(8080, $url->port);
+        $this->assertEquals('/some/path', $url->path);
+        $this->assertEquals('some=query', $url->query);
+        $this->assertEquals(['some' => 'query'], $url->queryArray);
+        $this->assertEquals('fragment', $url->fragment);
+        $this->assertEquals('https://user:password@sub.sub.example.com:8080', $url->root);
+        $this->assertEquals('/some/path?some=query#fragment', $url->relative);
 
         // other class properties that aren't components of the parsed url should not be available.
         $this->assertNull($url->parser);
@@ -102,9 +102,9 @@ final class UrlTest extends TestCase
     public function testParseIdnUrl()
     {
         $url = new Url('https://www.юбилейный.онлайн');
-        $this->assertEquals($url->host(), 'www.xn--90aiifajq6iua.xn--80asehdb');
-        $this->assertEquals($url->domainSuffix(), 'xn--80asehdb');
-        $this->assertEquals($url->subdomain(), 'www');
+        $this->assertEquals('www.xn--90aiifajq6iua.xn--80asehdb', $url->host());
+        $this->assertEquals('xn--80asehdb', $url->domainSuffix());
+        $this->assertEquals('www', $url->subdomain());
     }
 
     /**
@@ -113,13 +113,13 @@ final class UrlTest extends TestCase
     public function testReplaceScheme()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->scheme(), 'https');
+        $this->assertEquals('https', $url->scheme());
 
         $url->scheme('http');
-        $this->assertEquals($url->scheme(), 'http');
+        $this->assertEquals('http', $url->scheme());
         $this->assertEquals(
-            $url->toString(),
-            'http://user:password@sub.sub.example.com:8080/some/path?some=query#fragment'
+            'http://user:password@sub.sub.example.com:8080/some/path?some=query#fragment',
+            $url->toString()
         );
     }
 
@@ -129,13 +129,13 @@ final class UrlTest extends TestCase
     public function testReplaceUser()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->user(), 'user');
+        $this->assertEquals('user', $url->user());
 
         $url->user('differentuser');
-        $this->assertEquals($url->user(), 'differentuser');
+        $this->assertEquals('differentuser', $url->user());
         $this->assertEquals(
-            $url->toString(),
-            'https://differentuser:password@sub.sub.example.com:8080/some/path?some=query#fragment'
+            'https://differentuser:password@sub.sub.example.com:8080/some/path?some=query#fragment',
+            $url->toString()
         );
     }
 
@@ -145,23 +145,23 @@ final class UrlTest extends TestCase
     public function testReplacePassword()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->password(), 'password');
-        $this->assertEquals($url->pass(), 'password');
+        $this->assertEquals('password', $url->password());
+        $this->assertEquals('password', $url->pass());
 
         $url->password('differentpassword');
-        $this->assertEquals($url->password(), 'differentpassword');
-        $this->assertEquals($url->pass(), 'differentpassword');
+        $this->assertEquals('differentpassword', $url->password());
+        $this->assertEquals('differentpassword', $url->pass());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:differentpassword@sub.sub.example.com:8080/some/path?some=query#fragment'
+            'https://user:differentpassword@sub.sub.example.com:8080/some/path?some=query#fragment',
+            $url->toString()
         );
 
         $url->pass('password');
-        $this->assertEquals($url->password(), 'password');
-        $this->assertEquals($url->pass(), 'password');
+        $this->assertEquals('password', $url->password());
+        $this->assertEquals('password', $url->pass());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.example.com:8080/some/path?some=query#fragment'
+            'https://user:password@sub.sub.example.com:8080/some/path?some=query#fragment',
+            $url->toString()
         );
     }
 
@@ -171,18 +171,15 @@ final class UrlTest extends TestCase
     public function testReplaceHost()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->host(), 'sub.sub.example.com');
+        $this->assertEquals('sub.sub.example.com', $url->host());
 
         $url->host('some.host.xyz');
-        $this->assertEquals($url->host(), 'some.host.xyz');
-        $this->assertEquals($url->subdomain(), 'some');
-        $this->assertEquals($url->domain(), 'host.xyz');
-        $this->assertEquals($url->domainLabel(), 'host');
-        $this->assertEquals($url->domainSuffix(), 'xyz');
-        $this->assertEquals(
-            $url->toString(),
-            'https://user:password@some.host.xyz:8080/some/path?some=query#fragment'
-        );
+        $this->assertEquals('some.host.xyz', $url->host());
+        $this->assertEquals('some', $url->subdomain());
+        $this->assertEquals('host.xyz', $url->domain());
+        $this->assertEquals('host', $url->domainLabel());
+        $this->assertEquals('xyz', $url->domainSuffix());
+        $this->assertEquals('https://user:password@some.host.xyz:8080/some/path?some=query#fragment', $url->toString());
     }
 
     /**
@@ -191,14 +188,14 @@ final class UrlTest extends TestCase
     public function testReplaceSubdomain()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->subdomain(), 'sub.sub');
+        $this->assertEquals('sub.sub', $url->subdomain());
 
         $url->subdomain('www');
-        $this->assertEquals($url->subdomain(), 'www');
-        $this->assertEquals($url->host(), 'www.example.com');
+        $this->assertEquals('www', $url->subdomain());
+        $this->assertEquals('www.example.com', $url->host());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@www.example.com:8080/some/path?some=query#fragment'
+            'https://user:password@www.example.com:8080/some/path?some=query#fragment',
+            $url->toString()
         );
     }
 
@@ -208,25 +205,25 @@ final class UrlTest extends TestCase
     public function testReplaceDomain()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->domain(), 'example.com');
+        $this->assertEquals('example.com', $url->domain());
 
         $url->domain('eggsample.wtf');
-        $this->assertEquals($url->domain(), 'eggsample.wtf');
-        $this->assertEquals($url->domainSuffix(), 'wtf');
-        $this->assertEquals($url->domainLabel(), 'eggsample');
-        $this->assertEquals($url->host(), 'sub.sub.eggsample.wtf');
+        $this->assertEquals('eggsample.wtf', $url->domain());
+        $this->assertEquals('wtf', $url->domainSuffix());
+        $this->assertEquals('eggsample', $url->domainLabel());
+        $this->assertEquals('sub.sub.eggsample.wtf', $url->host());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.eggsample.wtf:8080/some/path?some=query#fragment'
+            'https://user:password@sub.sub.eggsample.wtf:8080/some/path?some=query#fragment',
+            $url->toString()
         );
 
         $url->domainLabel('xample');
-        $this->assertEquals($url->domainLabel(), 'xample');
-        $this->assertEquals($url->domain(), 'xample.wtf');
-        $this->assertEquals($url->host(), 'sub.sub.xample.wtf');
+        $this->assertEquals('xample', $url->domainLabel());
+        $this->assertEquals('xample.wtf', $url->domain());
+        $this->assertEquals('sub.sub.xample.wtf', $url->host());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.xample.wtf:8080/some/path?some=query#fragment'
+            'https://user:password@sub.sub.xample.wtf:8080/some/path?some=query#fragment',
+            $url->toString()
         );
     }
 
@@ -236,24 +233,24 @@ final class UrlTest extends TestCase
     public function testReplaceDomainSuffix()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->domainSuffix(), 'com');
+        $this->assertEquals('com', $url->domainSuffix());
 
         $url->domainSuffix('org');
-        $this->assertEquals($url->domainSuffix(), 'org');
-        $this->assertEquals($url->domain(), 'example.org');
-        $this->assertEquals($url->host(), 'sub.sub.example.org');
+        $this->assertEquals('org', $url->domainSuffix());
+        $this->assertEquals('example.org', $url->domain());
+        $this->assertEquals('sub.sub.example.org', $url->host());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.example.org:8080/some/path?some=query#fragment'
+            'https://user:password@sub.sub.example.org:8080/some/path?some=query#fragment',
+            $url->toString()
         );
 
         $url->domainSuffix('co.uk');
-        $this->assertEquals($url->domainSuffix(), 'co.uk');
-        $this->assertEquals($url->domain(), 'example.co.uk');
-        $this->assertEquals($url->host(), 'sub.sub.example.co.uk');
+        $this->assertEquals('co.uk', $url->domainSuffix());
+        $this->assertEquals('example.co.uk', $url->domain());
+        $this->assertEquals('sub.sub.example.co.uk', $url->host());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.example.co.uk:8080/some/path?some=query#fragment'
+            'https://user:password@sub.sub.example.co.uk:8080/some/path?some=query#fragment',
+            $url->toString()
         );
     }
 
@@ -263,13 +260,13 @@ final class UrlTest extends TestCase
     public function testReplacePort()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->port(), 8080);
+        $this->assertEquals(8080, $url->port());
 
         $url->port(123);
-        $this->assertEquals($url->port(), 123);
+        $this->assertEquals(123, $url->port());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.example.com:123/some/path?some=query#fragment'
+            'https://user:password@sub.sub.example.com:123/some/path?some=query#fragment',
+            $url->toString()
         );
     }
 
@@ -279,13 +276,13 @@ final class UrlTest extends TestCase
     public function testReplacePath()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->path(), '/some/path');
+        $this->assertEquals('/some/path', $url->path());
 
         $url->path('/home');
-        $this->assertEquals($url->path(), '/home');
+        $this->assertEquals('/home', $url->path());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.example.com:8080/home?some=query#fragment'
+            'https://user:password@sub.sub.example.com:8080/home?some=query#fragment',
+            $url->toString()
         );
     }
 
@@ -295,23 +292,23 @@ final class UrlTest extends TestCase
     public function testReplaceQueryString()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->query(), 'some=query');
-        $this->assertEquals($url->queryArray(), ['some' => 'query']);
+        $this->assertEquals('some=query', $url->query());
+        $this->assertEquals(['some' => 'query'], $url->queryArray());
 
         $url->query('foo=bar');
-        $this->assertEquals($url->query(), 'foo=bar');
-        $this->assertEquals($url->queryArray(), ['foo' => 'bar']);
+        $this->assertEquals('foo=bar', $url->query());
+        $this->assertEquals(['foo' => 'bar'], $url->queryArray());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.example.com:8080/some/path?foo=bar#fragment'
+            'https://user:password@sub.sub.example.com:8080/some/path?foo=bar#fragment',
+            $url->toString()
         );
 
         $url->queryArray(['a' => 'b', 'c' => 'd']);
-        $this->assertEquals($url->query(), 'a=b&c=d');
-        $this->assertEquals($url->queryArray(), ['a' => 'b', 'c' => 'd']);
+        $this->assertEquals('a=b&c=d', $url->query());
+        $this->assertEquals(['a' => 'b', 'c' => 'd'], $url->queryArray());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.example.com:8080/some/path?a=b&c=d#fragment'
+            'https://user:password@sub.sub.example.com:8080/some/path?a=b&c=d#fragment',
+            $url->toString()
         );
     }
 
@@ -321,13 +318,13 @@ final class UrlTest extends TestCase
     public function testReplaceFragment()
     {
         $url = $this->createDefaultUrlObject();
-        $this->assertEquals($url->fragment(), 'fragment');
+        $this->assertEquals('fragment', $url->fragment());
 
         $url->fragment('test');
-        $this->assertEquals($url->fragment(), 'test');
+        $this->assertEquals('test', $url->fragment());
         $this->assertEquals(
-            $url->toString(),
-            'https://user:password@sub.sub.example.com:8080/some/path?some=query#test'
+            'https://user:password@sub.sub.example.com:8080/some/path?some=query#test',
+            $url->toString()
         );
     }
 
@@ -339,23 +336,23 @@ final class UrlTest extends TestCase
         $url = $this->createDefaultUrlObject();
 
         $url->user(1234);
-        $this->assertEquals($url->user(), '1234');
+        $this->assertEquals('1234', $url->user());
 
         $url->password(1234);
-        $this->assertEquals($url->password(), '1234');
+        $this->assertEquals('1234', $url->password());
 
         $url->host(1234);
-        $this->assertEquals($url->host(), '1234');
+        $this->assertEquals('1234', $url->host());
         $url->host('www.example.com');
 
         $url->domainLabel(1234);
-        $this->assertEquals($url->domainLabel(), '1234');
+        $this->assertEquals('1234', $url->domainLabel());
 
         $url->subdomain(1234);
-        $this->assertEquals($url->subdomain(), '1234');
+        $this->assertEquals('1234', $url->subdomain());
 
         $url->port('8081');
-        $this->assertEquals($url->port(), 8081);
+        $this->assertEquals(8081, $url->port());
     }
 
     /**
@@ -377,11 +374,7 @@ final class UrlTest extends TestCase
             ->fragment('anchor');
 
         $this->assertInstanceOf(Url::class, $url);
-
-        $this->assertEquals(
-            $url->toString(),
-            'http://john:god@www.crwlr.software:8081/foo/bar?key=value#anchor'
-        );
+        $this->assertEquals('http://john:god@www.crwlr.software:8081/foo/bar?key=value#anchor', $url->toString());
     }
 
     /**
@@ -392,8 +385,8 @@ final class UrlTest extends TestCase
         $url = $this->createDefaultUrlObject();
 
         $this->assertEquals(
-            $url->resolve('/different/path')->toString(),
-            'https://user:password@sub.sub.example.com:8080/different/path'
+            'https://user:password@sub.sub.example.com:8080/different/path',
+            $url->resolve('/different/path')->toString()
         );
 
         // More tests on resolving relative to absolute urls => see ResolverTest.php

@@ -14,7 +14,7 @@ final class UriTest extends TestCase
         $this->assertEquals('https', $uri->getScheme());
 
         $uri = $uri->withScheme('');
-        $this->assertEquals('', $uri->getScheme());
+        $this->assertEmpty($uri->getScheme());
         $this->assertEquals('//www.example.com/foo/bar?query=string#fragment', $uri->__toString());
 
         $uri = $uri->withScheme('SFTP');
@@ -37,7 +37,7 @@ final class UriTest extends TestCase
         $this->assertEquals('crwlr:password@foo.bar.baz.com:1234', $uri->getAuthority());
 
         $uri = $uri->withHost('');
-        $this->assertEquals('', $uri->getAuthority());
+        $this->assertEmpty($uri->getAuthority());
         $this->assertEquals('http:/foo/bar?query=string#fragment', $uri->__toString());
 
         $uri = $uri->withHost('foo.bar.baz.com');
@@ -54,7 +54,7 @@ final class UriTest extends TestCase
     public function testUserInfo()
     {
         $uri = new \Crwlr\Url\Psr\Uri('http://www.example.com/foo/bar?query=string#fragment');
-        $this->assertEquals('', $uri->getUserInfo());
+        $this->assertEmpty($uri->getUserInfo());
 
         $uri = $uri->withUserInfo('otsch', 'crwlr');
         $this->assertEquals('otsch:crwlr', $uri->getUserInfo());
@@ -67,7 +67,7 @@ final class UriTest extends TestCase
         $this->assertEquals('http://otsch@www.example.com/foo/bar?query=string#fragment', $uri->__toString());
 
         $uri = $uri->withUserInfo('');
-        $this->assertEquals('', $uri->getUserInfo());
+        $this->assertEmpty($uri->getUserInfo());
         $this->assertEquals('www.example.com', $uri->getAuthority());
         $this->assertEquals('http://www.example.com/foo/bar?query=string#fragment', $uri->__toString());
     }
@@ -81,10 +81,10 @@ final class UriTest extends TestCase
         $this->assertEquals('www.eggsample.com', $uri->getHost());
 
         $uri = $uri->withHost('');
-        $this->assertEquals('', $uri->getHost());
-        $this->assertEquals('', $uri->getAuthority());
+        $this->assertEmpty($uri->getHost());
+        $this->assertEmpty($uri->getAuthority());
         $uri = $uri->withUserInfo('otsch', 'crwlr');
-        $this->assertEquals('', $uri->getAuthority());
+        $this->assertEmpty($uri->getAuthority());
         $uri = $uri->withUserInfo('');
 
         $uri = $uri->withHost('sub.domain.example.com');
@@ -94,7 +94,7 @@ final class UriTest extends TestCase
     public function testPort()
     {
         $uri = $this->getUri();
-        $this->assertEquals(null, $uri->getPort());
+        $this->assertNull($uri->getPort());
 
         $uri = $uri->withPort(2345);
         $this->assertEquals(2345, $uri->getPort());
@@ -103,7 +103,7 @@ final class UriTest extends TestCase
 
         $uri = $uri->withPort(80);
         // getPort() should return null when the defined port is the standard port for the current scheme.
-        $this->assertEquals(null, $uri->getPort());
+        $this->assertNull($uri->getPort());
         $this->assertEquals('www.example.com', $uri->getAuthority());
         $this->assertEquals('http://www.example.com/foo/bar?query=string#fragment', $uri->__toString());
 
@@ -121,7 +121,7 @@ final class UriTest extends TestCase
         $this->assertEquals('http://www.example.com:34567/foo/bar?query=string#fragment', $uri->__toString());
 
         $uri = $uri->withPort(null);
-        $this->assertEquals(null, $uri->getPort());
+        $this->assertNull($uri->getPort());
         $this->assertEquals('www.example.com', $uri->getAuthority());
         $this->assertEquals('http://www.example.com/foo/bar?query=string#fragment', $uri->__toString());
     }
@@ -187,11 +187,11 @@ final class UriTest extends TestCase
         $this->assertEquals('fragment', $uri->getFragment());
 
         $uri = $uri->withFragment('differentfragment');
-        $this->assertEquals($uri->getFragment(), 'differentfragment');
+        $this->assertEquals('differentfragment', $uri->getFragment());
         $this->assertEquals('http://www.example.com/foo/bar?query=string#differentfragment', $uri->__toString());
 
         $uri = $uri->withFragment('');
-        $this->assertEquals($uri->getFragment(), '');
+        $this->assertEmpty($uri->getFragment());
         $this->assertEquals('http://www.example.com/foo/bar?query=string', $uri->__toString());
 
         $uri = $uri->withFragment('foo');

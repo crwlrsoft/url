@@ -41,14 +41,14 @@ final class HelpersTest extends TestCase
     public function testQueryStringToArray()
     {
         $this->assertEquals(
-            Helpers::queryStringToArray('k.1=v.1&k.2[s.k1]=v.2&k.2[s.k2]=v.3'),
             [
                 'k.1' => 'v.1',
                 'k.2' => [
                     's.k1' => 'v.2',
                     's.k2' => 'v.3',
                 ]
-            ]
+            ],
+            Helpers::queryStringToArray('k.1=v.1&k.2[s.k1]=v.2&k.2[s.k2]=v.3')
         );
     }
 
@@ -82,8 +82,8 @@ final class HelpersTest extends TestCase
 
     public function testStripFromEnd()
     {
-        $this->assertEquals(Helpers::stripFromEnd('examplestring', 'string'), 'example');
-        $this->assertEquals(Helpers::stripFromEnd('examplestring', 'strong'), 'examplestring');
-        $this->assertEquals(Helpers::stripFromEnd('examplestring', 'strin'), 'examplestring');
+        $this->assertEquals('example', Helpers::stripFromEnd('examplestring', 'string'));
+        $this->assertEquals('examplestring', Helpers::stripFromEnd('examplestring', 'strong'));
+        $this->assertEquals('examplestring', Helpers::stripFromEnd('examplestring', 'strin'));
     }
 }
