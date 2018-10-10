@@ -39,7 +39,7 @@ final class HostTest extends TestCase
         $this->assertEquals('sub.domain.example.com', $host->__toString());
 
         $host->subdomain('');
-        $this->assertEquals(null, $host->subdomain());
+        $this->assertNull($host->subdomain());
         $this->assertEquals('example.com', $host->__toString());
 
         $host->subdomain('foo.bar.yololo');
@@ -56,8 +56,8 @@ final class HostTest extends TestCase
         $this->assertEquals('www.foo.bar', $host->__toString());
 
         $host->domain('');
-        $this->assertEquals(null, $host->domain());
-        $this->assertEquals('', $host->__toString());
+        $this->assertNull($host->domain());
+        $this->assertEmpty($host->__toString());
 
         $host->domain('crwlr.software');
         $this->assertEquals('crwlr.software', $host->domain());
@@ -77,7 +77,7 @@ final class HostTest extends TestCase
         $this->assertNull($host->domainLabel());
         $this->assertEquals('com', $host->domainSuffix());
         $this->assertNull($host->domain());
-        $this->assertEquals('', $host->__toString());
+        $this->assertEmpty($host->__toString());
 
         $host->domainLabel('google');
         $this->assertEquals('google', $host->domainLabel());
@@ -98,7 +98,7 @@ final class HostTest extends TestCase
         $this->assertNull($host->domainSuffix());
         $this->assertEquals('example', $host->domainLabel());
         $this->assertNull($host->domain());
-        $this->assertEquals('', $host->__toString());
+        $this->assertEmpty($host->__toString());
 
         $host->domainSuffix('software');
         $this->assertEquals('software', $host->domainSuffix());
