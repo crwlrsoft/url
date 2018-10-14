@@ -4,8 +4,8 @@ This package is for you when PHP's parse_url() is not enough.
  
 __Key Features:__
 * __Parse a url__ and access or modify all its __components__ separately.
-* Resolve any __relative url__ you may find in an Html document __to an 
-absolute url__, with the document's url.
+* Resolve any __relative url__ you may find in an HTML document __to an 
+absolute url__, based on the document's url.
 * Get not only the full __host__ of a url, but also the __registrable domain__, 
 the __domain suffix__ and the __subdomain__ parts of the host separately
 (Thanks to the [Mozilla Public Suffix List](https://publicsuffix.org/)).
@@ -13,7 +13,8 @@ the __domain suffix__ and the __subdomain__ parts of the host separately
 point to the same host or domain)
 * Thanks to [true/punycode](https://github.com/true/php-punycode) it's also no 
 problem to parse __internationalized domain names (IDN)__.
-* Implements [PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php).
+* Includes an adapter class which implements the 
+[PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php).
 
 ## Installation
 
@@ -41,9 +42,16 @@ Further code examples skip the above.
 
 ### Parsing urls
 
+Parsing a url is easy as pie:
+
 ```php
 $url = Url::parse('https://john:123@www.example.com:8080/foo?bar=baz');
- 
+```
+
+The static `parse` method of the `Url` class provides a convenient way to 
+create a new instance and then access all of it's components separately.
+
+```php
 // Accessing url components via method calls
 $port = $url->port();                   // => 8080
 $domainSuffix = $url->domainSuffix();   // => "com"
@@ -57,45 +65,70 @@ $host = $url->host;                     // => "www.example.com"
 $domain = $url->domain;                 // => "example.com"
 ```
 
+Of course you can also get a new instance using the `new` keyword.
+
+```php
+$url = new Url('https://www.steve.jobs/');
+```
+
+__Relative urls__  
+  
+New in v1.0 of this package is, that you can obtain an instance of `Url` from 
+a relative url as well. Previous versions throw an `InvalidUrlException` when 
+the url string doesn't contain a valid scheme component.
+
+```php 
+$url = Url::parse('/some/path?query=string');
+var_dump($url->__toString());   // => '/some/path?query=string'
+var_dump($url->scheme());       // => null
+var_dump($url->path());         // => '/some/path'
+```
+
 #### Available url components
 
-Below is a list of all components the Url class takes care of. The 
-highlighted part in the example url shows what the component returns.
+Below, you can see a visualization of all the components that are available to 
+you via a `Url` object.
 
-* __scheme__  
-__https__ `://john:123@subdomain.example.com:8080/foo?bar=baz#anchor`
-* __user__  
-`https://` __john__ `:123@subdomain.example.com:8080/foo?bar=baz#anchor`
-* __pass__ or __password__ (alias)  
-`https://john:` __123__ `@subdomain.example.com:8080/foo?bar=baz#anchor`
-* __host__  
-`https://john:123@` __subdomain.example.com__ `:8080/foo?bar=baz#anchor`
-* __domain__  
-`https://john:123@subdomain.` __example.com__ `:8080/foo?bar=baz#anchor`
-* __domainLabel__  
-`https://john:123@subdomain.` __example__ `.com:8080/foo?bar=baz#anchor`
-* __domainSuffix__  
-`https://john:123@subdomain.example.` __com__ `:8080/foo?bar=baz#anchor`
-* __subdomain__  
-`https://john:123@` __subdomain__ `.example.com:8080/foo?bar=baz#anchor`
-* __port__  
-`https://john:123@subdomain.example.com:` __8080__ `/foo?bar=baz#anchor`
-* __path__  
-`https://john:123@subdomain.example.com:8080` __/foo__ `?bar=baz#anchor`
-* __query__  
-`https://john:123@subdomain.example.com:8080/foo?` __bar=baz__ `#anchor`
-* __fragment__  
-`https://john:123@subdomain.example.com:8080/foo?bar=baz#` __anchor__
+```plaintext
+https://john:123@subdomain.example.com:8080/foo?bar=baz#anchor
+
+                     domainLabel  domainSuffix
+                              ↓     ↓
+ _____  ____ ___ _____________________ ____ ____ _______ ______
+|https||john|123|subdomain.example.com|8080|/foo|bar=baz|anchor|
+ ‾‾‾‾‾  ‾‾‾‾ ‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾ ‾‾‾‾ ‾‾‾‾‾‾‾ ‾‾‾‾‾‾
+   ↑      ↑   ↑     ↑           ↑       ↑    ↑      ↑       ↑
+ scheme user  ↑  subdomain   domain    port path  query  fragment
+              ↑        ⤷ host ⤶
+       |      ↑                            |
+       |    pass(word)                     |
+       |___________________________________|
+       |john:123@subdomain.example.com:8080|
+        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+                         ↑
+                     authority
+```
 
 When a component is not present in a url (e.g. it doesn't contain user and 
 password) the corresponding properties will return `NULL`.
 
-#### Combinations of components
+#### Further available component combinations
+
+The following combinations of components aren't really common, but may as well 
+be useful sometimes.
+
+```plaintext
+ _______________________   ___________________
+|https://www.example.com| |/foo?bar=baz#anchor|
+ ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾   ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+            ↑                       ↑
+          root                  relative
+```
 
 ##### root
 
-There are situations where it can be very helpful to get the `root` as it's 
-called here. It returns everything that comes before the path component.
+The `root` as it's called here, consists of the scheme and the authority
+components.
 
 ```php
 $url = Url::parse('https://www.example.com:8080/foo?bar=baz');
@@ -104,10 +137,8 @@ $root = $url->root();   // => "https://www.example.com:8080"
 
 ##### relative
 
-Complementary to the `root` you can also retrieve all components starting from 
-the path (path, query and fragment) combined, via the `relative` property. 
-It's called `relative` because it's like a relative url (without scheme and 
-host information).
+Complementary to `root` you can retrieve path, query and fragment via the 
+`relative` method.
 
 ```php
 $url = Url::parse('https://www.example.com/foo?bar=baz#anchor');
@@ -131,45 +162,14 @@ array(2) {
   ["key"]=>
   string(5) "value"
 }
-
-```
-
-#### PSR-7 UriInterface methods
-
-The component methods of the Url class are designed to combine getting 
-and setting components with one method and therefore also have short names 
-(`->scheme()` instead of `->getScheme()`). But to be compatible with other
-libraries it also implements the 
-[PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php) 
-and therefore also provides these methods: 
-
-```php
-$url = 'https://user:password@www.example.com:1234/foo/bar?some=query#fragment';
-$url = \Crwlr\Url\Url::parse($url);
-var_dump($url->getScheme());        // => 'https'
-var_dump($url->getAuthority());     // => 'user:password@www.example.com:1234'
-var_dump($url->getUserInfo());      // => 'user:password'
-var_dump($url->getHost());          // => 'www.example.com'
-var_dump($url->getPort());          // => 1234
-var_dump($url->getPath());          // => '/foo/bar'
-var_dump($url->getQuery());         // => 'some=query'
-var_dump($url->getFragment());      // => 'fragment'
-
-var_dump($url->withScheme('http')->getScheme());        // => 'http'
-var_dump($url->withUserInfo('u', 'p')->getUserInfo());  // => 'u:p'
-var_dump($url->withHost('foo.bar.com')->getHost());     // => 'foo.bar.com'
-var_dump($url->withPort(666)->getPort());               // => 666
-var_dump($url->withPath('/path')->getPath());           // => '/path'
-var_dump($url->withQuery('foo=bar')->getQuery());       // => 'foo=bar'
-var_dump($url->withFragment('baz')->getFragment());     // => 'baz'
-var_dump($url->__toString()); // => 'http://u:p@foo.bar.com:666/path?foo=bar#baz'
 ```
 
 ### Modifying urls
 
 All methods that are used to get a component's value can also be used to 
-replace or set a value. So for example if you have an array of urls and you 
-want to be sure that they are all on https, you can achieve that like this:
+replace or set its value. So for example if you have an array of urls and you 
+want to be sure that they are all on https, you can achieve this simply by
+setting the scheme to `https` for all of them in a loop.
 
 ```php
 $urls = [
@@ -200,9 +200,9 @@ array(4) {
 }
 ```
 
-Another example: most websites can be reached with or without the www 
-subdomain. If you have an array of urls and want to assure that they all 
-point to the version with www:
+Another example: your website can be reached with or without the www subdomain. 
+Sloppy input data can easily be fixed by just assigning the same host to all of
+them.
 
 ```php
 $urls = [
@@ -233,8 +233,9 @@ array(4) {
 ```
 
 And that's the same for all components that are listed under the [available 
-url components](#available-url-components). And for the query string you can 
-also just provide an array:
+url components](#available-url-components). 
+
+And the query can even be set as an array:
 
 ```php
 $url = Url::parse('https://www.example.com/foo');
@@ -247,7 +248,7 @@ https://www.example.com/foo?param=value&marco=polo
 ```
 
 Btw.: As you can see in the example above, you can use a Url object like 
-a string because of its __toString() method. 
+a string because of its `__toString()` method.
 
 ### Resolving relative urls
 
@@ -324,8 +325,7 @@ Urls 1 and 2 DO NOT HAVE the same query.
 
 And again, this can be done with all components listed under the 
 [available url components](#available-url-components). Instead of a Url 
-object (`$url2` in the example above) you can also just provide a url as a 
-string. 
+object you can also just provide a url as a string. 
 
 ```php
 $url1 = Url::parse('https://www.example.com/foo/bar');
@@ -354,6 +354,52 @@ https://www.xn--e1afmkfd.xn--80asehdb/hello/world
 
 Behind the curtains [true/punycode](https://github.com/true/php-punycode) is 
 used to parse internationalized domain names.
+
+### PSR-7 UriInterface adapter class
+
+The `Url` class does not support immutability as it is required by the 
+[PSR-7 UriInterface](https://www.php-fig.org/psr/psr-7/#35-psrhttpmessageuriinterface).
+But the package provides an adapter class `Crwlr\Url\Psr\Uri` which has an
+instance of the `Url` class in a private property and thus assures immutability.
+
+#### Usage Example
+
+```php
+use Crwlr\Url\Psr\Uri;
+
+$url = 'https://user:password@www.example.com:1234/foo/bar?some=query#fragment';
+$uri = new Uri($url);
+
+var_dump($uri->getScheme());        // => 'https'
+var_dump($uri->getAuthority());     // => 'user:password@www.example.com:1234'
+var_dump($uri->getUserInfo());      // => 'user:password'
+var_dump($uri->getHost());          // => 'www.example.com'
+var_dump($uri->getPort());          // => 1234
+var_dump($uri->getPath());          // => '/foo/bar'
+var_dump($uri->getQuery());         // => 'some=query'
+var_dump($uri->getFragment());      // => 'fragment'
+
+// Keep in mind an instance of Uri is immutable and all the methods that change
+// state (method names starting with "with") return a new instance:
+$newUri = $uri->withScheme('http');
+var_dump($uri->getScheme());        // => 'https'
+var_dump($newUri->getScheme());     // => 'http'
+
+$uri = $newUri->withUserInfo('u', 'p');
+var_dump($uri->getUserInfo());      // => 'u:p'
+$uri = $uri->withHost('foo.bar.com');
+var_dump($uri->getHost());          // => 'foo.bar.com'
+$uri = $uri->withPort(666);
+var_dump($uri->getPort());          // => 666
+$uri = $uri->withPath('/path');
+var_dump($uri->getPath());          // => '/path'
+$uri = $uri->withQuery('foo=bar');
+var_dump($uri->getQuery());         // => 'foo=bar
+$uri = $uri->withFragment('baz');
+var_dump($uri->getFragment());      // => 'baz'
+var_dump($uri->__toString());
+// => 'http://u:p@foo.bar.com:666/path?foo=bar#baz'
+```
 
 ### Updating Mozilla's Public Suffix List
 
