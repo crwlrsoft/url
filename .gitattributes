@@ -1,4 +1,4 @@
 tests export-ignore
 .editorconfig export-ignore
 .gitignore export-ignore
-phpunit.xml
+phpunit.xml export-ignore
