@@ -1,8 +1,22 @@
 {
     "name": "crwlr/url",
     "description": "Swiss Army knife for urls.",
-    "keywords": ["crwlr", "url", "urls", "uri", "parse", "parsing", "components", "idn"],
-    "homepage": "https://www.crwlr.software",
+    "keywords": [
+        "crwlr",
+        "url",
+        "urls",
+        "uri",
+        "parser",
+        "parse",
+        "parsing",
+        "components",
+        "idn",
+        "rfc3986",
+        "rfc3987",
+        "psr-7",
+        "uriinterface",
+    ],
+    "homepage": "https://www.crwlr.software/packages/url",
     "license": "MIT",
     "authors": [
         {
