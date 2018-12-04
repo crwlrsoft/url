@@ -37,7 +37,7 @@ class Resolver
      * @return Url
      * @throws InvalidUrlException
      */
-    public function resolve(string $subject = '', Url $base) : Url
+    public function resolve(string $subject, Url $base) : Url
     {
         $urlAndComponents = $this->validator->url($subject, true);
 
@@ -56,8 +56,6 @@ class Resolver
         if (substr($subject, 0, 2) === '//') {
             return new Url($base->scheme() . ':' . $subject);
         }
-
-        //$subject = $this->resolveDots($subject, $base->path());
 
         return new Url($base->root() . $subject);
     }
