@@ -58,32 +58,32 @@ class Domain
     }
 
     /**
-     * Get or set the domain label.
+     * (Set and/or) Get the domain label
      *
      * @param string|null $newLabel
-     * @return mixed
+     * @return string|null
      */
     public function label(string $newLabel = null)
     {
-        if ($newLabel === null) {
-            return $this->label;
+        if ($newLabel !== null) {
+            $this->label = !empty($newLabel) ? $newLabel : null;
         }
 
-        $this->label = !empty($newLabel) ? $newLabel : null;
+        return $this->label;
     }
 
     /**
-     * Get or set the domain suffix.
+     * (Set and/or) Get the domain suffix
      *
      * @param string|null $newSuffix
-     * @return null|string
+     * @return string|null
      */
     public function suffix(string $newSuffix = null)
     {
-        if ($newSuffix === null) {
-            return $this->suffix;
+        if ($newSuffix !== null) {
+            $this->suffix = !empty($newSuffix) ? $newSuffix : null;
         }
 
-        $this->suffix = !empty($newSuffix) ? $newSuffix : null;
+        return $this->suffix;
     }
 }

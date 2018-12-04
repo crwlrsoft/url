@@ -50,75 +50,67 @@ class Host
     }
 
     /**
-     * Get or set the registrable domain.
+     * (Set and/or) Get the registrable domain
      *
      * @param string|null $domain
-     * @return null|string
+     * @return string|null
      */
     public function domain(string $domain = null)
     {
-        if ($domain === null) {
-            return $this->domainNotEmpty() ? $this->domain->__toString() : null;
+        if ($domain !== null) {
+            $this->domain = new Domain($domain);
+            $this->updateHost();
         }
 
-        $this->domain = new Domain($domain);
-        $this->updateHost();
+        return $this->domainNotEmpty() ? $this->domain->__toString() : null;
     }
 
     /**
-     * Get or set the subdomain part of the host.
+     * (Set and/or) Get the subdomain part of the host
      *
      * @param string|null $subdomain
-     * @return null|string
+     * @return string|null
      */
     public function subdomain(string $subdomain = null)
     {
-        if ($subdomain === null) {
-            return !empty($this->subdomain) ? $this->subdomain : null;
+        if ($subdomain !== null) {
+            $this->subdomain = $subdomain;
+            $this->updateHost();
         }
 
-        $this->subdomain = $subdomain;
-        $this->updateHost();
+        return !empty($this->subdomain) ? $this->subdomain : null;
     }
 
     /**
-     * Get or set the domain label (registrable domain without suffix).
+     * (Set and/or) Get the domain label (registrable domain without suffix)
      *
      * @param string|null $domainLabel
-     * @return mixed|null
+     * @return string|null
      */
     public function domainLabel(string $domainLabel = null)
     {
-        if ($this->domain instanceof Domain) {
-            if ($domainLabel === null) {
-                return $this->domain->label();
-            }
-
+        if ($domainLabel !== null && $this->domain instanceof Domain) {
             $this->domain->label($domainLabel);
             $this->updateHost();
-        } elseif ($domainLabel === null) {
-            return null;
         }
+
+        return $this->domain instanceof Domain ? $this->domain->label() : null;
     }
 
     /**
-     * Get or set the public suffix of the registrable domain.
+     * (Set and/or) Get the public suffix of the registrable domain
      *
      * @param string|null $domainSuffix
-     * @return null|string
+     * @return string|null
      */
     public function domainSuffix(string $domainSuffix = null)
     {
-        if ($this->domain instanceof Domain) {
-            if ($domainSuffix === null) {
-                return $this->domain->suffix();
-            }
-
+        if ($domainSuffix !== null && $this->domain instanceof Domain) {
             $this->domain->suffix($domainSuffix);
             $this->updateHost();
-        } elseif ($domainSuffix === null) {
-            return null;
         }
+
+        return $this->domain instanceof Domain ? $this->domain->suffix() : null;
     }
 
     /**
