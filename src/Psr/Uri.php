@@ -150,54 +150,54 @@ class Uri implements UriInterface
 
     /**
      * @param string $scheme
-     * @return self
+     * @return Uri
      * @throws \InvalidArgumentException
      * @throws InvalidUrlException
      */
-    public function withScheme($scheme) : self
+    public function withScheme($scheme) : Uri
     {
         if (!$this->validator->scheme($scheme) && trim($scheme) !== '') {
             throw new \InvalidArgumentException('Invalid scheme.');
         }
 
-        return $this->returnNewInstance($this->newUrlInstance()->scheme($scheme));
+        return $this->newInstance($this->newUrlInstance()->scheme($scheme));
     }
 
     /**
      * @param string $user
      * @param null|string $password
-     * @return self
+     * @return Uri
      * @throws InvalidUrlException
      */
-    public function withUserInfo($user, $password = null) : self
+    public function withUserInfo($user, $password = null) : Uri
     {
         $newUrl = $this->newUrlInstance();
         $newUrl->user($user);
         $newUrl->pass($password);
 
-        return $this->returnNewInstance($newUrl);
+        return $this->newInstance($newUrl);
     }
 
     /**
      * @param string $host
-     * @return self
+     * @return Uri
      * @throws InvalidUrlException
      */
-    public function withHost($host) : self
+    public function withHost($host) : Uri
     {
         $newUrl = $this->newUrlInstance();
         $newUrl->host($host);
 
-        return $this->returnNewInstance($newUrl);
+        return $this->newInstance($newUrl);
     }
 
     /**
      * @param int|null $port
-     * @return self
+     * @return Uri
      * @throws \InvalidArgumentException
      * @throws InvalidUrlException
      */
-    public function withPort($port) : self
+    public function withPort($port) : Uri
     {
         if ($port !== null && $this->validator->port($port) === false) {
             throw new \InvalidArgumentException('Port is outside the valid TCP and UDP port ranges.');
@@ -211,7 +211,7 @@ class Uri implements UriInterface
             $newUrl->port($port);
         }
 
-        return $this->returnNewInstance($newUrl);
+        return $this->newInstance($newUrl);
     }
 
     /**
@@ -219,10 +219,10 @@ class Uri implements UriInterface
      * to an absolute one.
      *
      * @param string $path
-     * @return self
+     * @return Uri
      * @throws InvalidUrlException
      */
-    public function withPath($path) : self
+    public function withPath($path) : Uri
     {
         $newUrl = $this->newUrlInstance();
 
@@ -236,33 +236,33 @@ class Uri implements UriInterface
 
         $newUrl->path($path);
 
-        return $this->returnNewInstance($newUrl);
+        return $this->newInstance($newUrl);
     }
 
     /**
      * @param string $query
-     * @return self
+     * @return Uri
      * @throws InvalidUrlException
      */
-    public function withQuery($query) : self
+    public function withQuery($query) : Uri
     {
         $newUrl = $this->newUrlInstance();
         $newUrl->query($query);
 
-        return $this->returnNewInstance($newUrl);
+        return $this->newInstance($newUrl);
     }
 
     /**
      * @param string $fragment
-     * @return self
+     * @return Uri
      * @throws InvalidUrlException
      */
-    public function withFragment($fragment) : self
+    public function withFragment($fragment) : Uri
     {
         $newUrl = $this->newUrlInstance();
         $newUrl->fragment($fragment);
 
-        return $this->returnNewInstance($newUrl);
+        return $this->newInstance($newUrl);
     }
 
     /**
@@ -278,7 +278,7 @@ class Uri implements UriInterface
      * @return Uri
      * @throws InvalidUrlException
      */
-    private function returnNewInstance(Url $url) : self
+    private function newInstance(Url $url) : Uri
     {
         return new self($url, $this->validator, $this->resolver);
     }
