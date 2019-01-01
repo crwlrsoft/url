@@ -117,12 +117,8 @@ class Uri implements UriInterface
 
         $scheme = $this->getScheme();
 
-        if ($scheme) {
-            $standardPort = Helpers::getStandardPortByScheme($scheme);
-
-            if ($port === $standardPort) {
-                return null;
-            }
+        if ($scheme && $port === Helpers::getStandardPortByScheme($scheme)) {
+            return null;
         }
 
         return $port;
