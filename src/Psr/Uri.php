@@ -156,15 +156,11 @@ class Uri implements UriInterface
      */
     public function withScheme($scheme) : self
     {
-        $newUrl = $this->newUrlInstance();
-
         if (!$this->validator->scheme($scheme) && trim($scheme) !== '') {
             throw new \InvalidArgumentException('Invalid scheme.');
         }
 
-        $newUrl->scheme($scheme);
-
-        return $this->returnNewInstance($newUrl);
+        return $this->returnNewInstance($this->newUrlInstance()->scheme($scheme));
     }
 
     /**
