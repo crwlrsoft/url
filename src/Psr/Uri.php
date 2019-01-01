@@ -1,6 +1,7 @@
 <?php
 
 namespace Crwlr\Url\Psr;
+
 use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Helpers;
 use Crwlr\Url\Resolver;
@@ -36,7 +37,6 @@ class Uri implements UriInterface
      * @param string $url
      * @param Validator|null $validator
      * @param Resolver|null $resolver
-     * @throws \InvalidArgumentException
      * @throws InvalidUrlException
      */
     public function __construct($url, $validator = null, $resolver = null)
@@ -46,7 +46,7 @@ class Uri implements UriInterface
         } elseif (is_string($url)) {
             $this->url = new Url($url, $validator);
         } else {
-            throw new \InvalidArgumentException('Param url must be either a string or an instance of Crwlr\Url\Url.');
+            throw new InvalidUrlException('Param url must be either a string or an instance of Crwlr\Url\Url.');
         }
 
         if ($validator instanceof Validator) {
