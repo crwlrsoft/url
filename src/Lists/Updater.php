@@ -1,6 +1,7 @@
 <?php
 
 namespace Crwlr\Url\Lists;
+
 use Crwlr\Url\Exceptions\ListUpdaterException;
 
 /**

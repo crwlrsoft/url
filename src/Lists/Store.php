@@ -17,7 +17,7 @@ namespace Crwlr\Url\Lists;
  * The exists method in this class will first check the fallback list before loading the full list.
  */
 
-class Store
+abstract class Store
 {
     /**
      * The list as an array, with the values as the keys for fast search
