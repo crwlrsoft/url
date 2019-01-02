@@ -508,15 +508,15 @@ class Validator
         preg_match_all(
             '/' .
             '(?:' .
-            '([^=&\[]+)' .                // Any character that isn't '=', '&' or '['
+            '([^=&\[]+)' .              // Any character that isn't '=', '&' or '['
             '(?:' .
             '(?:\[[^=&\[\]]*\])*' .     // Either array syntax [indexName1][indexName2]...
             '|' .
             '([^=&]*)' .                // Or any character that isn't '=' or '&'
             ')' .
             ')' .
-            '(?:\=(?:[^&]*|$))?' .            // Optional: '=' and possibly a value
-            '(?:&|$)' .                         // Either & or end of string
+            '(?:\=(?:[^&]*|$))?' .      // Optional: '=' and possibly a value
+            '(?:&|$)' .                 // Either & or end of string
             '/',
             $query,
             $splitQuery
