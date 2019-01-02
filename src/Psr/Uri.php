@@ -109,19 +109,7 @@ class Uri implements UriInterface
      */
     public function getPort()
     {
-        $port = $this->url->port();
-
-        if (!$port) {
-            return $port;
-        }
-
-        $scheme = $this->getScheme();
-
-        if ($scheme && $port === Helpers::getStandardPortByScheme($scheme)) {
-            return null;
-        }
-
-        return $port;
+        return $this->url->port();
     }
 
     /**
