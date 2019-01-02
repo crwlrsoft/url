@@ -39,7 +39,7 @@ class Suffixes extends Store
     /**
      * @param null|Punycode $punyCode
      */
-    public function __construct($punyCode = null)
+    public function __construct(?Punycode $punyCode = null)
     {
         $this->punyCode = ($punyCode instanceof Punycode) ? $punyCode : new Punycode();
         parent::__construct();
@@ -49,7 +49,7 @@ class Suffixes extends Store
      * @param string $host
      * @return string|null
      */
-    public function getByHost($host = '')
+    public function getByHost(string $host = ''): ?string
     {
         foreach ($this->getPossibleSuffixes($host) as $suffix) {
             if ($this->exists($suffix)) {
@@ -65,7 +65,7 @@ class Suffixes extends Store
      * @param bool $idnDecoded
      * @return bool
      */
-    public function exists($key, $idnDecoded = false) : bool
+    public function exists($key, bool $idnDecoded = false): bool
     {
         if (!is_string($key)) {
             return false;
@@ -91,7 +91,7 @@ class Suffixes extends Store
      * @param string $key
      * @return bool
      */
-    private function wildcardSuffixExists(string $key)
+    private function wildcardSuffixExists(string $key): bool
     {
         $splitAtDot = explode('.', $key);
 
@@ -115,12 +115,8 @@ class Suffixes extends Store
      * @param string $host
      * @return string[]
      */
-    private function getPossibleSuffixes($host = '')
+    private function getPossibleSuffixes(string $host = ''): array
     {
-        if (!is_string($host) || $host === '') {
-            return [];
-        }
-
         $hostParts = explode('.', strtolower($host));
 
         if (count($hostParts) < 2) {

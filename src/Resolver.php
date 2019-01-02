@@ -20,7 +20,7 @@ class Resolver
     /**
      * @param Validator|null $validator
      */
-    public function __construct(Validator $validator = null)
+    public function __construct(?Validator $validator = null)
     {
         $this->validator = ($validator instanceof Validator) ? $validator : new Validator(Helpers::punyCode());
     }
@@ -37,7 +37,7 @@ class Resolver
      * @return Url
      * @throws InvalidUrlException
      */
-    public function resolve(string $subject, Url $base) : Url
+    public function resolve(string $subject, Url $base): Url
     {
         $urlAndComponents = $this->validator->url($subject, true);
 
@@ -65,7 +65,7 @@ class Resolver
      * @param string $basePath
      * @return string
      */
-    public function resolvePath(string $resolvePath, string $basePath) : string
+    public function resolvePath(string $resolvePath, string $basePath): string
     {
         return $this->resolveDots($resolvePath, $basePath);
     }
@@ -81,7 +81,7 @@ class Resolver
      * @param string $basePath
      * @return string
      */
-    private function resolveDots(string $subject = '', string $basePath = '') : string
+    private function resolveDots(string $subject = '', string $basePath = ''): string
     {
         $basePathDir = $this->getDirectoryPath($basePath);
         $splitBySlash = explode('/', $subject);
@@ -92,11 +92,11 @@ class Resolver
             } elseif ($part === '..') {
                 $parentDirKey = $this->getParentDirFromArray($splitBySlash, $key);
 
-                if ($parentDirKey !== false) {
-                    unset($splitBySlash[$parentDirKey], $splitBySlash[$key]);
-                } else {
+                if ($parentDirKey === null) {
                     $basePathDir = $this->getParentDirectoryPath($basePathDir);
                     unset($splitBySlash[$key]);
+                } else {
+                    unset($splitBySlash[$parentDirKey], $splitBySlash[$key]);
                 }
             }
         }
@@ -117,12 +117,12 @@ class Resolver
     /**
      * @param array $splitPath
      * @param int $currentKey
-     * @return bool|int
+     * @return null|int
      */
-    private function getParentDirFromArray(array $splitPath = [], int $currentKey = 0)
+    private function getParentDirFromArray(array $splitPath = [], int $currentKey = 0): ?int
     {
         if ($currentKey === 0) {
-            return false;
+            return null;
         }
 
         for ($i = ($currentKey - 1); $i >= 0; $i--) {
@@ -131,7 +131,7 @@ class Resolver
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -140,7 +140,7 @@ class Resolver
      * @param string $path
      * @return string
      */
-    private function getParentDirectoryPath(string $path = '') : string
+    private function getParentDirectoryPath(string $path = ''): string
     {
         if (substr($path, -1, 1) !== '/') {
             $path = $this->getDirectoryPath($path);
@@ -163,7 +163,7 @@ class Resolver
      * @param string $path
      * @return string
      */
-    private function getDirectoryPath(string $path = '') : string
+    private function getDirectoryPath(string $path = ''): string
     {
         if (substr($path, -1, 1) === '/') {
             return $path;

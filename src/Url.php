@@ -18,11 +18,18 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
 class Url
 {
     /**
-     * All url components.
+     * All (string) url components.
      *
-     * @var string
+     * @var string|null
      */
-    private $url, $scheme, $user, $pass, $host, $port, $path, $query, $fragment;
+    private $url, $scheme, $user, $pass, $host, $path, $query, $fragment;
+
+    /**
+     * Port url component (int).
+     *
+     * @var int|null
+     */
+    private $port;
 
     /**
      * List of all components including alias method names.
@@ -62,11 +69,11 @@ class Url
 
     /**
      * @param string|Url $url
-     * @param Validator $validator
+     * @param Validator|null $validator
      * @throws InvalidUrlException
      * @throws \InvalidArgumentException
      */
-    public function __construct($url, $validator = null)
+    public function __construct($url, ?Validator $validator = null)
     {
         if (!is_string($url) && !$url instanceof Url) {
             throw new \InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
@@ -91,7 +98,7 @@ class Url
 
     /**
      * @param string $name
-     * @param string|int|array $value
+     * @param mixed $value
      * @return mixed
      */
     public function __set(string $name, $value)
@@ -110,7 +117,7 @@ class Url
      * @return Url
      * @throws InvalidUrlException
      */
-    public static function parse(string $url = '')
+    public static function parse(string $url = ''): Url
     {
         return new self($url);
     }
@@ -121,7 +128,7 @@ class Url
      * @param null|string $scheme
      * @return string|null|Url
      */
-    public function scheme(string $scheme = null)
+    public function scheme(?string $scheme = null)
     {
         if ($scheme === null) {
             return $this->scheme;
@@ -190,7 +197,7 @@ class Url
      *
      * @return string
      */
-    public function authority() : string
+    public function authority(): string
     {
         $authority = '';
 
@@ -211,7 +218,7 @@ class Url
      * @param null|string $host
      * @return string|null|Url
      */
-    public function host($host = null)
+    public function host(?string $host = null)
     {
         if ($host === null) {
             return $this->host instanceof Host ? $this->host->__toString() : null;
@@ -237,7 +244,7 @@ class Url
      * @param null|string $domain
      * @return string|null|Url
      */
-    public function domain(string $domain = null)
+    public function domain(?string $domain = null)
     {
         if ($domain === null) {
             return $this->host instanceof Host ? $this->host->domain() : null;
@@ -291,7 +298,7 @@ class Url
      * @param null|string $domainSuffix
      * @return string|null|Url
      */
-    public function domainSuffix(string $domainSuffix = null)
+    public function domainSuffix(?string $domainSuffix = null)
     {
         if ($domainSuffix === null) {
             return $this->host instanceof Host ? $this->host->domainSuffix() : null;
@@ -312,7 +319,7 @@ class Url
      * host: "www.crwlr.software" => subdomain: "www"
      * It can only be set when the current url contains a host with a registrable domain.
      *
-     * @param null|string $subdomain
+     * @param null|string|int $subdomain
      * @return string|null|Url
      */
     public function subdomain($subdomain = null)
@@ -350,7 +357,7 @@ class Url
 
         $port = $this->validator->port($port);
 
-        if ($port !== false) {
+        if ($port !== null) {
             $this->port = $port;
             $this->updateFullUrl();
         }
@@ -358,7 +365,7 @@ class Url
         return $this;
     }
 
-    public function resetPort()
+    public function resetPort(): void
     {
         $this->port = null;
         $this->updateFullUrl();
@@ -370,7 +377,7 @@ class Url
      * @param null|string $path
      * @return string|null|Url
      */
-    public function path(string $path = null)
+    public function path(?string $path = null)
     {
         if ($path === null) {
             return $this->path;
@@ -417,7 +424,7 @@ class Url
      * @param null|array $query
      * @return array|Url
      */
-    public function queryArray(array $query = null)
+    public function queryArray(?array $query = null)
     {
         if ($query === null) {
             if (!$this->query) {
@@ -443,7 +450,7 @@ class Url
      * @param null|string $fragment
      * @return string|null|Url
      */
-    public function fragment(string $fragment = null)
+    public function fragment(?string $fragment = null)
     {
         if ($fragment === null) {
             return $this->fragment;
@@ -469,7 +476,7 @@ class Url
      *
      * @return string
      */
-    public function root() : string
+    public function root(): string
     {
         return (!empty($this->scheme) ? $this->scheme . ':' : '') .
             ($this->authority() === '' ? '' : '//' . $this->authority());
@@ -482,7 +489,7 @@ class Url
      *
      * @return string
      */
-    public function relative() : string
+    public function relative(): string
     {
         return ($this->path() ?: '') .
             ($this->query() ? '?' . $this->query() : '') .
@@ -500,7 +507,7 @@ class Url
      * @return Url
      * @throws InvalidUrlException
      */
-    public function resolve(string $relativeUrl = '') : Url
+    public function resolve(string $relativeUrl = ''): Url
     {
         return $this->resolver()->resolve($relativeUrl, $this);
     }
@@ -512,7 +519,7 @@ class Url
      * @param string $componentName
      * @return bool
      */
-    public function compare($compareWithUrl, string $componentName) : bool
+    public function compare($compareWithUrl, string $componentName): bool
     {
         if (is_string($compareWithUrl)) {
             try {
@@ -534,7 +541,7 @@ class Url
     /**
      * @return string
      */
-    public function __toString() : string
+    public function __toString(): string
     {
         return $this->toString();
     }
@@ -542,7 +549,7 @@ class Url
     /**
      * @return string
      */
-    public function toString() : string
+    public function toString(): string
     {
         return $this->url;
     }
@@ -556,11 +563,11 @@ class Url
      * In case the input url is a string the validate() method below returns an array with valid components (or
      * throws an InvalidUrlException).
      *
-     * @param $url
+     * @param string|Url $url
      * @throws InvalidUrlException
      * @throws \InvalidArgumentException
      */
-    private function decorate($url)
+    private function decorate($url): void
     {
         $url = $this->validate($url);
         $this->url = $url instanceof Url ? $url->toString() : $url['url'];
@@ -583,7 +590,7 @@ class Url
     /**
      * Parse and validate $url in case it's a string, return when it's an instance of Url or throw an Exception.
      *
-     * @param $url
+     * @param string|Url $url
      * @return array|Url
      * @throws InvalidUrlException
      * @throws \InvalidArgumentException
@@ -606,7 +613,7 @@ class Url
     /**
      * Regenerate the full url after changing components.
      */
-    private function updateFullUrl()
+    private function updateFullUrl(): void
     {
         $this->url = $this->root() . $this->relative();
     }
@@ -614,16 +621,17 @@ class Url
     /**
      * @return Url
      */
-    private function updateFullUrlAndReturnInstance() : Url
+    private function updateFullUrlAndReturnInstance(): Url
     {
         $this->updateFullUrl();
+
         return $this;
     }
 
     /**
      * @return Resolver
      */
-    private function resolver() : Resolver
+    private function resolver(): Resolver
     {
         if (!$this->resolver) {
             $this->resolver = new Resolver($this->validator);

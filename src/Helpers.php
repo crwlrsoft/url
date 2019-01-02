@@ -26,7 +26,7 @@ class Helpers
      *
      * @return Suffixes
      */
-    public static function suffixes() : Suffixes
+    public static function suffixes(): Suffixes
     {
         if (!self::$suffixes instanceof Suffixes) {
             self::$suffixes = new Suffixes(self::punyCode());
@@ -40,7 +40,7 @@ class Helpers
      *
      * @return Schemes
      */
-    public static function schemes() : Schemes
+    public static function schemes(): Schemes
     {
         if (!self::$schemes instanceof Schemes) {
             self::$schemes = new Schemes();
@@ -54,7 +54,7 @@ class Helpers
      *
      * @return Punycode
      */
-    public static function punyCode() : Punycode
+    public static function punyCode(): Punycode
     {
         if (!self::$punyCode instanceof Punycode) {
             self::$punyCode = new Punycode();
@@ -83,7 +83,7 @@ class Helpers
      * @param array $comp
      * @return string
      */
-    public static function buildUrlFromComponents(array $comp = []) : string
+    public static function buildUrlFromComponents(array $comp = []): string
     {
         $url = '';
 
@@ -116,7 +116,7 @@ class Helpers
      * @param string $query
      * @return array
      */
-    public static function queryStringToArray(string $query = '') : array
+    public static function queryStringToArray(string $query = ''): array
     {
         parse_str($query, $array);
 
@@ -134,7 +134,7 @@ class Helpers
      * @param string $scheme
      * @return int|null
      */
-    public static function getStandardPortByScheme(string $scheme)
+    public static function getStandardPortByScheme(string $scheme): ?int
     {
         $scheme = strtolower(trim($scheme));
 
@@ -162,7 +162,7 @@ class Helpers
      * @param bool $noDot
      * @return bool
      */
-    public static function containsCharactersNotAllowedInHost(string $string, bool $noDot = false) : bool
+    public static function containsCharactersNotAllowedInHost(string $string, bool $noDot = false): bool
     {
         $pattern = '/[^a-zA-Z0-9\-\.]/';
 
@@ -188,7 +188,7 @@ class Helpers
      * @param string $strip
      * @return string
      */
-    public static function stripFromEnd(string $string = '', string $strip = '') : string
+    public static function stripFromEnd(string $string = '', string $strip = ''): string
     {
         $stripLength = strlen($strip);
         $stringLength = strlen($string);
@@ -214,7 +214,7 @@ class Helpers
      * @param array $array
      * @return array
      */
-    private static function replaceKeysContainingDots(string $query, array $array) : array
+    private static function replaceKeysContainingDots(string $query, array $array): array
     {
         // Regex to find keys in query string.
         preg_match_all('/(?:^|&)([^=&\[]+)(?:[=&\[]|$)/', $query, $matches);

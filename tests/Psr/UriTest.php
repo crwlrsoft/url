@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+use Crwlr\Url\Exceptions\InvalidUrlException;
+use Crwlr\Url\Psr\Uri;
 use PHPUnit\Framework\TestCase;
 
 final class UriTest extends TestCase
@@ -53,7 +55,7 @@ final class UriTest extends TestCase
 
     public function testUserInfo()
     {
-        $uri = new \Crwlr\Url\Psr\Uri('http://www.example.com/foo/bar?query=string#fragment');
+        $uri = new Uri('http://www.example.com/foo/bar?query=string#fragment');
         $this->assertEmpty($uri->getUserInfo());
 
         $uri = $uri->withUserInfo('otsch', 'crwlr');
@@ -74,7 +76,7 @@ final class UriTest extends TestCase
 
     public function testHost()
     {
-        $uri = new \Crwlr\Url\Psr\Uri('http://www.example.com/foo/bar?query=string#fragment');
+        $uri = new Uri('http://www.example.com/foo/bar?query=string#fragment');
         $this->assertEquals('www.example.com', $uri->getHost());
 
         $uri = $uri->withHost('www.eggsample.com');
@@ -200,11 +202,11 @@ final class UriTest extends TestCase
     }
 
     /**
-     * @return \Crwlr\Url\Psr\Uri
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @return Uri
+     * @throws InvalidUrlException
      */
     private function getUri()
     {
-        return new \Crwlr\Url\Psr\Uri('http://www.example.com/foo/bar?query=string#fragment');
+        return new Uri('http://www.example.com/foo/bar?query=string#fragment');
     }
 }

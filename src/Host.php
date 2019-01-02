@@ -27,8 +27,6 @@ class Host
     private $domain;
 
     /**
-     * Host constructor.
-     *
      * If you use this class directly, please validate the $host string first with Validator->host().
      *
      * @param string $host
@@ -44,7 +42,10 @@ class Host
         }
     }
 
-    public function __toString() : string
+    /**
+     * @return string
+     */
+    public function __toString(): string
     {
         return $this->host;
     }
@@ -55,7 +56,7 @@ class Host
      * @param string|null $domain
      * @return string|null
      */
-    public function domain(string $domain = null)
+    public function domain(?string $domain = null): ?string
     {
         if ($domain !== null) {
             $this->domain = new Domain($domain);
@@ -71,7 +72,7 @@ class Host
      * @param string|null $subdomain
      * @return string|null
      */
-    public function subdomain(string $subdomain = null)
+    public function subdomain(?string $subdomain = null): ?string
     {
         if ($subdomain !== null) {
             $this->subdomain = $subdomain;
@@ -87,7 +88,7 @@ class Host
      * @param string|null $domainLabel
      * @return string|null
      */
-    public function domainLabel(string $domainLabel = null)
+    public function domainLabel(?string $domainLabel = null): ?string
     {
         if ($domainLabel !== null && $this->domain instanceof Domain) {
             $this->domain->label($domainLabel);
@@ -103,7 +104,7 @@ class Host
      * @param string|null $domainSuffix
      * @return string|null
      */
-    public function domainSuffix(string $domainSuffix = null)
+    public function domainSuffix(?string $domainSuffix = null): ?string
     {
         if ($domainSuffix !== null && $this->domain instanceof Domain) {
             $this->domain->suffix($domainSuffix);
@@ -116,7 +117,7 @@ class Host
     /**
      * Update the full host string.
      */
-    private function updateHost()
+    private function updateHost(): void
     {
         if ($this->domainNotEmpty()) {
             $this->host =  ($this->subdomain ? $this->subdomain . '.' : '') . $this->domain->__toString();
@@ -130,7 +131,7 @@ class Host
      *
      * @return bool
      */
-    private function domainNotEmpty() : bool
+    private function domainNotEmpty(): bool
     {
         if ($this->domain instanceof Domain && !empty($this->domain->__toString())) {
             return true;

@@ -1,18 +1,20 @@
 <?php
 declare(strict_types=1);
 
+use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Resolver;
+use Crwlr\Url\Url;
 use PHPUnit\Framework\TestCase;
 
 final class ResolverTest extends TestCase
 {
     /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testResolveRelativeUrls()
     {
         $baseUrlObject = $this->getBaseUrlObject();
-        $resolver = new \Crwlr\Url\Resolver();
+        $resolver = new Resolver();
 
         $resolved = $resolver->resolve('test', $baseUrlObject);
         $this->assertEquals('https://www.example.com/foo/bar/test', $resolved->toString());
@@ -80,7 +82,7 @@ final class ResolverTest extends TestCase
         $resolved = $resolver->resolve('/one/./two/./../three/four/..', $baseUrlObject);
         $this->assertEquals('https://www.example.com/one/three/', $resolved->toString());
 
-        $relativeBaseUrl = new Crwlr\Url\Url('/foo/bar/baz?query=string#fragment');
+        $relativeBaseUrl = new Url('/foo/bar/baz?query=string#fragment');
         $resolved = $resolver->resolve('.././one/./two/./../three', $relativeBaseUrl);
         $this->assertEquals('/foo/one/three', $resolved->toString());
     }
@@ -88,7 +90,7 @@ final class ResolverTest extends TestCase
     /**
      * When resolve() is called with an absolute url as subject, it should just return this absolute url.
      *
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @throws InvalidUrlException
      */
     public function testResolveAbsoluteUrl()
     {
@@ -104,7 +106,7 @@ final class ResolverTest extends TestCase
         $resolved = $resolver->resolve('//www.crwlr.software/blog', $baseUrlObject);
         $this->assertEquals('https://www.crwlr.software/blog', $resolved->toString());
 
-        $relativeBaseUrl = new Crwlr\Url\Url('/foo/bar?query=string#fragment');
+        $relativeBaseUrl = new Url('/foo/bar?query=string#fragment');
         $resolved = $resolver->resolve('https://www.example.com/examples', $relativeBaseUrl);
         $this->assertEquals('https://www.example.com/examples', $resolved);
     }
@@ -114,7 +116,7 @@ final class ResolverTest extends TestCase
      */
     public function testResolvePaths()
     {
-        $resolver = new \Crwlr\Url\Resolver();
+        $resolver = new Resolver();
 
         $this->assertEquals('/foo/baz', $resolver->resolvePath('baz', '/foo/bar'));
 
@@ -128,8 +130,8 @@ final class ResolverTest extends TestCase
 
     /**
      * @param string $url
-     * @return \Crwlr\Url\Url
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     * @return Url
+     * @throws InvalidUrlException
      */
     private function getBaseUrlObject($url = '')
     {
@@ -137,6 +139,6 @@ final class ResolverTest extends TestCase
             $url = 'https://www.example.com/foo/bar/baz';
         }
 
-        return new Crwlr\Url\Url($url);
+        return new Url($url);
     }
 }

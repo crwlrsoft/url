@@ -27,7 +27,7 @@ class Updater extends \Crwlr\Url\Lists\Updater
      * @param string $content
      * @return array
      */
-    protected function parseContent(string $content = '') : array
+    protected function parseContent(string $content = ''): array
     {
         $suffixes = [];
         $lines = explode("\n", $content);
@@ -48,7 +48,7 @@ class Updater extends \Crwlr\Url\Lists\Updater
     /**
      * @return string
      */
-    protected function getListStorePath() : string
+    protected function getListStorePath(): string
     {
         return (new Suffixes(Helpers::punyCode()))->getStorePath();
     }

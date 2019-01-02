@@ -341,10 +341,6 @@ final class UrlTest extends TestCase
         $url->password(1234);
         $this->assertEquals('1234', $url->password());
 
-        $url->host(1234);
-        $this->assertEquals('1234', $url->host());
-        $url->host('www.example.com');
-
         $url->domainLabel(1234);
         $this->assertEquals('1234', $url->domainLabel());
 

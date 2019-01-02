@@ -90,8 +90,8 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('wss', $validator->scheme('wss'));
         $this->assertEquals('https', $validator->scheme('HTTPS'));
 
-        $this->assertFalse($validator->scheme('1invalidscheme'));
-        $this->assertFalse($validator->scheme('mäilto'));
+        $this->assertNull($validator->scheme('1invalidscheme'));
+        $this->assertNull($validator->scheme('mäilto'));
     }
 
     public function testValidateUserOrPassword()
@@ -116,19 +116,19 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('P4ss;w0rd', $validator->userOrPassword('P4ss;w0rd'));
         $this->assertEquals('=u$3r=', $validator->userOrPassword('=u$3r='));
 
-        $this->assertFalse($validator->userOrPassword('u§3rname'));
-        $this->assertFalse($validator->userOrPassword('"password"'));
-        $this->assertFalse($validator->userOrPassword('user:name'));
-        $this->assertFalse($validator->userOrPassword('pass`word'));
-        $this->assertFalse($validator->userOrPassword('Üsernäme'));
-        $this->assertFalse($validator->userOrPassword('pass^word'));
-        $this->assertFalse($validator->userOrPassword('user°name'));
-        $this->assertFalse($validator->userOrPassword('pass🤓moji'));
-        $this->assertFalse($validator->userOrPassword('<username>'));
-        $this->assertFalse($validator->userOrPassword('pass\word'));
-        $this->assertFalse($validator->userOrPassword('usern@me'));
-        $this->assertFalse($validator->userOrPassword('paßword'));
-        $this->assertFalse($validator->userOrPassword('us€rname'));
+        $this->assertNull($validator->userOrPassword('u§3rname'));
+        $this->assertNull($validator->userOrPassword('"password"'));
+        $this->assertNull($validator->userOrPassword('user:name'));
+        $this->assertNull($validator->userOrPassword('pass`word'));
+        $this->assertNull($validator->userOrPassword('Üsernäme'));
+        $this->assertNull($validator->userOrPassword('pass^word'));
+        $this->assertNull($validator->userOrPassword('user°name'));
+        $this->assertNull($validator->userOrPassword('pass🤓moji'));
+        $this->assertNull($validator->userOrPassword('<username>'));
+        $this->assertNull($validator->userOrPassword('pass\word'));
+        $this->assertNull($validator->userOrPassword('usern@me'));
+        $this->assertNull($validator->userOrPassword('paßword'));
+        $this->assertNull($validator->userOrPassword('us€rname'));
     }
 
     public function testValidateHost()
@@ -150,20 +150,20 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('localhost', $validator->host('localhost'));
         $this->assertEquals('dev.local', $validator->host('dev.local'));
 
-        $this->assertFalse($validator->host('slash/example.com'));
-        $this->assertFalse($validator->host('exclamation!mark.co'));
-        $this->assertFalse($validator->host('question?mark.blog'));
-        $this->assertFalse($validator->host('under_score.org'));
-        $this->assertFalse($validator->host('www.(parenthesis).net'));
-        $this->assertFalse($validator->host('idk.amper&sand.uk'));
-        $this->assertFalse($validator->host('per%cent.de'));
-        $this->assertFalse($validator->host('equals=.ch'));
-        $this->assertFalse($validator->host('apostrophe\'.at'));
-        $this->assertFalse($validator->host('one+one.mobile'));
-        $this->assertFalse($validator->host('hash#tag.social'));
-        $this->assertFalse($validator->host('co:lon.com'));
-        $this->assertFalse($validator->host('semi;colon.net'));
-        $this->assertFalse($validator->host('<html>.codes'));
+        $this->assertNull($validator->host('slash/example.com'));
+        $this->assertNull($validator->host('exclamation!mark.co'));
+        $this->assertNull($validator->host('question?mark.blog'));
+        $this->assertNull($validator->host('under_score.org'));
+        $this->assertNull($validator->host('www.(parenthesis).net'));
+        $this->assertNull($validator->host('idk.amper&sand.uk'));
+        $this->assertNull($validator->host('per%cent.de'));
+        $this->assertNull($validator->host('equals=.ch'));
+        $this->assertNull($validator->host('apostrophe\'.at'));
+        $this->assertNull($validator->host('one+one.mobile'));
+        $this->assertNull($validator->host('hash#tag.social'));
+        $this->assertNull($validator->host('co:lon.com'));
+        $this->assertNull($validator->host('semi;colon.net'));
+        $this->assertNull($validator->host('<html>.codes'));
     }
 
     public function testValidateDomainSuffix()
@@ -187,8 +187,8 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('or.at', $validator->domainSuffix('or.at'));
         $this->assertEquals('anything.bd', $validator->domainSuffix('anything.bd'));
 
-        $this->assertFalse($validator->domainSuffix('süffix'));
-        $this->assertFalse($validator->domainSuffix('idk'));
+        $this->assertNull($validator->domainSuffix('süffix'));
+        $this->assertNull($validator->domainSuffix('idk'));
     }
 
     public function testValidateDomain()
@@ -200,9 +200,9 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('example.xn--80asehdb', $validator->domain('example.онлайн'));
         $this->assertEquals('yolo', $validator->domain('yolo', true));
 
-        $this->assertFalse($validator->domain('www.google.com'));
-        $this->assertFalse($validator->domain('yolo'));
-        $this->assertFalse($validator->domain('subdomain.example.онлайн'));
+        $this->assertNull($validator->domain('www.google.com'));
+        $this->assertNull($validator->domain('yolo'));
+        $this->assertNull($validator->domain('subdomain.example.онлайн'));
     }
 
     public function testValidateSubdomain()
@@ -213,7 +213,7 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('sub.domain', $validator->subdomain('sub.domain'));
         $this->assertEquals('sub.do.main', $validator->subdomain('SUB.DO.MAIN'));
 
-        $this->assertFalse($validator->subdomain('sub_domain'));
+        $this->assertNull($validator->subdomain('sub_domain'));
     }
 
     public function testValidatePort()
@@ -227,9 +227,9 @@ final class ValidatorTest extends TestCase
         $this->assertEquals(65535, $validator->port(65535));
         $this->assertEquals(65535, $validator->port('65535'));
 
-        $this->assertFalse($validator->port(-1));
-        $this->assertFalse($validator->port('invalid'));
-        $this->assertFalse($validator->port(65536));
+        $this->assertNull($validator->port(-1));
+        $this->assertNull($validator->port('invalid'));
+        $this->assertNull($validator->port(65536));
     }
 
     public function testValidatePath()
@@ -251,7 +251,7 @@ final class ValidatorTest extends TestCase
         // By default the path validation method assumes the uri where the path is contained contains an authority
         // component. According to RFC 3986 (3.3. Path) a uri that contains an authority must be empty or begin with a
         // slash.
-        $this->assertFalse($validator->path('no/leading/slash'));
+        $this->assertNull($validator->path('no/leading/slash'));
 
         // If the uri that contains the given path component has no authority component you can set the $hasAuthority
         // parameter to false and it should work with a relative path that does not begin with slash.
@@ -303,7 +303,7 @@ final class ValidatorTest extends TestCase
      */
     private function urlValidationResultContains($validationResult, array $contains)
     {
-        $this->assertInternalType('array', $validationResult);
+        $this->assertIsArray($validationResult);
 
         foreach ($contains as $key => $value) {
             $this->assertArrayHasKey($key, $validationResult);

@@ -52,19 +52,16 @@ abstract class Updater
      * @param string $content
      * @return array
      */
-    abstract protected function parseContent(string $content = '') : array;
+    abstract protected function parseContent(string $content = ''): array;
 
     /**
      * A child class needs this function that returns the path where the parsed list will be stored.
      *
      * @return string
      */
-    abstract protected function getListStorePath() : string;
+    abstract protected function getListStorePath(): string;
 
-    /**
-     * Perform update.
-     */
-    public function update()
+    public function update(): void
     {
         try {
             $content = $this->loadAndStoreOriginal();
@@ -79,7 +76,7 @@ abstract class Updater
     /**
      * @throws ListUpdaterException
      */
-    private function checkUrl()
+    private function checkUrl(): void
     {
         if (!is_string($this->url) || trim($this->url) === '') {
             throw new ListUpdaterException('No url to load the original list from is defined.');
@@ -89,7 +86,7 @@ abstract class Updater
     /**
      * @throws ListUpdaterException
      */
-    private function setOriginalPath()
+    private function setOriginalPath(): void
     {
         if (!is_string($this->originalFilename) || trim($this->originalFilename) === '') {
             throw new ListUpdaterException(
@@ -103,9 +100,14 @@ abstract class Updater
     /**
      * @return string
      */
-    private function loadAndStoreOriginal() : string
+    private function loadAndStoreOriginal(): string
     {
         $content = file_get_contents($this->url);
+
+        if (!is_string($content)) {
+            return '';
+        }
+
         $content = str_replace("\r\n", "\n", $content); // Replace CRLF line breaks.
         file_put_contents($this->originalPath, $content);
 
@@ -113,17 +115,19 @@ abstract class Updater
     }
 
     /**
-     * @return bool|string
+     * @return string
      */
-    private function getContentFromOldFile()
+    private function getContentFromOldFile(): string
     {
-        return file_get_contents($this->originalPath);
+        $content = file_get_contents($this->originalPath);
+
+        return is_string($content) ? $content : '';
     }
 
     /**
      * @param array $parsed
      */
-    private function storeList(array $parsed = [])
+    private function storeList(array $parsed = []): void
     {
         $storeContent = "<?php return [";
 

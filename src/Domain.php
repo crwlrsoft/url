@@ -21,8 +21,6 @@ class Domain
     private $suffix;
 
     /**
-     * Domain constructor.
-     *
      * Checks if a public suffix is present in the $domain and splits the domain into label and suffix if yes.
      *
      * @param string $domain
@@ -48,7 +46,7 @@ class Domain
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         if (empty($this->label) || empty($this->suffix)) {
             return '';
@@ -63,7 +61,7 @@ class Domain
      * @param string|null $newLabel
      * @return string|null
      */
-    public function label(string $newLabel = null)
+    public function label(?string $newLabel = null): ?string
     {
         if ($newLabel !== null) {
             $this->label = !empty($newLabel) ? $newLabel : null;
@@ -78,7 +76,7 @@ class Domain
      * @param string|null $newSuffix
      * @return string|null
      */
-    public function suffix(string $newSuffix = null)
+    public function suffix(?string $newSuffix = null): ?string
     {
         if ($newSuffix !== null) {
             $this->suffix = !empty($newSuffix) ? $newSuffix : null;
