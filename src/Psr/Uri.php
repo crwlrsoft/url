@@ -67,7 +67,7 @@ class Uri implements UriInterface
      */
     public function getScheme() : string
     {
-        return ($scheme = $this->url->scheme()) ? $scheme : '';
+        return $this->url->scheme() ?: '';
     }
 
     /**
@@ -117,7 +117,7 @@ class Uri implements UriInterface
      */
     public function getPath()
     {
-        return ($path = $this->url->path()) ? $path : '';
+        return $this->url->path() ?: '';
     }
 
     /**
@@ -125,7 +125,7 @@ class Uri implements UriInterface
      */
     public function getQuery()
     {
-        return ($query = $this->url->query()) ? $query : '';
+        return $this->url->query() ?: '';
     }
 
     /**
@@ -133,7 +133,7 @@ class Uri implements UriInterface
      */
     public function getFragment()
     {
-        return ($fragment = $this->url->fragment()) ? $fragment : '';
+        return $this->url->fragment() ?: '';
     }
 
     /**
