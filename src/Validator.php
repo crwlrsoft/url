@@ -465,7 +465,7 @@ class Validator
     public function encodeBracketsInQuery(string $query): string
     {
         if (strpos($query, '[') !== false) {
-            list($keyValues, $keyPartsWithoutBrackets, $keyPartsContainingBrackets) = $this->splitQuery($query);
+            [$keyValues, $keyPartsWithoutBrackets, $keyPartsContainingBrackets] = $this->splitQuery($query);
 
             foreach ($keyValues as $index => $keyValue) {
                 if (isset($keyPartsContainingBrackets[$index]) && $keyPartsContainingBrackets[$index] !== '') {
