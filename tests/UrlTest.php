@@ -331,29 +331,6 @@ final class UrlTest extends TestCase
     /**
      * @throws InvalidUrlException
      */
-    public function testReplaceComponentsWithUnexpectedDataTypes()
-    {
-        $url = $this->createDefaultUrlObject();
-
-        $url->user(1234);
-        $this->assertEquals('1234', $url->user());
-
-        $url->password(1234);
-        $this->assertEquals('1234', $url->password());
-
-        $url->domainLabel(1234);
-        $this->assertEquals('1234', $url->domainLabel());
-
-        $url->subdomain(1234);
-        $this->assertEquals('1234', $url->subdomain());
-
-        $url->port('8081');
-        $this->assertEquals(8081, $url->port());
-    }
-
-    /**
-     * @throws InvalidUrlException
-     */
     public function testChainReplacementCalls()
     {
         $url = $this->createDefaultUrlObject();

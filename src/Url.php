@@ -146,10 +146,10 @@ class Url
      *
      * When param $user is an empty string, the pass(word) component will also be reset.
      *
-     * @param null|string|int $user
+     * @param null|string $user
      * @return string|null|Url
      */
-    public function user($user = null)
+    public function user(?string $user = null)
     {
         if ($user === null) {
             return $this->user;
@@ -165,10 +165,10 @@ class Url
     /**
      * Get or set the password component.
      *
-     * @param null|string|int $password
+     * @param null|string $password
      * @return string|null|Url
      */
-    public function password($password = null)
+    public function password(?string $password = null)
     {
         if ($password === null) {
             return $this->pass;
@@ -184,10 +184,10 @@ class Url
     /**
      * Alias for method password().
      *
-     * @param null|string|int $pass
+     * @param null|string $pass
      * @return string|null|Url
      */
-    public function pass($pass = null)
+    public function pass(?string $pass = null)
     {
         return $this->password($pass);
     }
@@ -269,10 +269,10 @@ class Url
      * That's the registrable domain without the domain suffix (e.g. domain: "crwlr.software" => domain label: "crwlr").
      * It can only be set when the current url contains a host with a registrable domain.
      *
-     * @param null|string|int $domainLabel
+     * @param null|string $domainLabel
      * @return string|null|Url
      */
-    public function domainLabel($domainLabel = null)
+    public function domainLabel(?string $domainLabel = null)
     {
         if ($domainLabel === null) {
             return $this->host instanceof Host ? $this->host->domainLabel() : null;
@@ -319,10 +319,10 @@ class Url
      * host: "www.crwlr.software" => subdomain: "www"
      * It can only be set when the current url contains a host with a registrable domain.
      *
-     * @param null|string|int $subdomain
+     * @param null|string $subdomain
      * @return string|null|Url
      */
-    public function subdomain($subdomain = null)
+    public function subdomain(?string $subdomain = null)
     {
         if ($subdomain === null) {
             return $this->host instanceof Host ? $this->host->subdomain() : null;
@@ -340,10 +340,10 @@ class Url
     /**
      * Get or set the port component.
      *
-     * @param null|int|string $port
+     * @param null|int $port
      * @return int|null|Url
      */
-    public function port($port = null)
+    public function port(?int $port = null)
     {
         if ($port === null) {
             $scheme = $this->scheme();
@@ -396,10 +396,10 @@ class Url
     /**
      * Get or set the query component (as string).
      *
-     * @param null|string|array $query
+     * @param null|string $query
      * @return string|null|Url
      */
-    public function query($query = null)
+    public function query(?string $query = null)
     {
         if ($query === null) {
             return $this->query;
