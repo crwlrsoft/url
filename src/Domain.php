@@ -35,7 +35,8 @@ class Domain
         if ($suffix) {
             $this->suffix = $suffix;
             $withoutDomainSuffix = Helpers::stripFromEnd($domain, '.' . $suffix);
-            $this->label = end(explode('.', $withoutDomainSuffix));
+            $splitByDot = explode('.', $withoutDomainSuffix);
+            $this->label = end($splitByDot);
         }
     }
 
