@@ -306,9 +306,9 @@ class Validator
             }
         }
 
-        $path = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
+        $path = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\%]/', function ($match) {
             return $this->urlEncodeCharacter($match[0]);
-        }, $path);
+        }, $this->encodePercentCharacter($path));
 
         return $path;
     }
@@ -327,9 +327,12 @@ class Validator
             $query = substr($query, 1);
         }
 
-        $query = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\[\]]/', function ($match) {
+        $query = $this->encodeBracketsInQuery($query);
+        $query = $this->encodePercentCharacter($query);
+
+        $query = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\[\]\%]/', function ($match) {
             return $this->urlEncodeCharacter($match[0]);
-        }, $this->encodeBracketsInQuery($query));
+        }, $query);
 
         return $query ?: '';
     }
@@ -347,9 +350,9 @@ class Validator
             $fragment = substr($fragment, 1);
         }
 
-        $fragment = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\?]/', function ($match) {
+        $fragment = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\?\%]/', function ($match) {
             return $this->urlEncodeCharacter($match[0]);
-        }, $fragment);
+        }, $this->encodePercentCharacter($fragment));
 
         return $fragment ?: '';
     }
@@ -367,6 +370,21 @@ class Validator
         }
 
         return '';
+    }
+
+    /**
+     * Encode percent character in path, query or fragment
+     *
+     * If the string (path, query, fragment) contains a percent character that is not part of an already percent
+     * encoded character it must be encoded (% => %25). So this method replaces all percent characters that are not
+     * followed by a hex code.
+     *
+     * @param string $string
+     * @return string
+     */
+    private function encodePercentCharacter(string $string = ''): string
+    {
+        return preg_replace('/%(?![0-9A-Fa-f][0-9A-Fa-f])/', '%25', $string) ?: $string;
     }
 
     /**

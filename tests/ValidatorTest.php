@@ -242,11 +242,16 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('/(foo)/*bar+', $validator->path('/(foo)/*bar+'));
         $this->assertEquals('/foo,bar;baz:', $validator->path('/foo,bar;baz:'));
         $this->assertEquals('/foo=bar@baz', $validator->path('/foo=bar@baz'));
-        $this->assertEquals('/foo%25bar', $validator->path('/foo%bar'));
         $this->assertEquals('/%22foo%22', $validator->path('/"foo"'));
         $this->assertEquals('/foo%5Cbar', $validator->path('/foo\\bar'));
         $this->assertEquals('/b%C3%B6%C3%9Fer/pfad', $validator->path('/bößer/pfad'));
         $this->assertEquals('/%3Chtml%3E', $validator->path('/<html>'));
+
+        // Percent character not encoded (to %25) because %ba could be legitimate percent encoded character.
+        $this->assertEquals('/foo%bar', $validator->path('/foo%bar'));
+
+        // Percent character encoded because %ga isn't a valid percent encoded character.
+        $this->assertEquals('/foo%25gar', $validator->path('/foo%gar'));
 
         // By default the path validation method assumes the uri where the path is contained contains an authority
         // component. According to RFC 3986 (3.3. Path) a uri that contains an authority must be empty or begin with a
@@ -275,6 +280,7 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('f%C3%B6o=bar', $validator->query('föo=bar'));
         $this->assertEquals('boe%C3%9Fer=query', $validator->query('boeßer=query'));
         $this->assertEquals('foo%60=bar', $validator->query('foo`=bar'));
+        $this->assertEquals('foo%25bar=baz', $validator->query('foo%25bar=baz'));
     }
 
     public function testValidateFragment()
@@ -295,6 +301,7 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('fr%C3%A4gment', $validator->fragment('frägment'));
         $this->assertEquals('boe%C3%9Fesfragment', $validator->fragment('boeßesfragment'));
         $this->assertEquals('fragment%60', $validator->fragment('fragment`'));
+        $this->assertEquals('fragm%E2%82%ACnt', $validator->fragment('fragm%E2%82%ACnt'));
     }
 
     /**

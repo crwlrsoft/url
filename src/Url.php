@@ -487,11 +487,20 @@ class Url
      *
      * https://www.example.com/path?query=string#fragment => /path?query=string#fragment
      *
+     * If the current instance has no authority, the path can not start with more than one slash.
+     * If that's the case, starting slashes in the path are reduced to one in the return value of this method.
+     *
      * @return string
      */
     public function relative(): string
     {
-        return ($this->path() ?: '') .
+        $path = $this->path();
+
+        if ($path && $this->authority() === '' && substr($path, 0, 2) === '//') {
+            $path = preg_replace('/^\/{2,}/', '/', $path);
+        }
+
+        return ($path ?: '') .
             ($this->query() ? '?' . $this->query() : '') .
             ($this->fragment() ? '#' . $this->fragment() : '');
     }
