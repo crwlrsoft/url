@@ -11,7 +11,6 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
  * to further functionality like resolving relative urls to absolute ones and comparing single components of different
  * urls.
  *
- * @author otsch
  * @link https://www.crwlr.software/packages/url Documentation
  */
 
@@ -230,7 +229,7 @@ class Url
         $validHost = $this->validator->host($host);
 
         if ($validHost) {
-            $this->host = new Host($host);
+            $this->host = new Host($validHost);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -365,6 +364,9 @@ class Url
         return $this;
     }
 
+    /**
+     * Reset the port component to null.
+     */
     public function resetPort(): void
     {
         $this->port = null;
@@ -383,7 +385,7 @@ class Url
             return $this->path;
         }
 
-        $path = $this->validator->path($path);
+        $path = $this->validator->path($path, !empty($this->authority()));
 
         if ($path || $path === '') {
             $this->path = $path;
@@ -506,9 +508,10 @@ class Url
     }
 
     /**
-     * Resolve a relative (or absolute) url against the url of the current instance.
+     * Resolve a relative reference against the url of the current instance.
      *
-     * That basically means you get an absolute url from any href link attribute found on a web page.
+     * That basically means you get an absolute url from any relative reference (link href, image src, etc.) found on
+     * a web page.
      * When the provided input already is an absolute url, it's just returned as it is (except for validation changes
      * like percent encoding).
      *
@@ -522,7 +525,7 @@ class Url
     }
 
     /**
-     * Compare component X (e.g. host) of the current instance url and the url from input parameter $compareWithUrl.
+     * Compare component X (e.g. host) of the current instance url and the url from parameter $compareWithUrl.
      *
      * @param Url|string $compareWithUrl
      * @param string $componentName
@@ -537,7 +540,9 @@ class Url
                 return false;
             }
         } elseif (!$compareWithUrl instanceof Url) {
-            return false;
+            throw new \InvalidArgumentException(
+                'The url to compare with must be of type string or an instance of Crwlr\Url\Url.'
+            );
         }
 
         if (in_array($componentName, $this->components)) {

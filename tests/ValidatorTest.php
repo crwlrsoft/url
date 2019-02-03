@@ -221,14 +221,10 @@ final class ValidatorTest extends TestCase
         $validator = new Validator();
 
         $this->assertEquals(0, $validator->port(0));
-        $this->assertEquals(0, $validator->port('0'));
         $this->assertEquals(8080, $validator->port(8080));
-        $this->assertEquals(8080, $validator->port('8080'));
         $this->assertEquals(65535, $validator->port(65535));
-        $this->assertEquals(65535, $validator->port('65535'));
 
         $this->assertNull($validator->port(-1));
-        $this->assertNull($validator->port('invalid'));
         $this->assertNull($validator->port(65536));
     }
 
@@ -252,15 +248,6 @@ final class ValidatorTest extends TestCase
 
         // Percent character encoded because %ga isn't a valid percent encoded character.
         $this->assertEquals('/foo%25gar', $validator->path('/foo%gar'));
-
-        // By default the path validation method assumes the uri where the path is contained contains an authority
-        // component. According to RFC 3986 (3.3. Path) a uri that contains an authority must be empty or begin with a
-        // slash.
-        $this->assertNull($validator->path('no/leading/slash'));
-
-        // If the uri that contains the given path component has no authority component you can set the $hasAuthority
-        // parameter to false and it should work with a relative path that does not begin with slash.
-        $this->assertEquals('no/leading/slash', $validator->path('no/leading/slash', false));
     }
 
     public function testValidateQuery()

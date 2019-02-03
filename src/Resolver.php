@@ -22,14 +22,14 @@ class Resolver
      */
     public function __construct(?Validator $validator = null)
     {
-        $this->validator = ($validator instanceof Validator) ? $validator : new Validator(Helpers::punyCode());
+        $this->validator = $validator ?: new Validator(Helpers::punyCode());
     }
 
     /**
-     * Resolve any relative url you may find on a website to an absolute url with the base url of the
-     * document where the relative url was found.
-     * e.g.:
-     * https://www.example.com/foo/bar/baz
+     * Resolve any relative reference to an absolute url against a base url.
+     *
+     * Example:
+     * Base: https://www.example.com/foo/bar/baz
      * <a href="../link"> => ../link resolves to https://www.example.com/foo/link
      *
      * @param string $subject
@@ -61,6 +61,8 @@ class Resolver
     }
 
     /**
+     * Resolve a relative reference against a base path.
+     *
      * @param string $resolvePath
      * @param string $basePath
      * @return string
@@ -72,7 +74,8 @@ class Resolver
 
     /**
      * Resolve all . in the subject path with the base path.
-     * e.g.:
+     *
+     * Example:
      * subject: ./foo/../bar/./baz
      * base path: /one/two/three
      * result: /one/two/bar/baz
@@ -115,6 +118,8 @@ class Resolver
     }
 
     /**
+     * Helper method for resolveDots
+     *
      * @param array $splitPath
      * @param int $currentKey
      * @return null|int
@@ -157,8 +162,9 @@ class Resolver
     }
 
     /**
-     * Returns the $path until the last /
-     * e.g. /foo/bar => /foo/
+     * Returns the $path until the last slash.
+     *
+     * /foo/bar => /foo/
      *
      * @param string $path
      * @return string

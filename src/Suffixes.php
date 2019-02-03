@@ -25,6 +25,8 @@ class Suffixes extends Store
     private $punyCode;
 
     /**
+     * Public Suffix fallback list
+     *
      * The full list of all public suffixes is pretty big (currently over 8000 suffixes) and always loading
      * and performing lookups in the full list may unnecessarily slow things a bit down. So I found this list
      * of usage of TLDs https://w3techs.com/technologies/overview/top_level_domain/all
@@ -41,11 +43,13 @@ class Suffixes extends Store
      */
     public function __construct(?Punycode $punyCode = null)
     {
-        $this->punyCode = ($punyCode instanceof Punycode) ? $punyCode : new Punycode();
+        $this->punyCode = $punyCode ?: Helpers::punyCode();
         parent::__construct();
     }
 
     /**
+     * Get the public suffix within a host string if it contains one.
+     *
      * @param string $host
      * @return string|null
      */
@@ -61,6 +65,8 @@ class Suffixes extends Store
     }
 
     /**
+     * Check if a certain public domain suffix exists.
+     *
      * @param mixed $key
      * @param bool $idnDecoded
      * @return bool
@@ -88,6 +94,10 @@ class Suffixes extends Store
     }
 
     /**
+     * Check if a matching wildcard suffix for $key exists.
+     *
+     * The public suffix list also contains suffixes with a wildcard character (*) for a host label.
+     *
      * @param string $key
      * @return bool
      */
@@ -108,9 +118,9 @@ class Suffixes extends Store
 
     /**
      * Get all possible suffixes from a host string ordered by length descending.
-     * The order is important because if you have for example a .co.uk domain and
-     * you search for the shortest possible suffix first (.uk) and return that,
-     * that would be wrong.
+     *
+     * The order is important because if you have for example a .co.uk domain and you search for the shortest possible
+     * suffix first (.uk) and return that, that would be wrong.
      *
      * @param string $host
      * @return string[]

@@ -21,7 +21,7 @@ final class HostTest extends TestCase
         $this->assertEquals('www.test.local', $host->__toString());
         $this->assertNull($host->domain());
 
-        $host = new Host('fóó.юбилейный.онлайн');
+        $host = new Host('xn--f-vgaa.xn--90aiifajq6iua.xn--80asehdb');
         $this->assertInstanceOf(Host::class, $host);
         $this->assertEquals('xn--f-vgaa.xn--90aiifajq6iua.xn--80asehdb', $host->__toString());
         $this->assertEquals('xn--f-vgaa', $host->subdomain());

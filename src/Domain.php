@@ -41,9 +41,7 @@ class Domain
     }
 
     /**
-     * Return the current domain instance as a string.
-     *
-     * Only when both, label and suffix, are not empty.
+     * Return the current domain instance as a string when both, label and suffix, are not empty.
      *
      * @return string
      */

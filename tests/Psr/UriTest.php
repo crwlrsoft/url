@@ -190,7 +190,7 @@ final class UriTest extends TestCase
         $this->assertEquals('key=value&key2=value2', $uri->getQuery());
 
         $uri = $uri->withQuery('k.1=v.1&k.2[s.k1]=v.2&k.2[s.k2]=v.3');
-        $this->assertEquals('k.1=v.1&k.2[s.k1]=v.2&k.2[s.k2]=v.3', $uri->getQuery());
+        $this->assertEquals('k.1=v.1&k.2%5Bs.k1%5D=v.2&k.2%5Bs.k2%5D=v.3', $uri->getQuery());
 
         $uri = $uri->withQuery('');
         $this->assertEquals('', $uri->getQuery());

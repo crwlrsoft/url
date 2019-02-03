@@ -4,6 +4,16 @@ namespace Crwlr\Url;
 
 use TrueBV\Punycode;
 
+/**
+ * Class Helpers
+ *
+ * This class provides instances of the Suffixes, Schemes and Punycode classes via static methods and also some
+ * simple static helper methods.
+ *
+ * Providing these class instances via static methods ensures better performance as they don't need to be newly
+ * instantiated for anything.
+ */
+
 class Helpers
 {
     /**
@@ -64,21 +74,9 @@ class Helpers
     }
 
     /**
-     * @param string $host
-     * @return string
-     */
-    public static function encodeHost(string $host): string
-    {
-        if (self::containsCharactersNotAllowedInHost($host)) {
-            return self::punyCode()->encode($host);
-        }
-
-        return $host;
-    }
-
-    /**
-     * Builds a url from an array of url components. It doesn't do any validation and assumes the provided component
-     * values are valid.
+     * Builds a url from an array of url components.
+     *
+     * It doesn't do any validation and assumes the provided component values are valid!
      *
      * @param array $comp
      * @return string
@@ -128,8 +126,9 @@ class Helpers
     }
 
     /**
-     * Try to get the standard port of a url scheme using PHP's built-in getservbyname() function.
-     * If no standard port is found it returns null.
+     * Get the standard port for a url scheme.
+     *
+     * Uses PHP's built-in getservbyname() function. If no standard port is found it returns null.
      *
      * @param string $scheme
      * @return int|null
@@ -158,8 +157,10 @@ class Helpers
     }
 
     /**
+     * Check if string contains characters not allowed in the host component.
+     *
      * @param string $string
-     * @param bool $noDot
+     * @param bool $noDot  Set to true when dot should not be allowed (e.g. checking only domain label).
      * @return bool
      */
     public static function containsCharactersNotAllowedInHost(string $string, bool $noDot = false): bool
@@ -179,10 +180,8 @@ class Helpers
 
     /**
      * Strip some string B from the end of a string A that ends with string B.
-     * e.g.:
-     * $string = 'some.example'
-     * $strip = '.example'
-     * => 'some'
+     *
+     * Example: 'some.example' - '.example' = 'some'
      *
      * @param string $string
      * @param string $strip
@@ -207,7 +206,37 @@ class Helpers
     }
 
     /**
-     * When keys within a url query string contain dots, PHPs parse_str method converts them to underscores. This
+     * Returns true when string $string starts with string $startsWith.
+     *
+     * @param string $string
+     * @param string $startsWith
+     * @param int|null $length  When known, providing the length of the string $startsWith saves a call to strlen.
+     * @return bool
+     */
+    public static function startsWith(string $string, string $startsWith, ?int $length = null): bool
+    {
+        return substr($string, 0, ($length !== null ? $length : strlen($startsWith))) === $startsWith;
+    }
+
+    /**
+     * Returns true when $string contains $x before the first appearance of $y (even if $y is not contained at all).
+     *
+     * @param string $string
+     * @param string $x
+     * @param string $y
+     * @return bool
+     */
+    public static function containsXBeforeFirstY(string $string, string $x, string $y): bool
+    {
+        $untilFirstY = explode($y, $string)[0];
+
+        return strpos($untilFirstY, $x) !== false;
+    }
+
+    /**
+     * Helper method for queryStringToArray
+     *
+     * When keys within a url query string contain dots, PHP's parse_str() method converts them to underscores. This
      * method works around this issue so the requested query array returns the proper keys with dots.
      *
      * @param string $query

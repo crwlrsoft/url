@@ -33,7 +33,7 @@ class Host
      */
     public function __construct(string $host)
     {
-        $this->host = Helpers::encodeHost($host);
+        $this->host = $host;
         $domainSuffix = Helpers::suffixes()->getByHost($this->host);
 
         if ($domainSuffix) {
@@ -51,7 +51,7 @@ class Host
     }
 
     /**
-     * (Set and/or) Get the registrable domain
+     * (Set and/or) Get the registrable domain.
      *
      * @param string|null $domain
      * @return string|null
@@ -67,7 +67,7 @@ class Host
     }
 
     /**
-     * (Set and/or) Get the subdomain part of the host
+     * (Set and/or) Get the subdomain part of the host.
      *
      * @param string|null $subdomain
      * @return string|null
@@ -83,7 +83,7 @@ class Host
     }
 
     /**
-     * (Set and/or) Get the domain label (registrable domain without suffix)
+     * (Set and/or) Get the domain label (registrable domain without suffix).
      *
      * @param string|null $domainLabel
      * @return string|null
@@ -99,7 +99,7 @@ class Host
     }
 
     /**
-     * (Set and/or) Get the public suffix of the registrable domain
+     * (Set and/or) Get the public suffix of the registrable domain.
      *
      * @param string|null $domainSuffix
      * @return string|null
