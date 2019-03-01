@@ -373,64 +373,97 @@ final class UrlTest extends TestCase
         $url = $this->createDefaultUrlObject();
         $equalUrl = $this->createDefaultUrlObject();
 
-        $this->assertTrue($url->compare($equalUrl, 'scheme'));
+        $this->assertTrue($url->isEqualTo($equalUrl->__toString()));
+        $notEqualUrl = new Url('https://not.equal.url/totally/different');
+        $this->assertFalse($url->isEqualTo($notEqualUrl->__toString()));
+
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'scheme'));
+        $this->assertTrue($url->isSchemeEqualIn($equalUrl));
         $equalUrl->scheme('http');
-        $this->assertFalse($url->compare($equalUrl, 'scheme'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'scheme'));
+        $this->assertFalse($url->isSchemeEqualIn($equalUrl));
 
-        $this->assertTrue($url->compare($equalUrl, 'user'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'user'));
+        $this->assertTrue($url->isUserEqualIn($equalUrl));
         $equalUrl->user('usher');
-        $this->assertFalse($url->compare($equalUrl, 'user'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'user'));
+        $this->assertFalse($url->isUserEqualIn($equalUrl));
 
-        $this->assertTrue($url->compare($equalUrl, 'pass'));
-        $this->assertTrue($url->compare($equalUrl, 'password'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'pass'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'password'));
+        $this->assertTrue($url->isPasswordEqualIn($equalUrl));
         $equalUrl->pass('pass');
-        $this->assertFalse($url->compare($equalUrl, 'pass'));
-        $this->assertFalse($url->compare($equalUrl, 'password'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'pass'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'password'));
+        $this->assertFalse($url->isPasswordEqualIn($equalUrl));
 
-        $this->assertTrue($url->compare($equalUrl, 'host'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'host'));
+        $this->assertTrue($url->isHostEqualIn($equalUrl));
         $equalUrl->host('www.example.com');
-        $this->assertFalse($url->compare($equalUrl, 'host'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'host'));
+        $this->assertFalse($url->isHostEqualIn($equalUrl));
         $equalUrl->host('sub.sub.example.com');
 
-        $this->assertTrue($url->compare($equalUrl, 'domain'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'domain'));
+        $this->assertTrue($url->isDomainEqualIn($equalUrl));
         $equalUrl->domain('eggsample.com');
-        $this->assertFalse($url->compare($equalUrl, 'domain'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'domain'));
+        $this->assertFalse($url->isDomainEqualIn($equalUrl));
+        $equalUrl->domain('example.com');
 
-        $this->assertTrue($url->compare($equalUrl, 'domainSuffix'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'domainLabel'));
+        $this->assertTrue($url->isDomainLabelEqualIn($equalUrl));
+        $equalUrl->domainLabel('eggsample');
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'domainLabel'));
+        $this->assertFalse($url->isDomainLabelEqualIn($equalUrl));
+
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'domainSuffix'));
+        $this->assertTrue($url->isDomainSuffixEqualIn($equalUrl));
         $equalUrl->domainSuffix('org');
-        $this->assertFalse($url->compare($equalUrl, 'domainSuffix'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'domainSuffix'));
+        $this->assertFalse($url->isDomainSuffixEqualIn($equalUrl));
 
-        $this->assertTrue($url->compare($equalUrl, 'subdomain'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'subdomain'));
+        $this->assertTrue($url->isSubdomainEqualIn($equalUrl));
         $equalUrl->subdomain('www');
-        $this->assertFalse($url->compare($equalUrl, 'subdomain'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'subdomain'));
+        $this->assertFalse($url->isSubdomainEqualIn($equalUrl));
 
-        $this->assertTrue($url->compare($equalUrl, 'port'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'port'));
+        $this->assertTrue($url->isPortEqualIn($equalUrl));
         $equalUrl->port(123);
-        $this->assertFalse($url->compare($equalUrl, 'port'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'port'));
+        $this->assertFalse($url->isPortEqualIn($equalUrl));
 
-        $this->assertTrue($url->compare($equalUrl, 'path'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'path'));
+        $this->assertTrue($url->isPathEqualIn($equalUrl));
         $equalUrl->path('/different/path');
-        $this->assertFalse($url->compare($equalUrl, 'path'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'path'));
+        $this->assertFalse($url->isPathEqualIn($equalUrl));
 
-        $this->assertTrue($url->compare($equalUrl, 'query'));
-        $this->assertTrue($url->compare($equalUrl, 'queryArray'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'query'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'queryArray'));
+        $this->assertTrue($url->isQueryEqualIn($equalUrl));
         $equalUrl->query('foo=bar');
-        $this->assertFalse($url->compare($equalUrl, 'query'));
-        $this->assertFalse($url->compare($equalUrl, 'queryArray'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'query'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'queryArray'));
+        $this->assertFalse($url->isQueryEqualIn($equalUrl));
 
-        $this->assertTrue($url->compare($equalUrl, 'fragment'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'fragment'));
+        $this->assertTrue($url->isFragmentEqualIn($equalUrl));
         $equalUrl->fragment('foo');
-        $this->assertFalse($url->compare($equalUrl, 'fragment'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'fragment'));
+        $this->assertFalse($url->isFragmentEqualIn($equalUrl));
 
         $equalUrl = $this->createDefaultUrlObject();
 
-        $this->assertTrue($url->compare($equalUrl, 'root'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'root'));
         $equalUrl->host('www.foo.org');
-        $this->assertFalse($url->compare($equalUrl, 'root'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'root'));
 
-        $this->assertTrue($url->compare($equalUrl, 'relative'));
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'relative'));
         $equalUrl->path('/different/path');
-        $this->assertFalse($url->compare($equalUrl, 'relative'));
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'relative'));
     }
 
     /**

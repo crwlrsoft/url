@@ -1,20 +1,24 @@
 # Swiss Army knife for urls
 
-This package is for you when PHP's parse_url() is not enough. 
- 
+This package is for you when PHP's parse_url() is not enough.
+
 __Key Features:__
 * __Parse a url__ and access or modify all its __components__ separately.
-* Resolve any __relative url__ you may find in an HTML document __to an 
+* Resolve any __relative reference__ you may find in an HTML document __to an
 absolute url__, based on the document's url.
-* Get not only the full __host__ of a url, but also the __registrable domain__, 
+* Get not only the full __host__ of a url, but also the __registrable domain__,
 the __domain suffix__ and the __subdomain__ parts of the host separately
 (Thanks to the [Mozilla Public Suffix List](https://publicsuffix.org/)).
-* __Compare components__ of different urls (e.g. checking if different urls 
+* __Compare urls__ or components of urls (e.g. checking if different urls
 point to the same host or domain)
-* Thanks to [true/punycode](https://github.com/true/php-punycode) it's also no 
+* Thanks to [true/punycode](https://github.com/true/php-punycode) it's also no
 problem to parse __internationalized domain names (IDN)__.
-* Includes an adapter class which implements the 
+* Includes an adapter class which implements the
 [PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php).
+
+## Requirements
+
+Requires PHP version 7.1 or above.
 
 ## Installation
 
@@ -23,21 +27,21 @@ Install the latest version with:
 ```sh
 composer require crwlr/url
 ```
- 
+
 ## Usage
 
 ### Including the package
- 
+
 ```php
 <?php
- 
+
 include('vendor/autoload.php');
- 
+
 use Crwlr\Url\Url;
 ```
 
-To start using the library include composer's autoload file and import the 
-Url class so you don't have to write the full namespace path again and again. 
+To start using the library include composer's autoload file and import the
+Url class so you don't have to write the full namespace path again and again.
 Further code examples skip the above.
 
 ### Parsing urls
@@ -48,7 +52,7 @@ Parsing a url is easy as pie:
 $url = Url::parse('https://john:123@www.example.com:8080/foo?bar=baz');
 ```
 
-The static `parse` method of the `Url` class provides a convenient way to 
+The static `parse` method of the `Url` class provides a convenient way to
 create a new instance and then access all of it's components separately.
 
 ```php
@@ -57,7 +61,7 @@ $port = $url->port();                   // => 8080
 $domainSuffix = $url->domainSuffix();   // => "com"
 $path = $url->path();                   // => "/foo"
 $fragment = $url->fragment();           // => NULL
- 
+
 // Or as properties
 $scheme = $url->scheme;                 // => "https"
 $user = $url->user;                     // => "john"
@@ -72,12 +76,12 @@ $url = new Url('https://www.steve.jobs/');
 ```
 
 __Relative urls__  
-  
-New in v1.0 of this package is, that you can obtain an instance of `Url` from 
-a relative url as well. Previous versions throw an `InvalidUrlException` when 
+
+New in v1.0 of this package is, that you can obtain an instance of `Url` from
+a relative url as well. Previous versions throw an `InvalidUrlException` when
 the url string doesn't contain a valid scheme component.
 
-```php 
+```php
 $url = Url::parse('/some/path?query=string');
 var_dump($url->__toString());   // => '/some/path?query=string'
 var_dump($url->scheme());       // => null
@@ -86,7 +90,7 @@ var_dump($url->path());         // => '/some/path'
 
 #### Available url components
 
-Below, you can see a visualization of all the components that are available to 
+Below, you can see a visualization of all the components that are available to
 you via a `Url` object.
 
 ```plaintext
@@ -109,12 +113,12 @@ https://john:123@subdomain.example.com:8080/foo?bar=baz#anchor
                      authority
 ```
 
-When a component is not present in a url (e.g. it doesn't contain user and 
+When a component is not present in a url (e.g. it doesn't contain user and
 password) the corresponding properties will return `NULL`.
 
 #### Further available component combinations
 
-The following combinations of components aren't really common, but may as well 
+The following combinations of components aren't really common, but may as well
 be useful sometimes.
 
 ```plaintext
@@ -137,7 +141,7 @@ $root = $url->root();   // => "https://www.example.com:8080"
 
 ##### relative
 
-Complementary to `root` you can retrieve path, query and fragment via the 
+Complementary to `root` you can retrieve path, query and fragment via the
 `relative` method.
 
 ```php
@@ -147,7 +151,7 @@ $relative = $url->relative();   // => "/foo?bar=baz#anchor"
 
 #### Parsing a query string
 
-If you're after the query of a url you may want to get it as an array. Don't 
+If you're after the query of a url you may want to get it as an array. Don't
 worry, nothing easier than that:
 
 ```php
@@ -166,8 +170,8 @@ array(2) {
 
 ### Modifying urls
 
-All methods that are used to get a component's value can also be used to 
-replace or set its value. So for example if you have an array of urls and you 
+All methods that are used to get a component's value can also be used to
+replace or set its value. So for example if you have an array of urls and you
 want to be sure that they are all on https, you can achieve this simply by
 setting the scheme to `https` for all of them in a loop.
 
@@ -178,11 +182,11 @@ $urls = [
     'https://secure.example.org/bar',
     'http://www.example.com/baz'
 ];
- 
+
 foreach ($urls as $key => $url) {
     $urls[$key] = Url::parse($url)->scheme('https')->toString();
 }
- 
+
 var_dump($urls);
 
 ```
@@ -200,7 +204,7 @@ array(4) {
 }
 ```
 
-Another example: your website can be reached with or without the www subdomain. 
+Another example: your website can be reached with or without the www subdomain.
 Sloppy input data can easily be fixed by just assigning the same host to all of
 them.
 
@@ -211,11 +215,11 @@ $urls = [
     'https://example.com/products',
     'https://www.example.com/contact',
 ];
- 
+
 $urls = array_map(function($url) {
     return Url::parse($url)->host('www.example.com')->toString();
 }, $urls);
- 
+
 var_dump($urls);
 ```
 __Output__
@@ -232,8 +236,8 @@ array(4) {
 }
 ```
 
-And that's the same for all components that are listed under the [available 
-url components](#available-url-components). 
+And that's the same for all components that are listed under the [available
+url components](#available-url-components).
 
 And the query can even be set as an array:
 
@@ -247,26 +251,26 @@ __Output__
 https://www.example.com/foo?param=value&marco=polo
 ```
 
-Btw.: As you can see in the example above, you can use a Url object like 
+Btw.: As you can see in the example above, you can use a Url object like
 a string because of its `__toString()` method.
 
 ### Resolving relative urls
 
-When you scrape urls from a website you will come across relative urls like 
-`/path/to/page`, `../path/to/page`, `?param=value`, `#anchor` and alike. This 
-package makes it a breeze to resolve these urls to absolute ones with the url 
-of the page where they have been found on. 
+When you scrape urls from a website you will come across relative urls like
+`/path/to/page`, `../path/to/page`, `?param=value`, `#anchor` and alike. This
+package makes it a breeze to resolve these urls to absolute ones with the url
+of the page where they have been found on.
 
 ```php
 $documentUrl = Url::parse('https://www.example.com/foo/bar/baz');
- 
+
 $relativeLinks = [
     '/path/to/page',
     '../path/to/page',
     '?param=value',
     '#anchor'
 ];
- 
+
 $absoluteLinks = array_map(function($relativeLink) use ($documentUrl) {
     return $documentUrl->resolve($relativeLink)->toString();
 }, $relativeLinks);
@@ -287,60 +291,60 @@ array(4) {
 }
 ```
 
-If you pass an absolute url to `resolve()` it will just return that absolute 
-url. 
+If you pass an absolute url to `resolve()` it will just return that absolute
+url.
 
-### Comparing url components
+### Comparing urls or url components
 
-If you need to, it's really easy to compare components of 2 different urls. 
-
-```php
-$url1 = Url::parse('https://www.example.com/foo/bar');
-$url2 = Url::parse('https://www.example.org/contact?key=value');
- 
-if ($url1->compare($url2, 'host')) {
-    echo "Urls 1 and 2 ARE on the same host.\n";
-} else {
-    echo "Urls 1 and 2 ARE NOT on the same host.\n";
-}
- 
-if ($url1->compare($url2, 'subdomain')) {
-    echo "Urls 1 and 2 ARE on the same subdomain.\n";
-} else {
-    echo "Urls 1 and 2 ARE NOT on the same subdomain.\n";
-}
- 
-if ($url1->compare($url2, 'query')) {
-    echo "Urls 1 and 2 HAVE the same query.\n";
-} else {
-    echo "Urls 1 and 2 DO NOT HAVE the same query.\n";
-}
-```
-__Output__
-```output
-Urls 1 and 2 ARE NOT on the same host.
-Urls 1 and 2 ARE on the same subdomain.
-Urls 1 and 2 DO NOT HAVE the same query.
-```
-
-And again, this can be done with all components listed under the 
-[available url components](#available-url-components). Instead of a Url 
-object you can also just provide a url as a string. 
+You may think to compare two urls you don't need this library, but whenever
+you have urls from an unpredictable input source, I'd recommend to use it.
+Imagine a case like this:
 
 ```php
-$url1 = Url::parse('https://www.example.com/foo/bar');
-$url2 = 'https://www.example.org/foo/bar?key=value';
- 
-if ($url1->compare($url2, 'path')) {
-    echo "Urls 1 and 2 HAVE the same path.\n";
-} else {
-    echo "Urls 1 and 2 DO NOT HAVE the same path.\n";
-}
+$url1 = 'https://www.example.com/foo/bár/báz';
+$url2 = 'https://www.example.com/foo/b%C3%A1r/b%C3%A1z';
+
+var_dump($url1 === $url2);
+// Returns false. Of course the two strings aren't equal.
+
+var_dump(Url::parse($url1)->isEqualTo($url2));
+// Returns true, because the path /foo/bár/báz is percent-encoded
+// in the Url class to /foo/b%C3%A1r/b%C3%A1z
 ```
-__Output__
-```output
-Urls 1 and 2 HAVE the same path.
+
+It's also really easy to compare the same component of two different
+urls.
+
+```php
+$url1 = Url::parse('https://u:p@www.example.com/foo?q=s#frag');
+$url2 = Url::parse('http://s:a@jobs.eggsample.org/bar?u=t#ment');
+$url3 = clone $url1;
+
+$url1->isSchemeEqualIn($url2); // false
+$url1->isSchemeEqualIn($url3); // true
+
+$url1->isHostEqualIn($url2); // false
+$url1->isHostEqualIn($url3); // true
+
+$url1->isPasswordEqualIn($url2); // false
+$url1->isPasswordEqualIn($url3); // true
 ```
+
+__These are all available comparison methods:__
+* isEqualTo($url)
+* isComponentEqualIn($url, $componentName)
+* isSchemeEqualIn($url)
+* isUserEqualIn($url)
+* isPasswordEqualIn($url)
+* isHostEqualIn($url)
+* isDomainEqualIn($url)
+* isDomainLabelEqualIn($url)
+* isDomainSuffixEqualIn($url)
+* isSubdomainEqualIn($url)
+* isPortEqualIn($url)
+* isPathEqualIn($url)
+* isQueryEqualIn($url)
+* isFragmentEqualIn($url)
 
 ### Internationalized domain names (IDN)
 
@@ -352,12 +356,12 @@ __Output__
 https://www.xn--e1afmkfd.xn--80asehdb/hello/world
 ```
 
-Behind the curtains [true/punycode](https://github.com/true/php-punycode) is 
+Behind the curtains [true/punycode](https://github.com/true/php-punycode) is
 used to parse internationalized domain names.
 
 ### PSR-7 UriInterface adapter class
 
-The `Url` class does not support immutability as it is required by the 
+The `Url` class does not support immutability as it is required by the
 [PSR-7 UriInterface](https://www.php-fig.org/psr/psr-7/#35-psrhttpmessageuriinterface).
 But the package provides an adapter class `Crwlr\Url\Psr\Uri` which has an
 instance of the `Url` class in a private property and thus assures immutability.
@@ -403,22 +407,22 @@ var_dump($uri->__toString());
 
 ### Updating Mozilla's Public Suffix List
 
-Mozilla's [Public Suffix List](https://publicsuffix.org/list/) is parsed and 
+Mozilla's [Public Suffix List](https://publicsuffix.org/list/) is parsed and
 stored in a file in this package to be able to extract the domain suffix from
-a url's host component. It should be updated with every new release 
-of this package. If you need to get the latest version of the list 
-immediately, because a particular new suffix isn't included in the list in 
-this repository, you can update it using the following composer command: 
+a url's host component. It should be updated with every new release
+of this package. If you need to get the latest version of the list
+immediately, because a particular new suffix isn't included in the list in
+this repository, you can update it using the following composer command:
 
 ```sh
 composer update-suffixes
 ```
 
-__Note:__ Please don't overuse this, as Mozilla states on their page: 
+__Note:__ Please don't overuse this, as Mozilla states on their page:
 
-> If you wish to make your app download an updated list periodically, please 
-use this URL and have your app download the list no more than once per day. 
-(The list usually changes a few times per week; more frequent downloading is 
-pointless and hammers our servers.) 
+> If you wish to make your app download an updated list periodically, please
+use this URL and have your app download the list no more than once per day.
+(The list usually changes a few times per week; more frequent downloading is
+pointless and hammers our servers.)
 
 [https://publicsuffix.org/list/](https://publicsuffix.org/list/)

@@ -8,8 +8,8 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
  * Class Url
  *
  * This class is the central unit of this package. It represents a url, gives access to its components and also
- * to further functionality like resolving relative urls to absolute ones and comparing single components of different
- * urls.
+ * to further functionality like resolving relative urls to absolute ones and comparing (components of) another url to
+ * the current instance.
  *
  * @link https://www.crwlr.software/packages/url Documentation
  */
@@ -88,7 +88,7 @@ class Url
      */
     public function __get(string $name)
     {
-        if (in_array($name, $this->components)) {
+        if ($this->isValidComponentName($name)) {
             return $this->$name();
         }
 
@@ -102,7 +102,7 @@ class Url
      */
     public function __set(string $name, $value)
     {
-        if (in_array($name, $this->components)) {
+        if ($this->isValidComponentName($name)) {
             return $this->$name($value);
         }
 
@@ -525,31 +525,186 @@ class Url
     }
 
     /**
-     * Compare component X (e.g. host) of the current instance url and the url from parameter $compareWithUrl.
+     * Returns true if the current instance url is equal to the url you want to compare.
      *
-     * @param Url|string $compareWithUrl
+     * @param Url|string $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isEqualTo($url): bool
+    {
+        return $this->compare($url);
+    }
+
+    /**
+     * Returns true when some component is the same in the current instance and the url you want to compare.
+     *
+     * @param Url|string $url
      * @param string $componentName
      * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
      */
-    public function compare($compareWithUrl, string $componentName): bool
+    public function isComponentEqualIn($url, string $componentName): bool
     {
-        if (is_string($compareWithUrl)) {
-            try {
-                $compareWithUrl = new Url($compareWithUrl);
-            } catch (\Exception $exception) {
-                return false;
-            }
-        } elseif (!$compareWithUrl instanceof Url) {
-            throw new \InvalidArgumentException(
-                'The url to compare with must be of type string or an instance of Crwlr\Url\Url.'
-            );
-        }
+        return $this->compare($url, $componentName);
+    }
 
-        if (in_array($componentName, $this->components)) {
-            return ($this->{$componentName}() === $compareWithUrl->{$componentName}());
-        }
+    /**
+     * Returns true when the scheme component is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isSchemeEqualIn($url): bool
+    {
+        return $this->compare($url, 'scheme');
+    }
 
-        return false;
+    /**
+     * Returns true when the user is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isUserEqualIn($url): bool
+    {
+        return $this->compare($url, 'user');
+    }
+
+    /**
+     * Returns true when the password is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isPasswordEqualIn($url): bool
+    {
+        return $this->compare($url, 'password');
+    }
+
+    /**
+     * Returns true when the host component is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isHostEqualIn($url): bool
+    {
+        return $this->compare($url, 'host');
+    }
+
+    /**
+     * Returns true when the registrable domain is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isDomainEqualIn($url): bool
+    {
+        return $this->compare($url, 'domain');
+    }
+
+    /**
+     * Returns true when the domain label is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isDomainLabelEqualIn($url): bool
+    {
+        return $this->compare($url, 'domainLabel');
+    }
+
+    /**
+     * Returns true when the domain suffix is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isDomainSuffixEqualIn($url): bool
+    {
+        return $this->compare($url, 'domainSuffix');
+    }
+
+    /**
+     * Returns true when the subdomain is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isSubdomainEqualIn($url): bool
+    {
+        return $this->compare($url, 'subdomain');
+    }
+
+    /**
+     * Returns true when the port component is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isPortEqualIn($url): bool
+    {
+        return $this->compare($url, 'port');
+    }
+
+    /**
+     * Returns true when the path component is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isPathEqualIn($url): bool
+    {
+        return $this->compare($url, 'path');
+    }
+
+    /**
+     * Returns true when the query component is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isQueryEqualIn($url): bool
+    {
+        return $this->compare($url, 'query');
+    }
+
+    /**
+     * Returns true when the fragment component is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    public function isFragmentEqualIn($url): bool
+    {
+        return $this->compare($url, 'fragment');
     }
 
     /**
@@ -625,6 +780,19 @@ class Url
     }
 
     /**
+     * @param string $componentName
+     * @return bool
+     */
+    private function isValidComponentName(string $componentName): bool
+    {
+        if (in_array($componentName, $this->components)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Regenerate the full url after changing components.
      */
     private function updateFullUrl(): void
@@ -652,5 +820,31 @@ class Url
         }
 
         return $this->resolver;
+    }
+
+    /**
+     * Compares the current instance with another url.
+     *
+     * @param $compareToUrl
+     * @param string|null $componentName  Compare either only a certain component of the urls or the whole urls if null.
+     * @return bool
+     * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
+     */
+    private function compare($compareToUrl, ?string $componentName = null): bool
+    {
+        if (is_string($compareToUrl)) {
+            $compareToUrl = new Url($compareToUrl);
+        } elseif (!$compareToUrl instanceof Url) {
+            throw new \InvalidArgumentException('Param must be either string or instance of Url.');
+        }
+
+        if ($componentName === null) {
+            return $this->toString() === $compareToUrl->toString();
+        } elseif ($this->isValidComponentName($componentName)) {
+            return $this->{$componentName}() === $compareToUrl->{$componentName}();
+        }
+
+        return false;
     }
 }
