@@ -57,28 +57,21 @@ class Url
     ];
 
     /**
-     * @var Validator
-     */
-    private $validator;
-
-    /**
      * @var Resolver
      */
     private $resolver;
 
     /**
      * @param string|Url $url
-     * @param Validator|null $validator
      * @throws InvalidUrlException
      * @throws \InvalidArgumentException
      */
-    public function __construct($url, ?Validator $validator = null)
+    public function __construct($url)
     {
         if (!is_string($url) && !$url instanceof Url) {
             throw new \InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
         }
 
-        $this->validator = ($validator instanceof Validator) ? $validator : new Validator(Helpers::punyCode());
         $this->decorate($url);
     }
 
@@ -118,7 +111,7 @@ class Url
      */
     public static function parse(string $url = ''): Url
     {
-        return new self($url);
+        return new Url($url);
     }
 
     /**
@@ -134,7 +127,7 @@ class Url
         } elseif ($scheme === '') {
             $this->scheme = null;
         } else {
-            $this->scheme = $this->validator->scheme($scheme) ?: $this->scheme;
+            $this->scheme = Validator::scheme($scheme) ?: $this->scheme;
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -155,7 +148,7 @@ class Url
         } elseif ($user === '') {
             $this->user = $this->pass = null;
         } else {
-            $this->user = $this->validator->userOrPassword($user) ?: $this->user;
+            $this->user = Validator::userOrPassword($user) ?: $this->user;
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -174,7 +167,7 @@ class Url
         } elseif ($password === '') {
             $this->pass = null;
         } else {
-            $this->pass = $this->validator->userOrPassword($password) ?: $this->pass;
+            $this->pass = Validator::userOrPassword($password) ?: $this->pass;
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -226,7 +219,7 @@ class Url
             return $this->updateFullUrlAndReturnInstance();
         }
 
-        $validHost = $this->validator->host($host);
+        $validHost = Validator::host($host);
 
         if ($validHost) {
             $this->host = new Host($validHost);
@@ -249,7 +242,7 @@ class Url
             return $this->host instanceof Host ? $this->host->domain() : null;
         }
 
-        $domain = $this->validator->domain($domain);
+        $domain = Validator::domain($domain);
 
         if ($domain) {
             if ($this->host instanceof Host) {
@@ -278,7 +271,7 @@ class Url
         }
 
         if ($this->host instanceof Host && !empty($this->host->domain())) {
-            $domainLabel = $this->validator->domain($domainLabel, true);
+            $domainLabel = Validator::domain($domainLabel, true);
 
             if ($domainLabel) {
                 $this->host->domainLabel($domainLabel);
@@ -302,7 +295,7 @@ class Url
         if ($domainSuffix === null) {
             return $this->host instanceof Host ? $this->host->domainSuffix() : null;
         } elseif ($this->host instanceof Host && !empty($this->host->domain())) {
-            $domainSuffix = $this->validator->domainSuffix($domainSuffix);
+            $domainSuffix = Validator::domainSuffix($domainSuffix);
 
             if ($domainSuffix) {
                 $this->host->domainSuffix($domainSuffix);
@@ -326,7 +319,7 @@ class Url
         if ($subdomain === null) {
             return $this->host instanceof Host ? $this->host->subdomain() : null;
         } elseif ($this->host instanceof Host && !empty($this->host->domain())) {
-            $subdomain = $this->validator->subdomain($subdomain);
+            $subdomain = Validator::subdomain($subdomain);
 
             if ($subdomain) {
                 $this->host->subdomain($subdomain);
@@ -354,7 +347,7 @@ class Url
             return $this->port;
         }
 
-        $port = $this->validator->port($port);
+        $port = Validator::port($port);
 
         if ($port !== null) {
             $this->port = $port;
@@ -385,7 +378,7 @@ class Url
             return $this->path;
         }
 
-        $path = $this->validator->path($path, !empty($this->authority()));
+        $path = Validator::path($path, !empty($this->authority()));
 
         if ($path || $path === '') {
             $this->path = $path;
@@ -407,7 +400,7 @@ class Url
             return $this->query;
         }
 
-        $query = $this->validator->query($query);
+        $query = Validator::query($query);
 
         if ($query) {
             $this->query = $query;
@@ -435,7 +428,7 @@ class Url
 
             return Helpers::queryStringToArray($this->query);
         } elseif (is_array($query)) {
-            $query = $this->validator->query(http_build_query($query));
+            $query = Validator::query(http_build_query($query));
 
             if ($query) {
                 $this->query = $query;
@@ -458,7 +451,7 @@ class Url
             return $this->fragment;
         }
 
-        $fragment = $this->validator->fragment($fragment);
+        $fragment = Validator::fragment($fragment);
 
         if ($fragment) {
             $this->fragment = $fragment;
@@ -734,7 +727,6 @@ class Url
      *
      * @param string|Url $url
      * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
      */
     private function decorate($url): void
     {
@@ -762,18 +754,15 @@ class Url
      * @param string|Url $url
      * @return array|Url
      * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
      */
     private function validate($url)
     {
         if (is_string($url)) {
-            $validComponents = $this->validator->url($url);
+            $validComponents = Validator::url($url);
 
             if (!is_array($validComponents)) {
                 throw new InvalidUrlException($url . ' is not a valid url.');
             }
-        } elseif (!$url instanceof Url) {
-            throw new \InvalidArgumentException('Provided url must either be a string or an Url object.');
         }
 
         return isset($validComponents) ? $validComponents : $url;
@@ -816,7 +805,7 @@ class Url
     private function resolver(): Resolver
     {
         if (!$this->resolver) {
-            $this->resolver = new Resolver($this->validator);
+            $this->resolver = new Resolver();
         }
 
         return $this->resolver;

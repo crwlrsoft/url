@@ -68,18 +68,6 @@ final class HelpersTest extends TestCase
         $this->assertNull(Helpers::getStandardPortByScheme('unknownscheme'));
     }
 
-    public function testContainsCharactersNotAllowedInHost()
-    {
-        $this->assertTrue(Helpers::containsCharactersNotAllowedInHost('www.éxample.com'));
-        // Fake "a", special character (idn domain).
-        $this->assertTrue(Helpers::containsCharactersNotAllowedInHost('www.са.com'));
-        $this->assertTrue(Helpers::containsCharactersNotAllowedInHost('under_score.example.com'));
-        $this->assertTrue(Helpers::containsCharactersNotAllowedInHost('www.example.com', true));
-
-        $this->assertFalse(Helpers::containsCharactersNotAllowedInHost('www.example123.com'));
-        $this->assertFalse(Helpers::containsCharactersNotAllowedInHost('example123', true));
-    }
-
     public function testStripFromEnd()
     {
         $this->assertEquals('example', Helpers::stripFromEnd('examplestring', 'string'));

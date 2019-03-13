@@ -157,28 +157,6 @@ class Helpers
     }
 
     /**
-     * Check if string contains characters not allowed in the host component.
-     *
-     * @param string $string
-     * @param bool $noDot  Set to true when dot should not be allowed (e.g. checking only domain label).
-     * @return bool
-     */
-    public static function containsCharactersNotAllowedInHost(string $string, bool $noDot = false): bool
-    {
-        $pattern = '/[^a-zA-Z0-9\-\.]/';
-
-        if ($noDot === true) {
-            $pattern = '/[^a-zA-Z0-9\-]/';
-        }
-
-        if (preg_match($pattern, $string)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Strip some string B from the end of a string A that ends with string B.
      *
      * Example: 'some.example' - '.example' = 'some'

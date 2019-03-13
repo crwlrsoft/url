@@ -3,7 +3,6 @@
 namespace Crwlr\Url;
 
 use Crwlr\Url\Exceptions\InvalidUrlException;
-use TrueBV\Punycode;
 
 /**
  * Class Validator
@@ -14,92 +13,39 @@ use TrueBV\Punycode;
 class Validator
 {
     /**
-     * @var Punycode
-     */
-    private $punyCode;
-
-    /**
-     * @param Punycode|null $punyCode
-     */
-    public function __construct(?Punycode $punyCode = null)
-    {
-        $this->punyCode = $punyCode ?: Helpers::punyCode();
-    }
-
-    /**
      * Validate a url
      *
      * Returns an array with the valid url and all it's valid components separately.
      * Returns null when the input url is invalid.
      *
      * @param string $url
-     * @param bool $absoluteUrl  Set to true when only an absolute url should return a valid result.
      * @return array|null
      */
-    public function url(string $url = '', bool $absoluteUrl = false): ?array
+    public static function url(string $url = ''): ?array
     {
         if (trim($url) === '') {
-            return $absoluteUrl ? null : ['url' => '', 'path' => ''];
+            return ['url' => '', 'path' => ''];
         }
 
-        try {
-            $url = $this->encodeIdnHostInUrl($url);
-        } catch (InvalidUrlException $exception) {
-            return null;
-        }
-
-        $components = parse_url($url);
-
-        if (
-            is_array($components) &&
-            !empty($components) &&
-            ($absoluteUrl === false || filter_var($url, FILTER_VALIDATE_URL) !== false)
-        ) {
-            $validComponents = $this->validateComponents($components);
-
-            if (!empty($validComponents)) {
-                $validComponents['url'] = Helpers::buildUrlFromComponents($validComponents);
-
-                return $validComponents;
-            }
-        }
-
-        return null;
+        return self::returnValidUrlAndComponentsArray(self::getValidComponents($url));
     }
 
     /**
-     * Validate an array of url components
+     * Validate an absolute url
      *
-     * Returns an empty array when one of the components is invalid.
+     * Returns an array with the valid url and all it's valid components separately.
+     * Returns null when the input url is invalid or not an absolute url.
      *
-     * @param array $components
-     * @return array
+     * @param string $url
+     * @return array|null
      */
-    private function validateComponents(array $components): array
+    public static function absoluteUrl(string $url): ?array
     {
-        foreach ($components as $componentName => $componentValue) {
-            if (method_exists($this, $componentName)) {
-                if ($componentName === 'path') {
-                    $hasAuthority = false;
-
-                    if (isset($components['host'])) {
-                        $hasAuthority = true;
-                    }
-
-                    $validComponent = $this->path($componentValue, $hasAuthority);
-                } else {
-                    $validComponent = $this->{$componentName}($componentValue);
-                }
-
-                if ($validComponent === null) {
-                    return [];
-                }
-
-                $components[$componentName] = $validComponent;
-            }
+        if (trim($url) === '') {
+            return null;
         }
 
-        return $components;
+        return self::returnValidUrlAndComponentsArray(self::getValidComponents($url, true));
     }
 
     /**
@@ -110,7 +56,7 @@ class Validator
      * @param string $scheme
      * @return string|null
      */
-    public function scheme(string $scheme = ''): ?string
+    public static function scheme(string $scheme = ''): ?string
     {
         $scheme = strtolower(trim($scheme));
 
@@ -133,7 +79,7 @@ class Validator
      * @param string $string
      * @return string|null
      */
-    public function userOrPassword(string $string = ''): ?string
+    public static function userOrPassword(string $string = ''): ?string
     {
         $pattern = '/[^a-zA-Z0-9\-\.\_\~\%\!\$\&\'\(\)\*\+\,\;\=]/';
 
@@ -153,14 +99,14 @@ class Validator
      * @param string $host
      * @return string|null
      */
-    public function host(string $host): ?string
+    public static function host(string $host): ?string
     {
-        if ($this->isNotEmptyString($host)) {
-            if (Helpers::containsCharactersNotAllowedInHost($host)) {
-                $host = $this->punyCode->encode($host);
+        if (trim($host) !== '') {
+            if (Validator::containsCharactersNotAllowedInHost($host)) {
+                $host = Helpers::punyCode()->encode($host);
             }
 
-            if (!Helpers::containsCharactersNotAllowedInHost($host) && !$this->hostHasEmptyLabel($host)) {
+            if (!Validator::containsCharactersNotAllowedInHost($host) && !self::hostHasEmptyLabel($host)) {
                 return $host;
             }
         }
@@ -177,17 +123,17 @@ class Validator
      * @param string $domainSuffix
      * @return string|null
      */
-    public function domainSuffix(string $domainSuffix = ''): ?string
+    public static function domainSuffix(string $domainSuffix = ''): ?string
     {
-        if ($this->isNotEmptyString($domainSuffix)) {
-            if (Helpers::containsCharactersNotAllowedInHost($domainSuffix)) {
-                $domainSuffix = $this->punyCode->encode($domainSuffix);
+        if (trim($domainSuffix) !== '') {
+            if (Validator::containsCharactersNotAllowedInHost($domainSuffix)) {
+                $domainSuffix = Helpers::punyCode()->encode($domainSuffix);
             }
 
             $domainSuffix = strtolower(trim($domainSuffix));
 
             if (
-                !Helpers::containsCharactersNotAllowedInHost($domainSuffix) &&
+                !Validator::containsCharactersNotAllowedInHost($domainSuffix) &&
                 Helpers::suffixes()->exists($domainSuffix)
             ) {
                 return $domainSuffix;
@@ -207,18 +153,18 @@ class Validator
      * @param bool $withoutSuffix  Set to true to validate a domain label only, without public domain suffix.
      * @return string|null
      */
-    public function domain(string $domain = '', bool $withoutSuffix = false): ?string
+    public static function domain(string $domain = '', bool $withoutSuffix = false): ?string
     {
-        if ($this->isNotEmptyString($domain)) {
-            if (Helpers::containsCharactersNotAllowedInHost($domain)) {
-                $domain = $this->punyCode->encode($domain);
+        if (trim($domain) !== '') {
+            if (Validator::containsCharactersNotAllowedInHost($domain)) {
+                $domain = Helpers::punyCode()->encode($domain);
             }
 
             $domain = strtolower($domain);
 
-            if ($withoutSuffix === true && !Helpers::containsCharactersNotAllowedInHost($domain, true)) {
+            if ($withoutSuffix === true && !Validator::containsCharactersNotAllowedInHost($domain, true)) {
                 return $domain;
-            } elseif ($withoutSuffix === false && !Helpers::containsCharactersNotAllowedInHost($domain)) {
+            } elseif ($withoutSuffix === false && !Validator::containsCharactersNotAllowedInHost($domain)) {
                 $suffix = Helpers::suffixes()->getByHost($domain);
 
                 if ($suffix) {
@@ -244,16 +190,16 @@ class Validator
      * @param string $subdomain
      * @return string|null
      */
-    public function subdomain(string $subdomain = ''): ?string
+    public static function subdomain(string $subdomain = ''): ?string
     {
-        if ($this->isNotEmptyString($subdomain)) {
-            if (Helpers::containsCharactersNotAllowedInHost($subdomain)) {
-                $subdomain = $this->punyCode->encode($subdomain);
+        if (trim($subdomain) !== '') {
+            if (Validator::containsCharactersNotAllowedInHost($subdomain)) {
+                $subdomain = Helpers::punyCode()->encode($subdomain);
             }
 
             $subdomain = strtolower(trim($subdomain));
 
-            if (!Helpers::containsCharactersNotAllowedInHost($subdomain)) {
+            if (!Validator::containsCharactersNotAllowedInHost($subdomain)) {
                 return $subdomain;
             }
         }
@@ -269,7 +215,7 @@ class Validator
      * @param int $port
      * @return int|null
      */
-    public function port(int $port = 0): ?int
+    public static function port(int $port = 0): ?int
     {
         return $port >= 0 && $port <= 65535 ? $port : null;
     }
@@ -287,7 +233,7 @@ class Validator
      * @param bool $hasAuthority  Set to false when the uri containing that path has no authority component.
      * @return string|null
      */
-    public function path(string $path, bool $hasAuthority = true): ?string
+    public static function path(string $path, bool $hasAuthority = true): ?string
     {
         if (
             $hasAuthority === false &&
@@ -299,9 +245,9 @@ class Validator
             return null;
         }
 
-        $path = $this->encodePercentCharacter($path);
+        $path = self::encodePercentCharacter($path);
 
-        return $this->urlEncodeExcept($path, $this->pcharRegexPattern(['/', '%']));
+        return self::urlEncodeExcept($path, self::pcharRegexPattern(['/', '%']));
     }
 
     /**
@@ -313,15 +259,15 @@ class Validator
      * @param string $query
      * @return string
      */
-    public function query(string $query = ''): string
+    public static function query(string $query = ''): string
     {
         if (substr($query, 0, 1) === '?') {
             $query = substr($query, 1);
         }
 
-        $query = $this->encodePercentCharacter($query);
+        $query = self::encodePercentCharacter($query);
 
-        return $this->urlEncodeExcept($query, $this->pcharRegexPattern(['/', '%']));
+        return self::urlEncodeExcept($query, self::pcharRegexPattern(['/', '%']));
     }
 
     /**
@@ -333,15 +279,119 @@ class Validator
      * @param string $fragment
      * @return string
      */
-    public function fragment(string $fragment = ''): string
+    public static function fragment(string $fragment = ''): string
     {
         if (substr($fragment, 0, 1) === '#') {
             $fragment = substr($fragment, 1);
         }
 
-        $fragment = $this->encodePercentCharacter($fragment);
+        $fragment = self::encodePercentCharacter($fragment);
 
-        return $this->urlEncodeExcept($fragment, $this->pcharRegexPattern(['/', '?', '%']));
+        return self::urlEncodeExcept($fragment, self::pcharRegexPattern(['/', '?', '%']));
+    }
+
+    /**
+     * Get all valid url components from the provided url string as array.
+     *
+     * In case of an invalid url null is returned.
+     *
+     * @param string $url
+     * @param bool $onlyAbsoluteUrl  When set to true, it will also return null when the input is a relative reference.
+     * @return array|null
+     */
+    private static function getValidComponents(string $url, bool $onlyAbsoluteUrl = false): ?array
+    {
+        try {
+            $url = self::encodeIdnHostInUrl($url);
+        } catch (InvalidUrlException $exception) {
+            return null;
+        }
+
+        $components = parse_url($url);
+
+        if (
+            is_array($components) &&
+            !empty($components) &&
+            ($onlyAbsoluteUrl === false || filter_var($url, FILTER_VALIDATE_URL) !== false)
+        ) {
+            $validComponents = self::validateComponents($components);
+
+            if (!empty($validComponents)) {
+                return $validComponents;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Validate an array of url components.
+     *
+     * Returns an empty array when one of the components is invalid.
+     *
+     * @param array $components
+     * @return array
+     */
+    private static function validateComponents(array $components): array
+    {
+        foreach ($components as $componentName => $componentValue) {
+            if (method_exists(Validator::class, $componentName)) {
+                if ($componentName === 'path') {
+                    $validComponent = self::path($componentValue, isset($components['host']) ? true : false);
+                } else {
+                    $validComponent = self::{$componentName}($componentValue);
+                }
+
+                if ($validComponent === null) {
+                    return [];
+                }
+
+                $components[$componentName] = $validComponent;
+            }
+        }
+
+        return $components;
+    }
+
+    /**
+     * Helper method for the url and absoluteUrl methods.
+     *
+     * Because it's the same for both methods.
+     *
+     * @param array|null $validComponents
+     * @return array|null
+     */
+    private static function returnValidUrlAndComponentsArray(?array $validComponents): ?array
+    {
+        if (!$validComponents) {
+            return null;
+        }
+
+        $validComponents['url'] = Helpers::buildUrlFromComponents($validComponents);
+
+        return $validComponents;
+    }
+
+    /**
+     * Check if string contains characters not allowed in the host component.
+     *
+     * @param string $string
+     * @param bool $noDot  Set to true when dot should not be allowed (e.g. checking only domain label).
+     * @return bool
+     */
+    private static function containsCharactersNotAllowedInHost(string $string, bool $noDot = false): bool
+    {
+        $pattern = '/[^a-zA-Z0-9\-\.]/';
+
+        if ($noDot === true) {
+            $pattern = '/[^a-zA-Z0-9\-]/';
+        }
+
+        if (preg_match($pattern, $string)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -351,7 +401,7 @@ class Validator
      * @param string $exceptRegexPattern
      * @return string
      */
-    private function urlEncodeExcept(string $encode, string $exceptRegexPattern): string
+    private static function urlEncodeExcept(string $encode, string $exceptRegexPattern): string
     {
         return preg_replace_callback(
             $exceptRegexPattern,
@@ -370,12 +420,11 @@ class Validator
      * @param array $additionalCharacters
      * @return string
      */
-    private function pcharRegexPattern(array $additionalCharacters = []): string
+    private static function pcharRegexPattern(array $additionalCharacters = []): string
     {
         $pattern = "/[^a-zA-Z0-9-._~!$&\'()*+,;=:@";
 
         foreach ($additionalCharacters as $character) {
-            //$pattern .= "\\" . $character;
             $pattern .= preg_quote($character, '/');
         }
 
@@ -392,7 +441,7 @@ class Validator
      * @param string $string
      * @return string
      */
-    private function encodePercentCharacter(string $string = ''): string
+    private static function encodePercentCharacter(string $string = ''): string
     {
         return preg_replace('/%(?![0-9A-Fa-f][0-9A-Fa-f])/', '%25', $string) ?: $string;
     }
@@ -408,12 +457,12 @@ class Validator
      * @return string
      * @throws InvalidUrlException
      */
-    private function encodeIdnHostInUrl(string $url = ''): string
+    private static function encodeIdnHostInUrl(string $url = ''): string
     {
-        $host = $this->getHostFromIdnUrl($url);
+        $host = self::getHostFromIdnUrl($url);
 
-        if (is_string($host) && $host !== '' && Helpers::containsCharactersNotAllowedInHost($host)) {
-            $encodedHost = $this->punyCode->encode($host);
+        if (is_string($host) && $host !== '' && Validator::containsCharactersNotAllowedInHost($host)) {
+            $encodedHost = Helpers::punyCode()->encode($host);
             $hostPositionInUrl = strpos($url, $host);
             $preHost = substr($url, 0, $hostPositionInUrl);
             $postHost = substr($url, ($hostPositionInUrl + strlen($host)));
@@ -434,7 +483,7 @@ class Validator
      * @see Validator::encodeIdnHostInUrl()
      * @throws InvalidUrlException
      */
-    private function getHostFromIdnUrl(string $url = ''): ?string
+    private static function getHostFromIdnUrl(string $url = ''): ?string
     {
         $firstTwoChars = substr($url, 0, 2);
 
@@ -443,7 +492,7 @@ class Validator
         } elseif ($firstTwoChars === '//') { // Protocol relative like //www.example.com/path
             $urlWithoutScheme = $url;
         } else {
-            $urlWithoutScheme = $this->stripSchemeFromIdnUrl($url);
+            $urlWithoutScheme = self::stripSchemeFromIdnUrl($url);
 
             if ($url === $urlWithoutScheme) {
                 throw new InvalidUrlException('Url neither starts with "/" nor contains a scheme.');
@@ -470,7 +519,7 @@ class Validator
      * @return string
      * @see Validator::getHostFromIdnUrl()
      */
-    private function stripSchemeFromIdnUrl(string $url = ''): string
+    private static function stripSchemeFromIdnUrl(string $url = ''): string
     {
         $splitAtColon = explode(':', $url);
 
@@ -492,27 +541,12 @@ class Validator
      * @param string $host
      * @return bool
      */
-    private function hostHasEmptyLabel(string $host = ''): bool
+    private static function hostHasEmptyLabel(string $host = ''): bool
     {
         foreach (explode('.', $host) as $label) {
             if (trim($label) === '') {
                 return true;
             }
-        }
-
-        return false;
-    }
-
-    /**
-     * Returns true if $string is of type string and is not empty (whitespace trimmed).
-     *
-     * @param $string
-     * @return bool
-     */
-    private function isNotEmptyString($string): bool
-    {
-        if (is_string($string) && trim($string) !== '') {
-            return true;
         }
 
         return false;

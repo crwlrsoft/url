@@ -3,7 +3,6 @@
 namespace Crwlr\Url\Psr;
 
 use Crwlr\Url\Exceptions\InvalidUrlException;
-use Crwlr\Url\Helpers;
 use Crwlr\Url\Resolver;
 use Crwlr\Url\Url;
 use Crwlr\Url\Validator;
@@ -24,32 +23,26 @@ class Uri implements UriInterface
     private $url;
 
     /**
-     * @var Validator
-     */
-    private $validator;
-
-    /**
      * @var Resolver
      */
     private $resolver;
 
     /**
      * @param string $url
-     * @param Validator|null $validator
      * @param Resolver|null $resolver
      * @throws InvalidUrlException
+     * @throws \InvalidArgumentException
      */
-    public function __construct($url, $validator = null, $resolver = null)
+    public function __construct($url, $resolver = null)
     {
         if ($url instanceof Url) {
             $this->url = $url;
         } elseif (is_string($url)) {
-            $this->url = new Url($url, $validator);
+            $this->url = new Url($url);
         } else {
-            throw new InvalidUrlException('Param url must be either a string or an instance of Crwlr\Url\Url.');
+            throw new \InvalidArgumentException('Param url must be either a string or an instance of Crwlr\Url\Url.');
         }
 
-        $this->validator = $validator instanceof Validator ? $validator : new Validator(Helpers::punyCode());
         $this->resolver = $resolver instanceof Resolver ? $resolver : new Resolver();
     }
 
@@ -135,7 +128,7 @@ class Uri implements UriInterface
      */
     public function withScheme($scheme): Uri
     {
-        if (!is_string($scheme) || (!$this->validator->scheme($scheme) && trim($scheme) !== '')) {
+        if (!is_string($scheme) || (!Validator::scheme($scheme) && trim($scheme) !== '')) {
             throw new \InvalidArgumentException('Invalid scheme.');
         }
 
@@ -178,7 +171,7 @@ class Uri implements UriInterface
      */
     public function withPort($port): Uri
     {
-        if ($port !== null && $this->validator->port($port) === null) {
+        if ($port !== null && Validator::port($port) === null) {
             throw new \InvalidArgumentException('Port is outside the valid TCP and UDP port ranges.');
         }
 
@@ -259,7 +252,7 @@ class Uri implements UriInterface
      */
     private function newInstance(Url $url): Uri
     {
-        return new self($url, $this->validator, $this->resolver);
+        return new self($url, $this->resolver);
     }
 
     /**
@@ -268,6 +261,6 @@ class Uri implements UriInterface
      */
     private function newUrlInstance(): Url
     {
-        return new Url($this->url, $this->validator);
+        return new Url($this->url);
     }
 }

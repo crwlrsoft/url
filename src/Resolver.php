@@ -13,19 +13,6 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
 class Resolver
 {
     /**
-     * @var Validator
-     */
-    private $validator;
-
-    /**
-     * @param Validator|null $validator
-     */
-    public function __construct(?Validator $validator = null)
-    {
-        $this->validator = $validator ?: new Validator(Helpers::punyCode());
-    }
-
-    /**
      * Resolve any relative reference to an absolute url against a base url.
      *
      * Example:
@@ -39,7 +26,7 @@ class Resolver
      */
     public function resolve(string $subject, Url $base): Url
     {
-        $urlAndComponents = $this->validator->url($subject, true);
+        $urlAndComponents = Validator::absoluteUrl($subject);
 
         if (is_array($urlAndComponents) && isset($urlAndComponents['url'])) {
             return new Url($urlAndComponents['url']);
