@@ -554,6 +554,38 @@ final class UrlTest extends TestCase
     }
 
     /**
+     * Parsing urls containing special characters like umlauts in path, query or fragment percent encodes these
+     * characters.
+     *
+     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     */
+    public function testParsingUrlsContainingUmlauts()
+    {
+        $url = \Crwlr\Url\Url::parse('https://www.example.com/bürokaufmann');
+        $this->assertEquals('https://www.example.com/b%C3%BCrokaufmann', $url->toString());
+
+        $url = \Crwlr\Url\Url::parse('https://www.example.com/path?quäry=strüng');
+        $this->assertEquals('https://www.example.com/path?qu%C3%A4ry=str%C3%BCng', $url->toString());
+
+        $url = \Crwlr\Url\Url::parse('https://www.example.com/path#frägment');
+        $this->assertEquals('https://www.example.com/path#fr%C3%A4gment', $url->toString());
+    }
+
+    /**
+     * Percent characters from percent encoded characters must not be (double) encoded.
+     *
+     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
+     */
+    public function testEncodingPercentEncodedCharacters()
+    {
+        $url = \Crwlr\Url\Url::parse('https://www.example.com/b%C3%BCrokaufmann');
+        $this->assertEquals('https://www.example.com/b%C3%BCrokaufmann', $url->toString());
+
+        $url = \Crwlr\Url\Url::parse('https://www.example.com/just%-character');
+        $this->assertEquals('https://www.example.com/just%25-character', $url->toString());
+    }
+
+    /**
      * @return \Crwlr\Url\Url
      * @throws \Crwlr\Url\Exceptions\InvalidUrlException
      */
