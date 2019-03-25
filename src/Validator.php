@@ -63,11 +63,18 @@ class Validator
             $url = $this->encodeIdnHostInUrl($url);
         }
 
+        $validComponents = $this->validateComponents($url);
+
+        if (!empty($validComponents)) {
+            $url = $this->buildUrlFromComponents($validComponents);
+            $dontRevalidateScheme = true;
+        }
+
         if (filter_var($url, FILTER_VALIDATE_URL) !== false) {
             // filter_var() doesn't check for a valid url scheme, so validate if it has one.
             $splitAtColon = explode(':', $url);
 
-            if (count($splitAtColon) > 1 && $this->scheme($splitAtColon[0])) {
+            if (isset($dontRevalidateScheme) || (count($splitAtColon) > 1 && $this->scheme($splitAtColon[0]))) {
                 return $url;
             }
         }
@@ -252,7 +259,9 @@ class Validator
      */
     public function path(string $path) : string
     {
-        $path = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
+        $path = $this->encodePercentCharacter($path);
+
+        $path = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\%]/', function ($match) {
             return $this->urlEncodeCharacter($match[0]);
         }, $path);
 
@@ -273,7 +282,9 @@ class Validator
             $query = substr($query, 1);
         }
 
-        $query = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/]/', function ($match) {
+        $query = $this->encodePercentCharacter($query);
+
+        $query = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\%]/', function ($match) {
             return $this->urlEncodeCharacter($match[0]);
         }, $query);
 
@@ -293,7 +304,9 @@ class Validator
             $fragment = substr($fragment, 1);
         }
 
-        $fragment = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\?]/', function ($match) {
+        $fragment = $this->encodePercentCharacter($fragment);
+
+        $fragment = preg_replace_callback('/[^a-zA-Z0-9\-\.\_\~\!\$\&\'\(\)\*\+\,\;\=\:\@\/\?\%]/', function ($match) {
             return $this->urlEncodeCharacter($match[0]);
         }, $fragment);
 
@@ -358,6 +371,21 @@ class Validator
         }
 
         return $url;
+    }
+
+    /**
+     * Encode percent character in path, query or fragment
+     *
+     * If the string (path, query, fragment) contains a percent character that is not part of an already percent
+     * encoded character it must be encoded (% => %25). So this method replaces all percent characters that are not
+     * followed by a hex code.
+     *
+     * @param string $string
+     * @return string
+     */
+    private function encodePercentCharacter(string $string = ''): string
+    {
+        return preg_replace('/%(?![0-9A-Fa-f][0-9A-Fa-f])/', '%25', $string) ?: $string;
     }
 
     /**
@@ -431,5 +459,74 @@ class Validator
         }
 
         return false;
+    }
+
+    /**
+     * Helper method for url()
+     *
+     * Parse the input url to components and validate each component. Returns an array of valid components.
+     * Returns empty array when scheme or host component is missing or an invalid component is found.
+     *
+     * @param string $url
+     * @return array
+     */
+    private function validateComponents(string $url): array
+    {
+        $components = parse_url($url);
+
+        if (!is_array($components) || !isset($components['scheme']) || !isset($components['host'])) {
+            return [];
+        }
+
+        foreach ($components as $componentName => $componentValue) {
+            $validComponentValue = null;
+
+            if (method_exists(Validator::class, $componentName)) {
+                $validComponentValue = $this->{$componentName}($componentValue);
+            } elseif (in_array($componentName, ['user', 'pass'])) {
+                $validComponentValue = $this->userOrPassword($componentValue);
+            }
+
+            if ($validComponentValue === null) {
+                return [];
+            }
+
+            $components[$componentName] = $validComponentValue;
+        }
+
+        return $components;
+    }
+
+    /**
+     * Builds a url from an array of url components.
+     *
+     * @param array $comp
+     * @return string
+     */
+    private function buildUrlFromComponents(array $comp = []): string
+    {
+        $url = '';
+
+        if (isset($comp['scheme'])) {
+            $url .= $comp['scheme'] . ':';
+
+            if (isset($comp['port']) && $comp['port'] === Url::getStandardPortByScheme($comp['scheme'])) {
+                unset($comp['port']);
+            }
+        }
+
+        $url .= isset($comp['host']) ? '//' : '';
+
+        if (isset($comp['user'])) {
+            $url .= $comp['user'] . (isset($comp['pass']) ? ':' . $comp['pass'] : '') . '@';
+        }
+
+        $url .= $comp['host'] . (isset($comp['port']) ? ':' . $comp['port'] : '');
+
+        $url .= $comp['path'] ?? '';
+        $url .= isset($comp['query']) ? '?' . $comp['query'] : '';
+        $url .= isset($comp['fragment']) ? '#' . $comp['fragment'] : '';
+
+        return $url;
     }
 }

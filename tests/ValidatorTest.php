@@ -25,10 +25,6 @@ final class ValidatorTest extends TestCase
             'https://wwww.example.com'
         );
         $this->assertEquals(
-            $validator->url('ssh://username@host:/path/to/somewhere'),
-            'ssh://username@host:/path/to/somewhere'
-        );
-        $this->assertEquals(
             $validator->url('ftp://username:password@example.org'),
             'ftp://username:password@example.org'
         );
@@ -215,12 +211,17 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->path('/(foo)/*bar+'), '/(foo)/*bar+');
         $this->assertEquals($validator->path('/foo,bar;baz:'), '/foo,bar;baz:');
         $this->assertEquals($validator->path('/foo=bar@baz'), '/foo=bar@baz');
-        $this->assertEquals($validator->path('/foo%bar'), '/foo%25bar');
         $this->assertEquals($validator->path('no/leading/slash'), 'no/leading/slash');
         $this->assertEquals($validator->path('/"foo"'), '/%22foo%22');
         $this->assertEquals($validator->path('/foo\\bar'), '/foo%5Cbar');
         $this->assertEquals($validator->path('/bößer/pfad'), '/b%C3%B6%C3%9Fer/pfad');
         $this->assertEquals($validator->path('/<html>'), '/%3Chtml%3E');
+
+        // Percent character not encoded (to %25) because %ba could be legitimate percent encoded character.
+        $this->assertEquals($validator->path('/foo%bar'), '/foo%bar');
+
+        // Percent character encoded because %ga isn't a valid percent encoded character.
+        $this->assertEquals($validator->path('/foo%gar'), '/foo%25gar');
     }
 
     public function testValidateQuery()
@@ -240,6 +241,7 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->query('föo=bar'), 'f%C3%B6o=bar');
         $this->assertEquals($validator->query('boeßer=query'), 'boe%C3%9Fer=query');
         $this->assertEquals($validator->query('foo`=bar'), 'foo%60=bar');
+        $this->assertEquals($validator->query('foo%25bar=baz'), 'foo%25bar=baz');
     }
 
     public function testValidateFragment()
@@ -260,5 +262,6 @@ final class ValidatorTest extends TestCase
         $this->assertEquals($validator->fragment('frägment'), 'fr%C3%A4gment');
         $this->assertEquals($validator->fragment('boeßesfragment'), 'boe%C3%9Fesfragment');
         $this->assertEquals($validator->fragment('fragment`'), 'fragment%60');
+        $this->assertEquals($validator->fragment('fragm%E2%82%ACnt'), 'fragm%E2%82%ACnt');
     }
 }
