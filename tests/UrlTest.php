@@ -467,6 +467,46 @@ final class UrlTest extends TestCase
     }
 
     /**
+     * Special characters in user information will be percent encoded.
+     *
+     * @throws InvalidUrlException
+     */
+    public function testUrlWithSpecialCharactersInUserInfo()
+    {
+        $url = Url::parse('https://u§er:pássword@example.com');
+        $this->assertEquals('https://u%C2%A7er:p%C3%A1ssword@example.com', $url->toString());
+    }
+
+    /**
+     * Parsing urls containing special characters like umlauts in path, query or fragment percent encodes these
+     * characters.
+     *
+     * @throws InvalidUrlException
+     */
+    public function testParsingUrlsContainingUmlauts()
+    {
+        $url = Url::parse('https://www.example.com/bürokaufmann');
+        $this->assertEquals('https://www.example.com/b%C3%BCrokaufmann', $url->toString());
+        $url = Url::parse('https://www.example.com/path?quäry=strüng');
+        $this->assertEquals('https://www.example.com/path?qu%C3%A4ry=str%C3%BCng', $url->toString());
+        $url = Url::parse('https://www.example.com/path#frägment');
+        $this->assertEquals('https://www.example.com/path#fr%C3%A4gment', $url->toString());
+    }
+
+    /**
+     * Percent characters from percent encoded characters must not be (double) encoded.
+     *
+     * @throws InvalidUrlException
+     */
+    public function testEncodingPercentEncodedCharacters()
+    {
+        $url = Url::parse('https://www.example.com/b%C3%BCrokaufmann');
+        $this->assertEquals('https://www.example.com/b%C3%BCrokaufmann', $url->toString());
+        $url = Url::parse('https://www.example.com/just%-character');
+        $this->assertEquals('https://www.example.com/just%25-character', $url->toString());
+    }
+
+    /**
      * @return Url
      * @throws InvalidUrlException
      */

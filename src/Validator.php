@@ -68,26 +68,54 @@ class Validator
     }
 
     /**
+     * Validate (only) the user from the user info
+     *
+     * @param string $user
+     * @return string|null
+     */
+    public static function user(string $user): ?string
+    {
+        return self::userOrPassword($user);
+    }
+
+    /**
+     * Validate (only) the password from the user info
+     *
+     * @param string $password
+     * @return string|null
+     */
+    public static function password(string $password): ?string
+    {
+        return self::userOrPassword($password);
+    }
+
+    /**
+     * Alias for method password
+     *
+     * @param string $pass
+     * @return string|null
+     */
+    public static function pass(string $pass): ?string
+    {
+        return self::password($pass);
+    }
+
+    /**
      * Validate a user name or password
      *
-     * Returns the valid user or password string when it only contains allowed characters
-     * https://tools.ietf.org/html/rfc3986#section-3.2.1
+     * Percent encodes characters that aren't allowed within a user information component.
      *
-     * As this method only validates either a user or a password, the : is not allowed,
-     * because it's used to separate user and password.
+     * As this method only validates either a user or a password, the : is not allowed, because it's used to separate
+     * user and password.
      *
      * @param string $string
      * @return string|null
      */
-    public static function userOrPassword(string $string = ''): ?string
+    private static function userOrPassword(string $string = ''): ?string
     {
-        $pattern = '/[^a-zA-Z0-9\-\.\_\~\%\!\$\&\'\(\)\*\+\,\;\=]/';
+        $string = self::encodePercentCharacter($string);
 
-        if (!preg_match($pattern, $string)) {
-            return $string;
-        }
-
-        return null;
+        return self::urlEncodeExcept($string, "/[^a-zA-Z0-9-._~!$&'() * +,;=%]/");
     }
 
     /**
@@ -450,7 +478,7 @@ class Validator
      * Encode internationalized domain names using Punycode in a url
      *
      * PHPs parse_url method breaks special characters in internationalized domain names. So this method
-     * uses the getHostFromIdnUrl method below to find the host part, checks for not allowed characters and handles
+     * uses the getAuthorityFromUrl method below to find the host part, checks for not allowed characters and handles
      * encoding if needed.
      *
      * @param string $url
@@ -459,31 +487,40 @@ class Validator
      */
     private static function encodeIdnHostInUrl(string $url = ''): string
     {
-        $host = self::getHostFromIdnUrl($url);
+        $authority = self::getAuthorityFromUrl($url);
+
+        if ($authority === null || !Validator::containsCharactersNotAllowedInHost($authority)) {
+            return $url;
+        }
+
+        $userInfo = self::getUserInfoFromAuthority($authority);
+
+        if ($userInfo !== '') {
+            $authority = Helpers::stripFromStart($authority, $userInfo . '@');
+        }
+
+        $host = self::stripPortFromAuthority($authority);
 
         if (is_string($host) && $host !== '' && Validator::containsCharactersNotAllowedInHost($host)) {
             $encodedHost = Helpers::punyCode()->encode($host);
-            $hostPositionInUrl = strpos($url, $host);
-            $preHost = substr($url, 0, $hostPositionInUrl);
-            $postHost = substr($url, ($hostPositionInUrl + strlen($host)));
-            $url = $preHost . $encodedHost . $postHost;
+            $url = Helpers::replaceFirstOccurrence($host, $encodedHost, $url);
         }
 
         return $url;
     }
 
     /**
-     * Manually find the host part in a url
+     * Manually find the authority part in a url
      *
      * PHPs parse_url method breaks special characters in internationalized domain names.
-     * This method manually extracts the host component from a url (if exists) without breaking special characters.
+     * This method manually extracts the authority component from a url (if exists) without breaking special characters.
      *
      * @param string $url
      * @return string|null
      * @see Validator::encodeIdnHostInUrl()
      * @throws InvalidUrlException
      */
-    private static function getHostFromIdnUrl(string $url = ''): ?string
+    private static function getAuthorityFromUrl(string $url = ''): ?string
     {
         $firstTwoChars = substr($url, 0, 2);
 
@@ -492,7 +529,7 @@ class Validator
         } elseif ($firstTwoChars === '//') { // Protocol relative like //www.example.com/path
             $urlWithoutScheme = $url;
         } else {
-            $urlWithoutScheme = self::stripSchemeFromIdnUrl($url);
+            $urlWithoutScheme = self::stripSchemeFromUrl($url);
 
             if ($url === $urlWithoutScheme) {
                 throw new InvalidUrlException('Url neither starts with "/" nor contains a scheme.');
@@ -511,15 +548,55 @@ class Validator
     }
 
     /**
+     * Get the user info part from an authority.
+     *
+     * @param string $authority
+     * @return string
+     */
+    private static function getUserInfoFromAuthority(string $authority): string
+    {
+        if (strpos($authority, '@') !== false) {
+            $splitAtAt = explode('@', $authority);
+
+            if (count($splitAtAt) > 1) {
+                return Helpers::stripFromEnd($authority, '@' . end($splitAtAt));
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Strip the port at the end of an authority if there is one.
+     *
+     * @param string $authority
+     * @return string
+     */
+    private static function stripPortFromAuthority(string $authority): string
+    {
+        $splitAtColon = explode(':', $authority);
+
+        if (count($splitAtColon) > 1) {
+            $potentialPort = end($splitAtColon);
+
+            if (is_numeric($potentialPort)) {
+                return Helpers::stripFromEnd($authority, ':' . $potentialPort);
+            }
+        }
+
+        return $authority;
+    }
+
+    /**
      * Manually strip the scheme part from a url
      *
-     * Helper method for getHostFromIdnUrl method.
+     * Helper method for getAuthorityFromUrl method.
      *
      * @param string $url
      * @return string
-     * @see Validator::getHostFromIdnUrl()
+     * @see Validator::getAuthorityFromUrl()
      */
-    private static function stripSchemeFromIdnUrl(string $url = ''): string
+    private static function stripSchemeFromUrl(string $url = ''): string
     {
         $splitAtColon = explode(':', $url);
 

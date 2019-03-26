@@ -177,10 +177,52 @@ class Helpers
         $endOfString = substr($string, ($stringLength - $stripLength));
 
         if ($endOfString === $strip) {
-            return substr($string, 0, (strlen($string) - strlen($strip)));
+            return substr($string, 0, ($stringLength - $stripLength));
         }
 
         return $string;
+    }
+
+    /**
+     * Strip some string B from the start of a string A that starts with string B.
+     *
+     * Example: 'some-example' - 'some-' = 'example'
+     *
+     * @param string $string
+     * @param string $strip
+     * @return string
+     */
+    public static function stripFromStart(string $string = '', string $strip = ''): string
+    {
+        if (strpos($string, $strip) === 0) {
+            return substr($string, strlen($strip));
+        }
+
+        return $string;
+    }
+
+    /**
+     * Replace the first occurrence of string A with string B in string C.
+     *
+     * Example: A: 'bar', B: 'boo', C: 'foo.bar.baz.bar' = 'foo.boo.baz.boo'
+     *
+     * @param string $replace
+     * @param string $replacement
+     * @param string $string
+     * @return string
+     */
+    public static function replaceFirstOccurrence(string $replace, string $replacement, string $string): string
+    {
+        $positionInString = strpos($string, $replace);
+
+        if ($positionInString === false) {
+            return $string;
+        }
+
+        $preReplace = substr($string, 0, $positionInString);
+        $postReplace = substr($string, ($positionInString + strlen($replace)));
+
+        return $preReplace . $replacement . $postReplace;
     }
 
     /**

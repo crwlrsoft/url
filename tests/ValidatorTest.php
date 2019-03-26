@@ -92,39 +92,44 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::scheme('mäilto'));
     }
 
-    public function testValidateUserOrPassword()
+    public function testValidateUser()
     {
-        $this->assertEquals('user', Validator::userOrPassword('user'));
-        $this->assertEquals('pASS123', Validator::userOrPassword('pASS123'));
-        $this->assertEquals('user-123', Validator::userOrPassword('user-123'));
-        $this->assertEquals('P4ss.123', Validator::userOrPassword('P4ss.123'));
-        $this->assertEquals('user_123', Validator::userOrPassword('user_123'));
-        $this->assertEquals('p4ss~123', Validator::userOrPassword('p4ss~123'));
-        $this->assertEquals('user%123', Validator::userOrPassword('user%123'));
-        $this->assertEquals('p4ss-123!', Validator::userOrPassword('p4ss-123!'));
-        $this->assertEquals('u$3r_n4m3!', Validator::userOrPassword('u$3r_n4m3!'));
-        $this->assertEquals('p4$$&w0rD', Validator::userOrPassword('p4$$&w0rD'));
-        $this->assertEquals('u$3r\'$_n4m3', Validator::userOrPassword('u$3r\'$_n4m3'));
-        $this->assertEquals('(p4$$-w0rD)', Validator::userOrPassword('(p4$$-w0rD)'));
-        $this->assertEquals('u$3r*n4m3', Validator::userOrPassword('u$3r*n4m3'));
-        $this->assertEquals('p4$$+W0rD', Validator::userOrPassword('p4$$+W0rD'));
-        $this->assertEquals('u$3r,n4m3', Validator::userOrPassword('u$3r,n4m3'));
-        $this->assertEquals('P4ss;w0rd', Validator::userOrPassword('P4ss;w0rd'));
-        $this->assertEquals('=u$3r=', Validator::userOrPassword('=u$3r='));
+        $this->assertEquals('user', Validator::user('user'));
+        $this->assertEquals('user-123', Validator::user('user-123'));
+        $this->assertEquals('user_123', Validator::user('user_123'));
+        $this->assertEquals('user%123', Validator::user('user%123'));
+        $this->assertEquals('u$3r_n4m3!', Validator::user('u$3r_n4m3!'));
+        $this->assertEquals('u$3r\'$_n4m3', Validator::user('u$3r\'$_n4m3'));
+        $this->assertEquals('u$3r*n4m3', Validator::user('u$3r*n4m3'));
+        $this->assertEquals('u$3r,n4m3', Validator::user('u$3r,n4m3'));
+        $this->assertEquals('=u$3r=', Validator::user('=u$3r='));
 
-        $this->assertNull(Validator::userOrPassword('u§3rname'));
-        $this->assertNull(Validator::userOrPassword('"password"'));
-        $this->assertNull(Validator::userOrPassword('user:name'));
-        $this->assertNull(Validator::userOrPassword('pass`word'));
-        $this->assertNull(Validator::userOrPassword('Üsernäme'));
-        $this->assertNull(Validator::userOrPassword('pass^word'));
-        $this->assertNull(Validator::userOrPassword('user°name'));
-        $this->assertNull(Validator::userOrPassword('pass🤓moji'));
-        $this->assertNull(Validator::userOrPassword('<username>'));
-        $this->assertNull(Validator::userOrPassword('pass\word'));
-        $this->assertNull(Validator::userOrPassword('usern@me'));
-        $this->assertNull(Validator::userOrPassword('paßword'));
-        $this->assertNull(Validator::userOrPassword('us€rname'));
+        $this->assertEquals('u%C2%A73rname', Validator::user('u§3rname'));
+        $this->assertEquals('user%3Aname', Validator::user('user:name'));
+        $this->assertEquals('%C3%9Csern%C3%A4me', Validator::user('Üsernäme'));
+        $this->assertEquals('user%C2%B0name', Validator::user('user°name'));
+        $this->assertEquals('%3Cusername%3E', Validator::user('<username>'));
+        $this->assertEquals('usern%40me', Validator::user('usern@me'));
+        $this->assertEquals('us%E2%82%ACrname', Validator::user('us€rname'));
+    }
+
+    public function testValidatePassword()
+    {
+        $this->assertEquals('pASS123', Validator::password('pASS123'));
+        $this->assertEquals('P4ss.123', Validator::pass('P4ss.123'));
+        $this->assertEquals('p4ss~123', Validator::password('p4ss~123'));
+        $this->assertEquals('p4ss-123!', Validator::pass('p4ss-123!'));
+        $this->assertEquals('p4$$&w0rD', Validator::password('p4$$&w0rD'));
+        $this->assertEquals('(p4$$-w0rD)', Validator::pass('(p4$$-w0rD)'));
+        $this->assertEquals('p4$$+W0rD', Validator::password('p4$$+W0rD'));
+        $this->assertEquals('P4ss;w0rd', Validator::pass('P4ss;w0rd'));
+
+        $this->assertEquals('%22password%22', Validator::password('"password"'));
+        $this->assertEquals('pass%60word', Validator::pass('pass`word'));
+        $this->assertEquals('pass%5Eword', Validator::password('pass^word'));
+        $this->assertEquals('pass%F0%9F%A4%93moji', Validator::pass('pass🤓moji'));
+        $this->assertEquals('pass%5Cword', Validator::password('pass\word'));
+        $this->assertEquals('pa%C3%9Fword', Validator::pass('paßword'));
     }
 
     public function testValidateHost()

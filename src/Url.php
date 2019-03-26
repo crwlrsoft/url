@@ -148,7 +148,7 @@ class Url
         } elseif ($user === '') {
             $this->user = $this->pass = null;
         } else {
-            $this->user = Validator::userOrPassword($user) ?: $this->user;
+            $this->user = Validator::user($user) ?: $this->user;
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -167,7 +167,7 @@ class Url
         } elseif ($password === '') {
             $this->pass = null;
         } else {
-            $this->pass = Validator::userOrPassword($password) ?: $this->pass;
+            $this->pass = Validator::password($password) ?: $this->pass;
         }
 
         return $this->updateFullUrlAndReturnInstance();

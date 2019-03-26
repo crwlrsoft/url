@@ -74,4 +74,29 @@ final class HelpersTest extends TestCase
         $this->assertEquals('examplestring', Helpers::stripFromEnd('examplestring', 'strong'));
         $this->assertEquals('examplestring', Helpers::stripFromEnd('examplestring', 'strin'));
     }
+
+    public function testStripFromStart()
+    {
+        $this->assertEquals('string', Helpers::stripFromStart('examplestring', 'example'));
+        $this->assertEquals('examplestring', Helpers::stripFromStart('examplestring', 'eggsample'));
+        $this->assertEquals('examplestring', Helpers::stripFromStart('examplestring', 'xample'));
+    }
+
+    public function testReplaceFirstOccurrence()
+    {
+        $this->assertEquals('foo bas baz bar', Helpers::replaceFirstOccurrence('bar', 'bas', 'foo bar baz bar'));
+        $this->assertEquals('foo bar bar', Helpers::replaceFirstOccurrence('baz', 'bar', 'foo bar baz'));
+    }
+
+    public function testStartsWith()
+    {
+        $this->assertTrue(Helpers::startsWith('Raindrops Keep Fallin\' on My Head', 'Raindrops Keep'));
+        $this->assertFalse(Helpers::startsWith('Raindrops Keep Fallin\' on My Head', 'Braindrops Keep'));
+    }
+
+    public function testContainsXBeforeFirstY()
+    {
+        $this->assertTrue(Helpers::containsXBeforeFirstY('one-two-three-two', '-', 'two'));
+        $this->assertFalse(Helpers::containsXBeforeFirstY('one-two-three-two', 'three', 'two'));
+    }
 }
