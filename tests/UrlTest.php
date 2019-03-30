@@ -506,6 +506,21 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://www.example.com/just%25-character', $url->toString());
     }
 
+    public function testHasIdn()
+    {
+        $url = Url::parse('https://www.example.com');
+        $this->assertFalse($url->hasIdn());
+
+        $url = Url::parse('https://www.ex-ample.com');
+        $this->assertFalse($url->hasIdn());
+
+        $url = Url::parse('https://www.männersalon.at');
+        $this->assertTrue($url->hasIdn());
+
+        $url = Url::parse('https://jobs.müller.de');
+        $this->assertTrue($url->hasIdn());
+    }
+
     /**
      * @return Url
      * @throws InvalidUrlException

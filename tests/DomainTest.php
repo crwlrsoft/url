@@ -24,4 +24,19 @@ final class DomainTest extends TestCase
         $this->assertNull($domain->suffix());
         $this->assertEmpty($domain->__toString());
     }
+
+    public function testIsIdn()
+    {
+        $domain = new Domain('example.com');
+        $this->assertFalse($domain->isIdn());
+
+        $domain = new Domain('ex-ample.com');
+        $this->assertFalse($domain->isIdn());
+
+        $domain = new Domain('xn--mnnersalon-q5a.at'); // männersalon.at
+        $this->assertTrue($domain->isIdn());
+
+        $domain = new Domain('xn--mller-kva.de'); // müller.de
+        $this->assertTrue($domain->isIdn());
+    }
 }

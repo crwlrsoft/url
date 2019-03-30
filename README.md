@@ -359,6 +359,15 @@ https://www.xn--e1afmkfd.xn--80asehdb/hello/world
 Behind the curtains [true/punycode](https://github.com/true/php-punycode) is
 used to parse internationalized domain names.
 
+To check if a url contains an internationalized domain name you can use the 
+`hasIdn` method:
+
+```php
+Url::parse('https://www.example.com')->hasIdn();           // => false
+Url::parse('https://www.müller.de')->hasIdn();             // => true
+Url::parse('https://www.xn--m1adged4c3a.com')->hasIdn();   // => true
+```
+
 ### PSR-7 UriInterface adapter class
 
 The `Url` class does not support immutability as it is required by the

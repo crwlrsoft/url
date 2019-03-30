@@ -83,4 +83,16 @@ class Domain
 
         return $this->suffix;
     }
+
+    /**
+     * Return true when the current domain is an internationalized domain name.
+     *
+     * @return bool
+     */
+    public function isIdn(): bool
+    {
+        $domain = $this->__toString();
+
+        return Helpers::punyCode()->decode($domain) !== $domain;
+    }
 }

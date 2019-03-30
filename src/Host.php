@@ -115,6 +115,16 @@ class Host
     }
 
     /**
+     * Returns true when the host contains an internationalized domain name.
+     *
+     * @return bool
+     */
+    public function hasIdn(): bool
+    {
+        return $this->domain instanceof Domain ? $this->domain->isIdn() : false;
+    }
+
+    /**
      * Update the full host string.
      */
     private function updateHost(): void

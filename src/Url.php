@@ -518,6 +518,16 @@ class Url
     }
 
     /**
+     * Return true when the current url contains an internationalized domain name in the host component.
+     *
+     * @return bool
+     */
+    public function hasIdn(): bool
+    {
+        return $this->host instanceof Host ? $this->host->hasIdn() : false;
+    }
+
+    /**
      * Returns true if the current instance url is equal to the url you want to compare.
      *
      * @param Url|string $url

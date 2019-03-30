@@ -105,4 +105,19 @@ final class HostTest extends TestCase
         $this->assertEquals('example.software', $host->domain());
         $this->assertEquals('www.example.software', $host->__toString());
     }
+
+    public function testHasIdn()
+    {
+        $host = new Host('www.example.com');
+        $this->assertFalse($host->hasIdn());
+
+        $host = new Host('www.ex-ample.com');
+        $this->assertFalse($host->hasIdn());
+
+        $host = new Host('www.xn--mnnersalon-q5a.at'); // www.männersalon.at
+        $this->assertTrue($host->hasIdn());
+
+        $host = new Host('jobs.xn--mller-kva.de'); // jobs.müller.de
+        $this->assertTrue($host->hasIdn());
+    }
 }
