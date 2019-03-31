@@ -2,13 +2,11 @@
 
 namespace Crwlr\Url;
 
-use TrueBV\Punycode;
-
 /**
  * Class Helpers
  *
- * This class provides instances of the Suffixes, Schemes and Punycode classes via static methods and also some
- * simple static helper methods.
+ * This class provides instances of the Suffixes and Schemes classes via static methods and also some simple
+ * static helper methods.
  *
  * Providing these class instances via static methods ensures better performance as they don't need to be newly
  * instantiated for anything.
@@ -27,11 +25,6 @@ class Helpers
     private static $schemes;
 
     /**
-     * @var Punycode
-     */
-    private static $punyCode;
-
-    /**
      * Get an instance of the Suffixes class.
      *
      * @return Suffixes
@@ -39,7 +32,7 @@ class Helpers
     public static function suffixes(): Suffixes
     {
         if (!self::$suffixes instanceof Suffixes) {
-            self::$suffixes = new Suffixes(self::punyCode());
+            self::$suffixes = new Suffixes();
         }
 
         return self::$suffixes;
@@ -57,20 +50,6 @@ class Helpers
         }
 
         return self::$schemes;
-    }
-
-    /**
-     * Get an instance of the Punycode class.
-     *
-     * @return Punycode
-     */
-    public static function punyCode(): Punycode
-    {
-        if (!self::$punyCode instanceof Punycode) {
-            self::$punyCode = new Punycode();
-        }
-
-        return self::$punyCode;
     }
 
     /**

@@ -93,6 +93,6 @@ class Domain
     {
         $domain = $this->__toString();
 
-        return Helpers::punyCode()->decode($domain) !== $domain;
+        return idn_to_utf8($domain) !== $domain;
     }
 }

@@ -50,6 +50,6 @@ class Updater extends \Crwlr\Url\Lists\Updater
      */
     protected function getListStorePath(): string
     {
-        return (new Suffixes(Helpers::punyCode()))->getStorePath();
+        return (new Suffixes())->getStorePath();
     }
 }

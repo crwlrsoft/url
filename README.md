@@ -11,8 +11,8 @@ the __domain suffix__ and the __subdomain__ parts of the host separately
 (Thanks to the [Mozilla Public Suffix List](https://publicsuffix.org/)).
 * __Compare urls__ or components of urls (e.g. checking if different urls
 point to the same host or domain)
-* Thanks to [true/punycode](https://github.com/true/php-punycode) it's also no
-problem to parse __internationalized domain names (IDN)__.
+* Thanks to [symfony/polyfill-intl-idn](https://github.com/symfony/polyfill-intl-idn) 
+it's also no problem to parse __internationalized domain names (IDN)__.
 * Includes an adapter class which implements the
 [PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php).
 
@@ -356,8 +356,10 @@ __Output__
 https://www.xn--e1afmkfd.xn--80asehdb/hello/world
 ```
 
-Behind the curtains [true/punycode](https://github.com/true/php-punycode) is
-used to parse internationalized domain names.
+Behind the curtains [symfony/polyfill-intl-idn](https://github.com/symfony/polyfill-intl-idn) 
+is used, so you don't need to have the 
+[internationalization PHP extension](https://www.php.net/manual/de/intl.installation.php) 
+installed to parse internationalized domain names.
 
 To check if a url contains an internationalized domain name you can use the 
 `hasIdn` method:

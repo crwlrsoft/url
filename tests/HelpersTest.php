@@ -5,7 +5,6 @@ use Crwlr\Url\Helpers;
 use Crwlr\Url\Schemes;
 use Crwlr\Url\Suffixes;
 use PHPUnit\Framework\TestCase;
-use TrueBV\Punycode;
 
 final class HelpersTest extends TestCase
 {
@@ -13,7 +12,6 @@ final class HelpersTest extends TestCase
     {
         $this->assertInstanceOf(Suffixes::class, Helpers::suffixes());
         $this->assertInstanceOf(Schemes::class, Helpers::schemes());
-        $this->assertInstanceOf(Punycode::class, Helpers::punyCode());
     }
 
     public function testBuildUrlFromComponents()

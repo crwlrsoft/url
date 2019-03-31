@@ -122,7 +122,7 @@ class Validator
      * Validate a host
      *
      * Returns the valid host string or null for invalid host.
-     * Internationalized domain names are encoded using Punycode.
+     * Internationalized domain names will be encoded.
      *
      * @param string $host
      * @return string|null
@@ -131,7 +131,7 @@ class Validator
     {
         if (trim($host) !== '') {
             if (Validator::containsCharactersNotAllowedInHost($host)) {
-                $host = Helpers::punyCode()->encode($host);
+                $host = idn_to_ascii($host);
             }
 
             if (!Validator::containsCharactersNotAllowedInHost($host) && !self::hostHasEmptyLabel($host)) {
@@ -146,7 +146,7 @@ class Validator
      * Validate a public domain suffix
      *
      * Returns the valid domain suffix or null if invalid.
-     * Suffixes of internationalized domain names are encoded using Punycode.
+     * Suffixes of internationalized domain names will be encoded.
      *
      * @param string $domainSuffix
      * @return string|null
@@ -155,7 +155,7 @@ class Validator
     {
         if (trim($domainSuffix) !== '') {
             if (Validator::containsCharactersNotAllowedInHost($domainSuffix)) {
-                $domainSuffix = Helpers::punyCode()->encode($domainSuffix);
+                $domainSuffix = idn_to_ascii($domainSuffix);
             }
 
             $domainSuffix = strtolower(trim($domainSuffix));
@@ -185,7 +185,7 @@ class Validator
     {
         if (trim($domain) !== '') {
             if (Validator::containsCharactersNotAllowedInHost($domain)) {
-                $domain = Helpers::punyCode()->encode($domain);
+                $domain = idn_to_ascii($domain);
             }
 
             $domain = strtolower($domain);
@@ -213,7 +213,7 @@ class Validator
     /**
      * Validate a subdomain
      *
-     * Returns the valid subdomain or null if invalid. Disallowed characters are encoded using Punycode.
+     * Returns the valid subdomain or null if invalid. Disallowed characters will be encoded.
      *
      * @param string $subdomain
      * @return string|null
@@ -222,7 +222,7 @@ class Validator
     {
         if (trim($subdomain) !== '') {
             if (Validator::containsCharactersNotAllowedInHost($subdomain)) {
-                $subdomain = Helpers::punyCode()->encode($subdomain);
+                $subdomain = idn_to_ascii($subdomain);
             }
 
             $subdomain = strtolower(trim($subdomain));
@@ -475,7 +475,7 @@ class Validator
     }
 
     /**
-     * Encode internationalized domain names using Punycode in a url
+     * Encode internationalized domain names in a url
      *
      * PHPs parse_url method breaks special characters in internationalized domain names. So this method
      * uses the getAuthorityFromUrl method below to find the host part, checks for not allowed characters and handles
@@ -502,7 +502,7 @@ class Validator
         $host = self::stripPortFromAuthority($authority);
 
         if (is_string($host) && $host !== '' && Validator::containsCharactersNotAllowedInHost($host)) {
-            $encodedHost = Helpers::punyCode()->encode($host);
+            $encodedHost = idn_to_ascii($host);
             $url = Helpers::replaceFirstOccurrence($host, $encodedHost, $url);
         }
 
