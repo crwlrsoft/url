@@ -519,6 +519,22 @@ final class UrlTest extends TestCase
 
         $url = Url::parse('https://jobs.müller.de');
         $this->assertTrue($url->hasIdn());
+
+        $url = Url::parse('https://www.xn--mnnersalon-q5a.at');
+        $this->assertTrue($url->hasIdn());
+
+        $url = Url::parse('https://ärzte.example.com');
+        $this->assertFalse($url->hasIdn());
+    }
+
+    public function testEdgeCases()
+    {
+        $url = Url::parse('https://u§er:pássword@ком.香格里拉.電訊盈科:1234/föô/bár bàz?quär.y=strïng#frägmänt');
+        $this->assertEquals(
+            'https://u%C2%A7er:p%C3%A1ssword@xn--j1aef.xn--5su34j936bgsg.xn--fzys8d69uvgm:1234/f%C3%B6%C3%B4/' .
+            'b%C3%A1r%20b%C3%A0z?qu%C3%A4r.y=str%C3%AFng#fr%C3%A4gm%C3%A4nt',
+            $url->__toString()
+        );
     }
 
     /**
