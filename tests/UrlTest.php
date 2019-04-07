@@ -22,7 +22,7 @@ final class UrlTest extends TestCase
     public function testInvalidUrlThrowsException()
     {
         $this->expectException(InvalidUrlException::class);
-        $url = new Url('https://');
+        new Url('https://');
     }
 
     /**
@@ -105,6 +105,15 @@ final class UrlTest extends TestCase
         $this->assertEquals('www.xn--90aiifajq6iua.xn--80asehdb', $url->host());
         $this->assertEquals('xn--80asehdb', $url->domainSuffix());
         $this->assertEquals('www', $url->subdomain());
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testUrlWithInvalidHost()
+    {
+        $this->expectException(InvalidUrlException::class);
+        Url::parse('https://www.exclamation!mark.co');
     }
 
     /**

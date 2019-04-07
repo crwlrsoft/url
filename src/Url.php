@@ -68,10 +68,7 @@ class Url
      */
     public function __construct($url)
     {
-        if (!is_string($url) && !$url instanceof Url) {
-            throw new \InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
-        }
-
+        $url = $this->validate($url);
         $this->decorate($url);
     }
 
@@ -271,7 +268,7 @@ class Url
         }
 
         if ($this->host instanceof Host && !empty($this->host->domain())) {
-            $domainLabel = Validator::domain($domainLabel, true);
+            $domainLabel = Validator::domainLabel($domainLabel);
 
             if ($domainLabel) {
                 $this->host->domainLabel($domainLabel);
@@ -736,11 +733,9 @@ class Url
      * throws an InvalidUrlException).
      *
      * @param string|Url $url
-     * @throws InvalidUrlException
      */
     private function decorate($url): void
     {
-        $url = $this->validate($url);
         $this->url = $url instanceof Url ? $url->toString() : $url['url'];
 
         foreach ($this->components as $componentName) {
@@ -763,19 +758,26 @@ class Url
      *
      * @param string|Url $url
      * @return array|Url
+     * @throws \InvalidArgumentException
      * @throws InvalidUrlException
      */
     private function validate($url)
     {
-        if (is_string($url)) {
-            $validComponents = Validator::url($url);
-
-            if (!is_array($validComponents)) {
-                throw new InvalidUrlException($url . ' is not a valid url.');
-            }
+        if (!is_string($url) && !$url instanceof Url) {
+            throw new \InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
         }
 
-        return isset($validComponents) ? $validComponents : $url;
+        if ($url instanceof Url) {
+            return $url;
+        }
+
+        $validComponents = Validator::urlAndComponents($url);
+
+        if (!is_array($validComponents)) {
+            throw new InvalidUrlException($url . ' is not a valid url.');
+        }
+
+        return $validComponents;
     }
 
     /**

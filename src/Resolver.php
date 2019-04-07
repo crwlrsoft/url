@@ -26,10 +26,10 @@ class Resolver
      */
     public function resolve(string $subject, Url $base): Url
     {
-        $urlAndComponents = Validator::absoluteUrl($subject);
+        $absoluteUrl = Validator::absoluteUrl($subject);
 
-        if (is_array($urlAndComponents) && isset($urlAndComponents['url'])) {
-            return new Url($urlAndComponents['url']);
+        if ($absoluteUrl) {
+            return new Url($absoluteUrl);
         }
 
         $firstChar = substr($subject, 0, 1);
