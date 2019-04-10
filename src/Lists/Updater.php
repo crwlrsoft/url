@@ -45,6 +45,18 @@ abstract class Updater
         $this->setOriginalPath();
     }
 
+    public function update(): void
+    {
+        try {
+            $content = $this->loadAndStoreOriginal();
+        } catch (\Exception $exception) {
+            $content = $this->getContentFromOldFile();
+        }
+
+        $parsed = $this->parseContent($content);
+        $this->storeList($parsed);
+    }
+
     /**
      * In a child class write a method that parses the contents of the original file and return
      * a simple array containing the list values.
@@ -60,18 +72,6 @@ abstract class Updater
      * @return string
      */
     abstract protected function getListStorePath(): string;
-
-    public function update(): void
-    {
-        try {
-            $content = $this->loadAndStoreOriginal();
-        } catch (\Exception $exception) {
-            $content = $this->getContentFromOldFile();
-        }
-
-        $parsed = $this->parseContent($content);
-        $this->storeList($parsed);
-    }
 
     /**
      * @throws ListUpdaterException

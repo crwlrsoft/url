@@ -76,6 +76,16 @@ abstract class Store
     }
 
     /**
+     * Returns the full path where the parsed list is stored.
+     *
+     * @return string
+     */
+    public function getStorePath(): string
+    {
+        return $this->storePath;
+    }
+
+    /**
      * Generates the full store path of the file where the list is stored in the data directory at the root level.
      * If the child class does not declare a store filename the list will be empty.
      */
@@ -84,16 +94,6 @@ abstract class Store
         if (is_string($this->storeFilename) && trim($this->storeFilename) !== '') {
             $this->storePath = realpath(dirname(__DIR__) . '/../data/' . $this->storeFilename);
         }
-    }
-
-    /**
-     * Returns the full path where the parsed list is stored.
-     *
-     * @return string
-     */
-    public function getStorePath(): string
-    {
-        return $this->storePath;
     }
 
     /**
