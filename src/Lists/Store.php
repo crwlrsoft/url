@@ -82,7 +82,7 @@ abstract class Store
     private function setStorePath(): void
     {
         if (is_string($this->storeFilename) && trim($this->storeFilename) !== '') {
-            $this->storePath = dirname(__DIR__) . '/../data/' . $this->storeFilename;
+            $this->storePath = realpath(dirname(__DIR__) . '/../data/' . $this->storeFilename);
         }
     }
 

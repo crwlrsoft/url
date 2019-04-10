@@ -2,7 +2,6 @@
 
 namespace Crwlr\Url\Suffixes;
 
-use Crwlr\Url\Helpers;
 use Crwlr\Url\Suffixes;
 
 /**
