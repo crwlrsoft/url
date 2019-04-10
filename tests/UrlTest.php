@@ -50,9 +50,11 @@ final class UrlTest extends TestCase
     {
         $url = $this->createDefaultUrlObject();
         $this->assertEquals('https', $url->scheme());
+        $this->assertEquals('user:password@sub.sub.example.com:8080', $url->authority());
         $this->assertEquals('user', $url->user());
         $this->assertEquals('password', $url->password());
         $this->assertEquals('password', $url->pass());
+        $this->assertEquals('user:password', $url->userInfo());
         $this->assertEquals('sub.sub.example.com', $url->host());
         $this->assertEquals('example.com', $url->domain());
         $this->assertEquals('example', $url->domainLabel());
@@ -74,9 +76,11 @@ final class UrlTest extends TestCase
     {
         $url = $this->createDefaultUrlObject();
         $this->assertEquals('https', $url->scheme);
+        $this->assertEquals('user:password@sub.sub.example.com:8080', $url->authority);
         $this->assertEquals('user', $url->user);
         $this->assertEquals('password', $url->password);
         $this->assertEquals('password', $url->pass);
+        $this->assertEquals('user:password', $url->userInfo);
         $this->assertEquals('sub.sub.example.com', $url->host);
         $this->assertEquals('example.com', $url->domain);
         $this->assertEquals('example', $url->domainLabel);
@@ -135,6 +139,50 @@ final class UrlTest extends TestCase
     /**
      * @throws InvalidUrlException
      */
+    public function testReplaceAuthority()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->assertEquals('user:password@sub.sub.example.com:8080', $url->authority());
+
+        $url->authority('localhost:1234');
+        $this->assertEquals('localhost:1234', $url->authority());
+        $this->assertEquals('localhost', $url->host());
+        $this->assertNull($url->userInfo());
+        $this->assertEquals(1234, $url->port());
+        $this->assertEquals('https://localhost:1234/some/path?some=query#fragment', $url->toString());
+
+        $url->authority('4rn0ld:5chw4rz3n3gg3r@12.34.56.78');
+        $this->assertEquals('4rn0ld:5chw4rz3n3gg3r@12.34.56.78', $url->authority());
+        $this->assertEquals('12.34.56.78', $url->host());
+        $this->assertEquals('4rn0ld:5chw4rz3n3gg3r', $url->userInfo());
+        $this->assertEquals('4rn0ld', $url->user());
+        $this->assertEquals('5chw4rz3n3gg3r', $url->password());
+        $this->assertEquals(null, $url->port());
+        $this->assertEquals(
+            'https://4rn0ld:5chw4rz3n3gg3r@12.34.56.78/some/path?some=query#fragment',
+            $url->toString()
+        );
+
+        $url->authority('');
+        $this->assertEquals('', $url->authority());
+        $this->assertNull($url->host());
+        $this->assertNull($url->userInfo());
+        $this->assertNull($url->user());
+        $this->assertNull($url->password());
+        $this->assertNull($url->port());
+        $this->assertEquals('https:/some/path?some=query#fragment', $url->toString());
+
+        $url->authority('www.crwlr.software');
+        $this->assertEquals('www.crwlr.software', $url->authority());
+        $this->assertEquals('www.crwlr.software', $url->host());
+        $this->assertNull($url->userInfo());
+        $this->assertNull($url->port());
+        $this->assertEquals('https://www.crwlr.software/some/path?some=query#fragment', $url->toString());
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
     public function testReplaceUser()
     {
         $url = $this->createDefaultUrlObject();
@@ -172,6 +220,36 @@ final class UrlTest extends TestCase
             'https://user:password@sub.sub.example.com:8080/some/path?some=query#fragment',
             $url->toString()
         );
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testReplaceUserInfo()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->assertEquals('user:password', $url->userInfo());
+
+        $url->userInfo('u$3r:p455/w0rd');
+        $this->assertEquals('u$3r:p455%2Fw0rd', $url->userInfo());
+        $this->assertEquals('u$3r', $url->user());
+        $this->assertEquals('p455%2Fw0rd', $url->password());
+        $this->assertEquals(
+            'https://u$3r:p455%2Fw0rd@sub.sub.example.com:8080/some/path?some=query#fragment',
+            $url->toString()
+        );
+
+        $url->userInfo('');
+        $this->assertNull($url->userInfo());
+        $this->assertNull($url->user());
+        $this->assertNull($url->password());
+        $this->assertEquals('https://sub.sub.example.com:8080/some/path?some=query#fragment', $url->toString());
+
+        $url->userInfo('a:b:c');
+        $this->assertEquals('a:b%3Ac', $url->userInfo());
+        $this->assertEquals('a', $url->user());
+        $this->assertEquals('b%3Ac', $url->password());
+        $this->assertEquals('https://a:b%3Ac@sub.sub.example.com:8080/some/path?some=query#fragment', $url->toString());
     }
 
     /**
@@ -383,20 +461,62 @@ final class UrlTest extends TestCase
         $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isEqualTo($equalUrl->__toString()));
-        $notEqualUrl = new Url('https://not.equal.url/totally/different');
-        $this->assertFalse($url->isEqualTo($notEqualUrl->__toString()));
+        $equalUrl->port(1);
+        $this->assertFalse($url->isEqualTo($equalUrl->__toString()));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareScheme()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'scheme'));
         $this->assertTrue($url->isSchemeEqualIn($equalUrl));
         $equalUrl->scheme('http');
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'scheme'));
         $this->assertFalse($url->isSchemeEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareAuthority()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
+
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'authority'));
+        $this->assertTrue($url->isAuthorityEqualIn($equalUrl));
+        $equalUrl->authority('sub.sub.example.com');
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'authority'));
+        $this->assertFalse($url->isAuthorityEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareUser()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'user'));
         $this->assertTrue($url->isUserEqualIn($equalUrl));
         $equalUrl->user('usher');
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'user'));
         $this->assertFalse($url->isUserEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testComparePassword()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'pass'));
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'password'));
@@ -405,6 +525,30 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'pass'));
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'password'));
         $this->assertFalse($url->isPasswordEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareUserInfo()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
+
+        $this->assertTrue($url->isComponentEqualIn($equalUrl, 'userInfo'));
+        $this->assertTrue($url->isUserInfoEqualIn($equalUrl));
+        $equalUrl->userInfo('u§3r:p455w0rd');
+        $this->assertFalse($url->isComponentEqualIn($equalUrl, 'userInfo'));
+        $this->assertFalse($url->isUserInfoEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareHost()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'host'));
         $this->assertTrue($url->isHostEqualIn($equalUrl));
@@ -412,6 +556,15 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'host'));
         $this->assertFalse($url->isHostEqualIn($equalUrl));
         $equalUrl->host('sub.sub.example.com');
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareDomain()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'domain'));
         $this->assertTrue($url->isDomainEqualIn($equalUrl));
@@ -419,36 +572,90 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'domain'));
         $this->assertFalse($url->isDomainEqualIn($equalUrl));
         $equalUrl->domain('example.com');
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareDomainLabel()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'domainLabel'));
         $this->assertTrue($url->isDomainLabelEqualIn($equalUrl));
         $equalUrl->domainLabel('eggsample');
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'domainLabel'));
         $this->assertFalse($url->isDomainLabelEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareDomainSuffix()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'domainSuffix'));
         $this->assertTrue($url->isDomainSuffixEqualIn($equalUrl));
         $equalUrl->domainSuffix('org');
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'domainSuffix'));
         $this->assertFalse($url->isDomainSuffixEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareSubdomain()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'subdomain'));
         $this->assertTrue($url->isSubdomainEqualIn($equalUrl));
         $equalUrl->subdomain('www');
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'subdomain'));
         $this->assertFalse($url->isSubdomainEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testComparePort()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'port'));
         $this->assertTrue($url->isPortEqualIn($equalUrl));
         $equalUrl->port(123);
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'port'));
         $this->assertFalse($url->isPortEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testComparePath()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'path'));
         $this->assertTrue($url->isPathEqualIn($equalUrl));
         $equalUrl->path('/different/path');
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'path'));
         $this->assertFalse($url->isPathEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareQuery()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'query'));
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'queryArray'));
@@ -457,18 +664,43 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'query'));
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'queryArray'));
         $this->assertFalse($url->isQueryEqualIn($equalUrl));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareFragment()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'fragment'));
         $this->assertTrue($url->isFragmentEqualIn($equalUrl));
         $equalUrl->fragment('foo');
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'fragment'));
         $this->assertFalse($url->isFragmentEqualIn($equalUrl));
+    }
 
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareRoot()
+    {
+        $url = $this->createDefaultUrlObject();
         $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'root'));
         $equalUrl->host('www.foo.org');
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'root'));
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCompareRelative()
+    {
+        $url = $this->createDefaultUrlObject();
+        $equalUrl = $this->createDefaultUrlObject();
 
         $this->assertTrue($url->isComponentEqualIn($equalUrl, 'relative'));
         $equalUrl->path('/different/path');

@@ -31,6 +31,42 @@ final class HelpersTest extends TestCase
         );
     }
 
+    public function testBuildAuthorityFromComponents()
+    {
+        $this->assertEquals(
+            'user:password@www.example.com:1234',
+            Helpers::buildAuthorityFromComponents([
+                'user' => 'user',
+                'password' => 'password',
+                'host' => 'www.example.com',
+                'port' => 1234,
+            ])
+        );
+
+        $this->assertEquals(
+            'user:password@www.example.com:1234',
+            Helpers::buildAuthorityFromComponents([
+                'user' => 'user',
+                'pass' => 'password',
+                'host' => 'www.example.com',
+                'port' => 1234,
+            ])
+        );
+    }
+
+    public function testBuildUserInfoFromComponents()
+    {
+        $this->assertEquals(
+            'user:password',
+            Helpers::buildUserInfoFromComponents(['user' => 'user', 'password' => 'password'])
+        );
+
+        $this->assertEquals(
+            'user:password',
+            Helpers::buildUserInfoFromComponents(['user' => 'user', 'pass' => 'password'])
+        );
+    }
+
     /**
      * This test especially targets a problem in parse_str() which is used in the Parser class to convert a query
      * string to array. The problem is, that dots within keys in the query string are replaced with underscores.

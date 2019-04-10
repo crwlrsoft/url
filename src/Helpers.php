@@ -57,34 +57,85 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array $comp
+     * @param array $components
      * @return string
      */
-    public static function buildUrlFromComponents(array $comp = []): string
+    public static function buildUrlFromComponents(array $components): string
     {
         $url = '';
 
-        if (isset($comp['scheme'])) {
-            $url .= $comp['scheme'] . ':';
+        if (isset($components['scheme'])) {
+            $url .= $components['scheme'] . ':';
 
-            if (isset($comp['port']) && $comp['port'] === self::getStandardPortByScheme($comp['scheme'])) {
-                unset($comp['port']);
+            if (
+                isset($components['port']) &&
+                $components['port'] === self::getStandardPortByScheme($components['scheme'])
+            ) {
+                unset($components['port']);
             }
         }
 
-        $url .= isset($comp['host']) ? '//' : '';
-
-        if (isset($comp['user'])) {
-            $url .= $comp['user'] . (isset($comp['pass']) ? ':' . $comp['pass'] : '') . '@';
-        }
-
-        $url .= $comp['host'] . (isset($comp['port']) ? ':' . $comp['port'] : '');
-
-        $url .= $comp['path'] ?? '';
-        $url .= isset($comp['query']) ? '?' . $comp['query'] : '';
-        $url .= isset($comp['fragment']) ? '#' . $comp['fragment'] : '';
+        $url .= isset($components['host']) ? '//' : '';
+        $url .= self::buildAuthorityFromComponents($components);
+        $url .= $components['path'] ?? '';
+        $url .= isset($components['query']) ? '?' . $components['query'] : '';
+        $url .= isset($components['fragment']) ? '#' . $components['fragment'] : '';
 
         return $url;
+    }
+
+    /**
+     * Builds an authority string from an array of components (host, user, password, port)
+     *
+     * It doesn't do any validation and assumes the provided component values are valid!
+     *
+     * @param array $components
+     * @return string
+     */
+    public static function buildAuthorityFromComponents(array $components): string
+    {
+        $authority = '';
+
+        if (isset($components['host']) && $components['host']) {
+            $authority .= self::buildUserInfoFromComponents($components);
+
+            if ($authority !== '') {
+                $authority .= '@';
+            }
+
+            $authority .= $components['host'];
+
+            if (isset($components['port']) && $components['port']) {
+                $authority .= ':' . $components['port'];
+            }
+        }
+
+        return $authority;
+    }
+
+    /**
+     * Builds a user info string from components (user, password)
+     *
+     * It doesn't do any validation and assumes the provided component values are valid!
+     *
+     * @param array $components
+     * @return string
+     */
+    public static function buildUserInfoFromComponents(array $components): string
+    {
+        $userInfo = '';
+
+        if (isset($components['user']) && $components['user']) {
+            $userInfo = $components['user'];
+
+            if (isset($components['password']) && $components['password']) {
+                $userInfo .= ':' . $components['password'];
+            } elseif (isset($components['pass']) && $components['pass']) {
+                $userInfo .= ':' . $components['pass'];
+            }
+        }
+
+        return $userInfo;
     }
 
     /**

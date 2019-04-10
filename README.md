@@ -11,7 +11,7 @@ the __domain suffix__ and the __subdomain__ parts of the host separately
 (Thanks to the [Mozilla Public Suffix List](https://publicsuffix.org/)).
 * __Compare urls__ or components of urls (e.g. checking if different urls
 point to the same host or domain)
-* Thanks to [symfony/polyfill-intl-idn](https://github.com/symfony/polyfill-intl-idn) 
+* Thanks to [symfony/polyfill-intl-idn](https://github.com/symfony/polyfill-intl-idn)
 it's also no problem to parse __internationalized domain names (IDN)__.
 * Includes an adapter class which implements the
 [PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php).
@@ -104,13 +104,15 @@ https://john:123@subdomain.example.com:8080/foo?bar=baz#anchor
    ↑      ↑   ↑     ↑           ↑       ↑    ↑      ↑       ↑
  scheme user  ↑  subdomain   domain    port path  query  fragment
               ↑        ⤷ host ⤶
-       |      ↑                            |
-       |    pass(word)                     |
+       |   pass(word)                      |
        |___________________________________|
        |john:123@subdomain.example.com:8080|
-        ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
-                         ↑
-                     authority
+       |‾‾‾‾‾‾‾‾|‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+       |________|         ↑
+       |john:123|     authority
+        ‾‾‾‾‾‾‾‾
+            ↑
+        userInfo
 ```
 
 When a component is not present in a url (e.g. it doesn't contain user and
@@ -334,8 +336,10 @@ __These are all available comparison methods:__
 * isEqualTo($url)
 * isComponentEqualIn($url, $componentName)
 * isSchemeEqualIn($url)
+* isAuthorityEqualIn($url)
 * isUserEqualIn($url)
 * isPasswordEqualIn($url)
+* isUserInfoEqualIn($url)
 * isHostEqualIn($url)
 * isDomainEqualIn($url)
 * isDomainLabelEqualIn($url)
@@ -356,12 +360,12 @@ __Output__
 https://www.xn--e1afmkfd.xn--80asehdb/hello/world
 ```
 
-Behind the curtains [symfony/polyfill-intl-idn](https://github.com/symfony/polyfill-intl-idn) 
-is used, so you don't need to have the 
-[internationalization PHP extension](https://www.php.net/manual/de/intl.installation.php) 
+Behind the curtains [symfony/polyfill-intl-idn](https://github.com/symfony/polyfill-intl-idn)
+is used, so you don't need to have the
+[internationalization PHP extension](https://www.php.net/manual/de/intl.installation.php)
 installed to parse internationalized domain names.
 
-To check if a url contains an internationalized domain name you can use the 
+To check if a url contains an internationalized domain name you can use the
 `hasIdn` method:
 
 ```php

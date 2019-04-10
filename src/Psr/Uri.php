@@ -59,17 +59,7 @@ class Uri implements UriInterface
      */
     public function getUserInfo(): string
     {
-        $userInfo = '';
-
-        if ($this->url->user()) {
-            $userInfo = $this->url->user();
-
-            if ($this->url->password()) {
-                $userInfo .= ':' . $this->url->password();
-            }
-        }
-
-        return $userInfo;
+        return $this->url->userInfo() ?: '';
     }
 
     /**
@@ -77,7 +67,7 @@ class Uri implements UriInterface
      */
     public function getAuthority(): string
     {
-        return $this->url->authority();
+        return $this->url->authority() ?: '';
     }
 
     /**
@@ -85,7 +75,7 @@ class Uri implements UriInterface
      */
     public function getHost(): string
     {
-        return ($host = $this->url->host()) ? strtolower($host) : '';
+        return $this->url->host() ?: '';
     }
 
     /**

@@ -39,9 +39,11 @@ class Url
      */
     private $components = [
         'scheme',
+        'authority',
         'user',
         'pass',
         'password',
+        'userInfo',
         'host',
         'domain',
         'domainLabel',
@@ -131,6 +133,36 @@ class Url
     }
 
     /**
+     * Get or set the url authority (= [userinfo"@"]host[":"port]).
+     *
+     * @param null|string
+     * @return string|null|Url
+     */
+    public function authority(?string $authority = null)
+    {
+        if ($authority === null && $this->host()) {
+            return Helpers::buildAuthorityFromComponents($this->authorityComponents());
+        } elseif ($authority === null) {
+            return null;
+        } elseif ($authority === '') {
+            $this->host = $this->user = $this->pass = $this->port = null;
+
+            return $this->updateFullUrlAndReturnInstance();
+        }
+
+        $authorityComponents = Validator::authorityComponents($authority);
+
+        if ($authorityComponents) {
+            $this->host = new Host($authorityComponents['host']);
+            $this->user = $authorityComponents['user'];
+            $this->pass = $authorityComponents['password'];
+            $this->port = $authorityComponents['port'];
+        }
+
+        return $this->updateFullUrlAndReturnInstance();
+    }
+
+    /**
      * Get or set the user component.
      *
      * When param $user is an empty string, the pass(word) component will also be reset.
@@ -182,23 +214,33 @@ class Url
     }
 
     /**
-     * Get the url authority (= [userinfo"@"]host[":"port]).
+     * Get or set user information (user, password as one string) user[:password]
      *
-     * @return string
+     * @param string|null $userInfo
+     * @return string|null|Url
      */
-    public function authority(): string
+    public function userInfo(?string $userInfo = null)
     {
-        $authority = '';
-
-        if ($this->host()) {
-            if ($this->user()) {
-                $authority .= $this->user() . ($this->pass() ? ':' . $this->pass() : '') . '@';
+        if ($userInfo === null) {
+            if (!$this->user) {
+                return null;
             }
 
-            $authority .= $this->host() . ($this->port() ? ':' . $this->port() : '');
+            return Helpers::buildUserInfoFromComponents($this->userInfoComponents());
+        } elseif ($userInfo === '') {
+            $this->user = $this->pass = null;
+
+            return $this->updateFullUrlAndReturnInstance();
         }
 
-        return $authority;
+        $userInfoComponents = Validator::userInfoComponents($userInfo);
+
+        if ($userInfoComponents) {
+            $this->user = $userInfoComponents['user'];
+            $this->pass = $userInfoComponents['password'];
+        }
+
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -470,8 +512,9 @@ class Url
      */
     public function root(): string
     {
-        return (!empty($this->scheme) ? $this->scheme . ':' : '') .
-            ($this->authority() === '' ? '' : '//' . $this->authority());
+        $authority = $this->authority();
+
+        return (!empty($this->scheme) ? $this->scheme . ':' : '') . ($authority ? '//' . $authority : '');
     }
 
     /**
@@ -488,7 +531,7 @@ class Url
     {
         $path = $this->path();
 
-        if ($path && $this->authority() === '' && substr($path, 0, 2) === '//') {
+        if ($path && !$this->authority() && substr($path, 0, 2) === '//') {
             $path = preg_replace('/^\/{2,}/', '/', $path);
         }
 
@@ -565,6 +608,18 @@ class Url
     }
 
     /**
+     * Returns true when the authority is the same in the current instance and the url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     */
+    public function isAuthorityEqualIn($url): bool
+    {
+        return $this->compare($url, 'authority');
+    }
+
+    /**
      * Returns true when the user is the same in the current instance and the url you want to compare.
      *
      * @param $url
@@ -588,6 +643,19 @@ class Url
     public function isPasswordEqualIn($url): bool
     {
         return $this->compare($url, 'password');
+    }
+
+    /**
+     * Returns true when the user information (both user and password) is the same in the current instance and the
+     * url you want to compare.
+     *
+     * @param $url
+     * @return bool
+     * @throws InvalidUrlException
+     */
+    public function isUserInfoEqualIn($url): bool
+    {
+        return $this->compare($url, 'userInfo');
     }
 
     /**
@@ -847,5 +915,21 @@ class Url
         }
 
         return false;
+    }
+
+    /**
+     * @return array
+     */
+    private function authorityComponents(): array
+    {
+        return ['host' => $this->host(), 'user' => $this->user, 'password' => $this->pass, 'port' => $this->port()];
+    }
+
+    /**
+     * @return array
+     */
+    private function userInfoComponents(): array
+    {
+        return ['user' => $this->user, 'password' => $this->pass];
     }
 }
