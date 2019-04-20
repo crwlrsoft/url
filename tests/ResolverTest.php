@@ -8,9 +8,6 @@ use PHPUnit\Framework\TestCase;
 
 final class ResolverTest extends TestCase
 {
-    /**
-     * @throws InvalidUrlException
-     */
     public function testResolveRelativeUrls()
     {
         $baseUrlObject = $this->getBaseUrlObject();
@@ -89,8 +86,6 @@ final class ResolverTest extends TestCase
 
     /**
      * When resolve() is called with an absolute url as subject, it should just return this absolute url.
-     *
-     * @throws InvalidUrlException
      */
     public function testResolveAbsoluteUrl()
     {

@@ -2,8 +2,6 @@
 
 namespace Crwlr\Url;
 
-use Crwlr\Url\Exceptions\InvalidUrlException;
-
 /**
  * Class Validator
  *
@@ -435,12 +433,7 @@ class Validator
      */
     private static function getValidUrlComponents(string $url, bool $onlyAbsoluteUrl = false): ?array
     {
-        try {
-            $url = self::encodeIdnHostInUrl($url);
-        } catch (InvalidUrlException $exception) {
-            return null;
-        }
-
+        $url = self::encodeIdnHostInUrl($url);
         $components = parse_url($url);
 
         if (
@@ -467,7 +460,6 @@ class Validator
      *
      * @param string $url
      * @return string
-     * @throws InvalidUrlException
      */
     private static function encodeIdnHostInUrl(string $url): string
     {
@@ -497,7 +489,6 @@ class Validator
      * @param string $url
      * @return string|null
      * @see self::encodeIdnHostInUrl()
-     * @throws InvalidUrlException
      */
     private static function getAuthorityFromUrl(string $url = ''): ?string
     {
@@ -509,7 +500,7 @@ class Validator
             $urlWithoutScheme = self::stripSchemeFromUrl($url);
 
             if ($url === $urlWithoutScheme) {
-                throw new InvalidUrlException('Url neither starts with "/" nor contains a scheme.');
+                return null;
             }
         }
 

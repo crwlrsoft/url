@@ -2,6 +2,8 @@
 
 namespace Crwlr\Url\Exceptions;
 
-class InvalidUrlException extends \Exception
+use UnexpectedValueException;
+
+class InvalidUrlException extends UnexpectedValueException
 {
 }

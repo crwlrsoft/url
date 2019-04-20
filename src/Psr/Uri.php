@@ -6,6 +6,7 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Resolver;
 use Crwlr\Url\Url;
 use Crwlr\Url\Validator;
+use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
 /**
@@ -31,7 +32,7 @@ class Uri implements UriInterface
      * @param string $url
      * @param Resolver|null $resolver
      * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct($url, $resolver = null)
     {
@@ -40,7 +41,7 @@ class Uri implements UriInterface
         } elseif (is_string($url)) {
             $this->url = new Url($url);
         } else {
-            throw new \InvalidArgumentException('Param url must be either a string or an instance of Crwlr\Url\Url.');
+            throw new InvalidArgumentException('Param url must be either a string or an instance of Crwlr\Url\Url.');
         }
 
         $this->resolver = $resolver instanceof Resolver ? $resolver : new Resolver();
@@ -113,13 +114,12 @@ class Uri implements UriInterface
     /**
      * @param string $scheme
      * @return Uri
-     * @throws \InvalidArgumentException
-     * @throws InvalidUrlException
+     * @throws InvalidArgumentException
      */
     public function withScheme($scheme): Uri
     {
         if (!is_string($scheme) || (!Validator::scheme($scheme) && trim($scheme) !== '')) {
-            throw new \InvalidArgumentException('Invalid scheme.');
+            throw new InvalidArgumentException('Invalid scheme.');
         }
 
         return $this->newInstance($this->newUrlInstance()->scheme($scheme));
@@ -129,7 +129,6 @@ class Uri implements UriInterface
      * @param string $user
      * @param null|string $password
      * @return Uri
-     * @throws InvalidUrlException
      */
     public function withUserInfo($user, $password = null): Uri
     {
@@ -143,7 +142,6 @@ class Uri implements UriInterface
     /**
      * @param string $host
      * @return Uri
-     * @throws InvalidUrlException
      */
     public function withHost($host): Uri
     {
@@ -156,13 +154,12 @@ class Uri implements UriInterface
     /**
      * @param int|null $port
      * @return Uri
-     * @throws \InvalidArgumentException
-     * @throws InvalidUrlException
+     * @throws InvalidArgumentException
      */
     public function withPort($port): Uri
     {
         if ($port !== null && Validator::port($port) === null) {
-            throw new \InvalidArgumentException('Port is outside the valid TCP and UDP port ranges.');
+            throw new InvalidArgumentException('Port is outside the valid TCP and UDP port ranges.');
         }
 
         $newUrl = $this->newUrlInstance();
@@ -182,7 +179,6 @@ class Uri implements UriInterface
      *
      * @param string $path
      * @return Uri
-     * @throws InvalidUrlException
      */
     public function withPath($path): Uri
     {
@@ -204,7 +200,6 @@ class Uri implements UriInterface
     /**
      * @param string $query
      * @return Uri
-     * @throws InvalidUrlException
      */
     public function withQuery($query): Uri
     {
@@ -217,7 +212,6 @@ class Uri implements UriInterface
     /**
      * @param string $fragment
      * @return Uri
-     * @throws InvalidUrlException
      */
     public function withFragment($fragment): Uri
     {
@@ -238,7 +232,6 @@ class Uri implements UriInterface
     /**
      * @param Url $url
      * @return Uri
-     * @throws InvalidUrlException
      */
     private function newInstance(Url $url): Uri
     {
@@ -247,7 +240,6 @@ class Uri implements UriInterface
 
     /**
      * @return Url
-     * @throws InvalidUrlException
      */
     private function newUrlInstance(): Url
     {

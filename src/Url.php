@@ -3,6 +3,7 @@
 namespace Crwlr\Url;
 
 use Crwlr\Url\Exceptions\InvalidUrlException;
+use InvalidArgumentException;
 
 /**
  * Class Url
@@ -66,12 +67,12 @@ class Url
     /**
      * @param string|Url $url
      * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function __construct($url)
     {
         $url = $this->validate($url);
-        $this->decorate($url);
+        $this->populate($url);
     }
 
     /**
@@ -248,6 +249,7 @@ class Url
      *
      * @param null|string $host
      * @return string|null|Url
+     * @throws InvalidUrlException when you try to set a host and the current path isn't empty or begins with a slash.
      */
     public function host(?string $host = null)
     {
@@ -261,6 +263,12 @@ class Url
         $validHost = Validator::host($host);
 
         if ($validHost) {
+            if ($this->path() && $this->path() !== '' && !Helpers::startsWith($this->path(), '/', 1)) {
+                throw new InvalidUrlException(
+                    'When an authority is present in a url, the path must be empty or begin with a slash.'
+                );
+            }
+
             $this->host = new Host($validHost);
         }
 
@@ -541,6 +549,23 @@ class Url
     }
 
     /**
+     * Is the current url a relative reference
+     *
+     * Returns true if the current url does not begin with a scheme.
+     * https://tools.ietf.org/html/rfc3986#section-4.1
+     *
+     * @return bool
+     */
+    public function isRelativeReference(): bool
+    {
+        if ($this->scheme() === null) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Resolve a relative reference against the url of the current instance.
      *
      * That basically means you get an absolute url from any relative reference (link href, image src, etc.) found on
@@ -550,7 +575,6 @@ class Url
      *
      * @param string $relativeUrl
      * @return Url
-     * @throws InvalidUrlException
      */
     public function resolve(string $relativeUrl = ''): Url
     {
@@ -572,8 +596,7 @@ class Url
      *
      * @param Url|string $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isEqualTo($url): bool
     {
@@ -586,8 +609,7 @@ class Url
      * @param Url|string $url
      * @param string $componentName
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isComponentEqualIn($url, string $componentName): bool
     {
@@ -599,8 +621,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isSchemeEqualIn($url): bool
     {
@@ -612,7 +633,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
+     * @throws InvalidArgumentException
      */
     public function isAuthorityEqualIn($url): bool
     {
@@ -624,8 +645,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isUserEqualIn($url): bool
     {
@@ -637,8 +657,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isPasswordEqualIn($url): bool
     {
@@ -651,7 +670,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
+     * @throws InvalidArgumentException
      */
     public function isUserInfoEqualIn($url): bool
     {
@@ -663,8 +682,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isHostEqualIn($url): bool
     {
@@ -676,8 +694,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isDomainEqualIn($url): bool
     {
@@ -689,8 +706,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isDomainLabelEqualIn($url): bool
     {
@@ -702,8 +718,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isDomainSuffixEqualIn($url): bool
     {
@@ -715,8 +730,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isSubdomainEqualIn($url): bool
     {
@@ -728,8 +742,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isPortEqualIn($url): bool
     {
@@ -741,8 +754,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isPathEqualIn($url): bool
     {
@@ -754,8 +766,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isQueryEqualIn($url): bool
     {
@@ -767,8 +778,7 @@ class Url
      *
      * @param $url
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function isFragmentEqualIn($url): bool
     {
@@ -792,29 +802,27 @@ class Url
     }
 
     /**
-     * Validate the input url and decorate the current instance with components.
+     * Populate the url components from an array or another instance of this class
      *
-     * The input url must either be a string or an instance of this class. Decoration from another instance is just
-     * like cloning and it's necessary for the PSR-7 UriInterface Adapter class.
+     * This method does no validation so the components coming in via an array need to be valid!
+     * Population from another instance is just like cloning and it's necessary for the PSR-7 UriInterface Adapter
+     * class.
      *
-     * In case the input url is a string the validate() method below returns an array with valid components (or
-     * throws an InvalidUrlException).
-     *
-     * @param string|Url $url
+     * @param string[]|Url $components
      */
-    private function decorate($url): void
+    private function populate($components): void
     {
-        $this->url = $url instanceof Url ? $url->toString() : $url['url'];
+        $this->url = $components instanceof Url ? $components->toString() : $components['url'];
 
         foreach ($this->components as $componentName) {
             if (property_exists($this, $componentName)) {
-                if ($url instanceof Url) {
-                    $this->{$componentName} = $url->{$componentName};
-                } elseif (isset($url[$componentName])) {
+                if ($components instanceof Url) {
+                    $this->{$componentName} = $components->{$componentName};
+                } elseif (isset($components[$componentName])) {
                     if ($componentName === 'host') {
-                        $this->{$componentName} = new Host($url[$componentName]);
+                        $this->{$componentName} = new Host($components[$componentName]);
                     } else {
-                        $this->{$componentName} = $url[$componentName];
+                        $this->{$componentName} = $components[$componentName];
                     }
                 }
             }
@@ -826,13 +834,13 @@ class Url
      *
      * @param string|Url $url
      * @return array|Url
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      * @throws InvalidUrlException
      */
     private function validate($url)
     {
         if (!is_string($url) && !$url instanceof Url) {
-            throw new \InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
+            throw new InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
         }
 
         if ($url instanceof Url) {
@@ -897,15 +905,20 @@ class Url
      * @param $compareToUrl
      * @param string|null $componentName  Compare either only a certain component of the urls or the whole urls if null.
      * @return bool
-     * @throws InvalidUrlException
-     * @throws \InvalidArgumentException
+     * @throws InvalidArgumentException
      */
     private function compare($compareToUrl, ?string $componentName = null): bool
     {
         if (is_string($compareToUrl)) {
-            $compareToUrl = new Url($compareToUrl);
+            try {
+                $compareToUrl = new Url($compareToUrl);
+            } catch (InvalidUrlException $exception) {
+                // When the url to compare is invalid (and thereby has no valid components) it (or any component)
+                // can't be equal to this url instance, so return false.
+                return false;
+            }
         } elseif (!$compareToUrl instanceof Url) {
-            throw new \InvalidArgumentException('Param must be either string or instance of Url.');
+            throw new InvalidArgumentException('Param must be either string or instance of Url.');
         }
 
         if ($componentName === null) {
