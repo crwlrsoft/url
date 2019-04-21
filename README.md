@@ -420,6 +420,17 @@ var_dump($uri->__toString());
 // => 'http://u:p@foo.bar.com:666/path?foo=bar#baz'
 ```
 
+### Exceptions
+
+There are two Exceptions that can be thrown by the `Url` class:
+* `InvalidUrlException` when you try to create an instance from a
+  string that isn't a valid Uri.
+* `InvalidUrlComponentException` when you try to set an invalid
+  new value for a component (scheme, host,...).
+
+When you're dealing with unpredictable input source, you should
+catch and handle them somehow.
+
 ### Updating Mozilla's Public Suffix List
 
 Mozilla's [Public Suffix List](https://publicsuffix.org/list/) is parsed and

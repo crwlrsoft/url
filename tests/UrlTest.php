@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 
+use Crwlr\Url\Exceptions\InvalidUrlComponentException;
 use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Url;
 use PHPUnit\Framework\TestCase;
@@ -121,6 +122,16 @@ final class UrlTest extends TestCase
         );
     }
 
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public function testSetInvalidSchemeThrowsException()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->scheme('1nvalidSch3m3');
+    }
+
     public function testReplaceAuthority()
     {
         $url = $this->createDefaultUrlObject();
@@ -160,6 +171,16 @@ final class UrlTest extends TestCase
         $this->assertNull($url->userInfo());
         $this->assertNull($url->port());
         $this->assertEquals('https://www.crwlr.software/some/path?some=query#fragment', $url->toString());
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public function testSetInvalidAuthorityThrowsException()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->authority('example.com:100000');
     }
 
     public function testReplaceUser()
@@ -239,6 +260,16 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://user:password@some.host.xyz:8080/some/path?some=query#fragment', $url->toString());
     }
 
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public function testSetInvalidHostThrowsException()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->host('crw!r.software');
+    }
+
     public function testReplaceSubdomain()
     {
         $url = $this->createDefaultUrlObject();
@@ -251,6 +282,16 @@ final class UrlTest extends TestCase
             'https://user:password@www.example.com:8080/some/path?some=query#fragment',
             $url->toString()
         );
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public function testSetInvalidSubdomainThrowsException()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->subdomain('crw!r');
     }
 
     public function testReplaceDomain()
@@ -278,6 +319,37 @@ final class UrlTest extends TestCase
         );
     }
 
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public function testSetInvalidDomainThrowsException()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->domain('"example".com');
+    }
+
+    public function testReplaceDomainLabel()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->assertEquals('example', $url->domainLabel());
+
+        $url->domainLabel('eggsample');
+        $this->assertEquals('eggsample', $url->domainLabel());
+        $this->assertEquals('eggsample.com', $url->domain());
+        $this->assertEquals('sub.sub.eggsample.com', $url->host());
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public function testSetInvalidDomainLabelThrowsException()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->domainLabel('invalid.label');
+    }
+
     public function testReplaceDomainSuffix()
     {
         $url = $this->createDefaultUrlObject();
@@ -302,6 +374,16 @@ final class UrlTest extends TestCase
         );
     }
 
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public function testSetInvalidDomainSuffixThrowsException()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->domainSuffix('invalid.suffix');
+    }
+
     public function testReplacePort()
     {
         $url = $this->createDefaultUrlObject();
@@ -313,6 +395,16 @@ final class UrlTest extends TestCase
             'https://user:password@sub.sub.example.com:123/some/path?some=query#fragment',
             $url->toString()
         );
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public function testSetInvalidPortThrowsException()
+    {
+        $url = $this->createDefaultUrlObject();
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->port(-3);
     }
 
     public function testReplacePath()
@@ -677,7 +769,19 @@ final class UrlTest extends TestCase
         $url = Url::parse('relative/reference');
         $url->scheme('https');
 
-        $this->expectException(InvalidUrlException::class);
+        $this->expectException(InvalidUrlComponentException::class);
+        $url->authority('www.example.com');
+    }
+
+    /**
+     * @throws InvalidUrlException
+     */
+    public function testCreateRelativePathReferenceWithHost()
+    {
+        $url = Url::parse('relative/reference');
+        $url->scheme('https');
+
+        $this->expectException(InvalidUrlComponentException::class);
         $url->host('www.example.com');
     }
 

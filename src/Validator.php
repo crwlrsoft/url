@@ -287,7 +287,7 @@ class Validator
         if ($domainLabel !== '') {
             $domainLabel = self::encodeIdnAndLowercase($domainLabel);
 
-            if (!self::containsCharactersNotAllowedInHost($domainLabel)) {
+            if (!self::containsCharactersNotAllowedInHost($domainLabel, true)) {
                 return $domainLabel;
             }
         }
@@ -656,7 +656,7 @@ class Validator
      * @param $value
      * @return string|int|null
      */
-    private static function callValidationByComponentName(string $componentName, $value)
+    public static function callValidationByComponentName(string $componentName, $value)
     {
         if ($componentName === 'scheme') {
             return self::scheme($value);
@@ -672,6 +672,8 @@ class Validator
             return self::host($value);
         } elseif ($componentName === 'domain') {
             return self::domain($value);
+        } elseif ($componentName === 'domainLabel') {
+            return self::domainLabel($value);
         } elseif ($componentName === 'domainSuffix') {
             return self::domainSuffix($value);
         } elseif ($componentName === 'subdomain') {

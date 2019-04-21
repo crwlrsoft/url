@@ -2,6 +2,7 @@
 
 namespace Crwlr\Url;
 
+use Crwlr\Url\Exceptions\InvalidUrlComponentException;
 use Crwlr\Url\Exceptions\InvalidUrlException;
 use InvalidArgumentException;
 
@@ -119,6 +120,7 @@ class Url
      *
      * @param null|string $scheme
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function scheme(?string $scheme = null)
     {
@@ -127,7 +129,7 @@ class Url
         } elseif ($scheme === '') {
             $this->scheme = null;
         } else {
-            $this->scheme = Validator::scheme($scheme) ?: $this->scheme;
+            $this->scheme = $this->validateStringComponent('scheme', $scheme);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -138,6 +140,7 @@ class Url
      *
      * @param null|string
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function authority(?string $authority = null)
     {
@@ -147,17 +150,18 @@ class Url
             return null;
         } elseif ($authority === '') {
             $this->host = $this->user = $this->pass = $this->port = null;
+        } else {
+            $this->validatePathStartsWithSlash();
+            $validAuthorityComponents = Validator::authorityComponents($authority);
 
-            return $this->updateFullUrlAndReturnInstance();
-        }
+            if ($validAuthorityComponents === null) {
+                throw new InvalidUrlComponentException('Invalid authority.');
+            }
 
-        $authorityComponents = Validator::authorityComponents($authority);
-
-        if ($authorityComponents) {
-            $this->host = new Host($authorityComponents['host']);
-            $this->user = $authorityComponents['user'];
-            $this->pass = $authorityComponents['password'];
-            $this->port = $authorityComponents['port'];
+            $this->host = new Host($validAuthorityComponents['host']);
+            $this->user = $validAuthorityComponents['user'];
+            $this->pass = $validAuthorityComponents['password'];
+            $this->port = $validAuthorityComponents['port'];
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -170,6 +174,7 @@ class Url
      *
      * @param null|string $user
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function user(?string $user = null)
     {
@@ -178,7 +183,7 @@ class Url
         } elseif ($user === '') {
             $this->user = $this->pass = null;
         } else {
-            $this->user = Validator::user($user) ?: $this->user;
+            $this->user = $this->validateStringComponent('user', $user);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -189,6 +194,7 @@ class Url
      *
      * @param null|string $password
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function password(?string $password = null)
     {
@@ -197,7 +203,7 @@ class Url
         } elseif ($password === '') {
             $this->pass = null;
         } else {
-            $this->pass = Validator::password($password) ?: $this->pass;
+            $this->pass = $this->validateStringComponent('password', $password);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -208,6 +214,7 @@ class Url
      *
      * @param null|string $pass
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function pass(?string $pass = null)
     {
@@ -219,26 +226,23 @@ class Url
      *
      * @param string|null $userInfo
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function userInfo(?string $userInfo = null)
     {
         if ($userInfo === null) {
-            if (!$this->user) {
-                return null;
-            }
-
-            return Helpers::buildUserInfoFromComponents($this->userInfoComponents());
+            return $this->user ? Helpers::buildUserInfoFromComponents($this->userInfoComponents()) : null;
         } elseif ($userInfo === '') {
             $this->user = $this->pass = null;
+        } else {
+            $validUserInfoComponents = Validator::userInfoComponents($userInfo);
 
-            return $this->updateFullUrlAndReturnInstance();
-        }
+            if ($validUserInfoComponents === null) {
+                throw new InvalidUrlComponentException('Invalid userInfo.');
+            }
 
-        $userInfoComponents = Validator::userInfoComponents($userInfo);
-
-        if ($userInfoComponents) {
-            $this->user = $userInfoComponents['user'];
-            $this->pass = $userInfoComponents['password'];
+            $this->user = $validUserInfoComponents['user'];
+            $this->pass = $validUserInfoComponents['password'];
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -249,7 +253,7 @@ class Url
      *
      * @param null|string $host
      * @return string|null|Url
-     * @throws InvalidUrlException when you try to set a host and the current path isn't empty or begins with a slash.
+     * @throws InvalidUrlComponentException
      */
     public function host(?string $host = null)
     {
@@ -257,18 +261,9 @@ class Url
             return $this->host instanceof Host ? $this->host->__toString() : null;
         } elseif ($host === '') {
             $this->host = null;
-            return $this->updateFullUrlAndReturnInstance();
-        }
-
-        $validHost = Validator::host($host);
-
-        if ($validHost) {
-            if ($this->path() && $this->path() !== '' && !Helpers::startsWith($this->path(), '/', 1)) {
-                throw new InvalidUrlException(
-                    'When an authority is present in a url, the path must be empty or begin with a slash.'
-                );
-            }
-
+        } else {
+            $this->validatePathStartsWithSlash();
+            $validHost = $this->validateStringComponent('host', $host);
             $this->host = new Host($validHost);
         }
 
@@ -279,9 +274,11 @@ class Url
      * Get or set the registrable domain.
      *
      * As all component names are rather short it's just called domain() instead of registrableDomain().
+     * When the current instance has no host component, the domain will also be the full new host.
      *
      * @param null|string $domain
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function domain(?string $domain = null)
     {
@@ -289,14 +286,12 @@ class Url
             return $this->host instanceof Host ? $this->host->domain() : null;
         }
 
-        $domain = Validator::domain($domain);
+        $validDomain = $this->validateStringComponent('domain', $domain);
 
-        if ($domain) {
-            if ($this->host instanceof Host) {
-                $this->host->domain($domain);
-            } else {
-                $this->host = new Host($domain);
-            }
+        if ($this->host instanceof Host) {
+            $this->host->domain($validDomain);
+        } else {
+            $this->host = new Host($validDomain);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -310,6 +305,7 @@ class Url
      *
      * @param null|string $domainLabel
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function domainLabel(?string $domainLabel = null)
     {
@@ -317,13 +313,15 @@ class Url
             return $this->host instanceof Host ? $this->host->domainLabel() : null;
         }
 
-        if ($this->host instanceof Host && !empty($this->host->domain())) {
-            $domainLabel = Validator::domainLabel($domainLabel);
-
-            if ($domainLabel) {
-                $this->host->domainLabel($domainLabel);
-            }
+        if (!$this->host instanceof Host || empty($this->host->domain())) {
+            throw new InvalidUrlComponentException(
+                'Domain label can\'t be set because the current host doesn\'t contain a registered domain.'
+            );
         }
+
+        $this->host->domainLabel(
+            $this->validateStringComponent('domainLabel', $domainLabel)
+        );
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -336,18 +334,23 @@ class Url
      *
      * @param null|string $domainSuffix
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function domainSuffix(?string $domainSuffix = null)
     {
         if ($domainSuffix === null) {
             return $this->host instanceof Host ? $this->host->domainSuffix() : null;
-        } elseif ($this->host instanceof Host && !empty($this->host->domain())) {
-            $domainSuffix = Validator::domainSuffix($domainSuffix);
-
-            if ($domainSuffix) {
-                $this->host->domainSuffix($domainSuffix);
-            }
         }
+
+        if (!$this->host instanceof Host || empty($this->host->domain())) {
+            throw new InvalidUrlComponentException(
+                'Domain suffix can\'t be set because the current host doesn\'t contain a registered domain.'
+            );
+        }
+
+        $this->host->domainSuffix(
+            $this->validateStringComponent('domainSuffix', $domainSuffix)
+        );
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -360,18 +363,23 @@ class Url
      *
      * @param null|string $subdomain
      * @return string|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function subdomain(?string $subdomain = null)
     {
         if ($subdomain === null) {
             return $this->host instanceof Host ? $this->host->subdomain() : null;
-        } elseif ($this->host instanceof Host && !empty($this->host->domain())) {
-            $subdomain = Validator::subdomain($subdomain);
-
-            if ($subdomain) {
-                $this->host->subdomain($subdomain);
-            }
         }
+
+        if (!$this->host instanceof Host || empty($this->host->domain())) {
+            throw new InvalidUrlComponentException(
+                'Subdomain can\'t be set because the current host doesn\'t contain a registered domain.'
+            );
+        }
+
+        $this->host->subdomain(
+            $this->validateStringComponent('subdomain', $subdomain)
+        );
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -379,29 +387,23 @@ class Url
     /**
      * Get or set the port component.
      *
+     * Returns the set port component only when it's not the standard port of the current scheme.
+     *
      * @param null|int $port
      * @return int|null|Url
+     * @throws InvalidUrlComponentException
      */
     public function port(?int $port = null)
     {
         if ($port === null) {
             $scheme = $this->scheme();
 
-            if ($scheme && $this->port === Helpers::getStandardPortByScheme($scheme)) {
-                return null;
-            }
-
-            return $this->port;
+            return ($scheme && $this->port === Helpers::getStandardPortByScheme($scheme)) ? null : $this->port;
         }
 
-        $port = Validator::port($port);
+        $this->port = $this->validateIntComponent('port', $port);
 
-        if ($port !== null) {
-            $this->port = $port;
-            $this->updateFullUrl();
-        }
-
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -425,14 +427,9 @@ class Url
             return $this->path;
         }
 
-        $path = Validator::path($path, !empty($this->authority()));
+        $this->path = $this->validateStringComponent('path', $path);
 
-        if ($path || $path === '') {
-            $this->path = $path;
-            $this->updateFullUrl();
-        }
-
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -445,19 +442,13 @@ class Url
     {
         if ($query === null) {
             return $this->query;
-        }
-
-        $query = Validator::query($query);
-
-        if ($query) {
-            $this->query = $query;
-            $this->updateFullUrl();
-        } elseif (trim($query) === '') {
+        } elseif ($query === '') {
             $this->query = null;
-            $this->updateFullUrl();
+        } else {
+            $this->query = $this->validateStringComponent('query', $query);
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -469,21 +460,12 @@ class Url
     public function queryArray(?array $query = null)
     {
         if ($query === null) {
-            if (!$this->query) {
-                return [];
-            }
-
-            return Helpers::queryStringToArray($this->query);
+            return $this->query ? Helpers::queryStringToArray($this->query) : [];
         } elseif (is_array($query)) {
-            $query = Validator::query(http_build_query($query));
-
-            if ($query) {
-                $this->query = $query;
-                $this->updateFullUrl();
-            }
+            $this->query = $this->validateStringComponent('query', http_build_query($query));
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -496,19 +478,13 @@ class Url
     {
         if ($fragment === null) {
             return $this->fragment;
-        }
-
-        $fragment = Validator::fragment($fragment);
-
-        if ($fragment) {
-            $this->fragment = $fragment;
-            $this->updateFullUrl();
-        } elseif (trim($fragment) === '') {
+        } elseif ($fragment === '') {
             $this->fragment = null;
-            $this->updateFullUrl();
+        } else {
+            $this->fragment = $this->validateStringComponent('fragment', $fragment);
         }
 
-        return $this;
+        return $this->updateFullUrlAndReturnInstance();
     }
 
     /**
@@ -870,6 +846,45 @@ class Url
     }
 
     /**
+     * @param string $componentName
+     * @param string $componentValue
+     * @return string
+     * @throws InvalidUrlComponentException
+     */
+    private function validateStringComponent(string $componentName, string $componentValue): string
+    {
+        return $this->validateComponentValue($componentName, $componentValue);
+    }
+
+    /**
+     * @param string $componentName
+     * @param int $componentValue
+     * @return int
+     * @throws InvalidUrlComponentException
+     */
+    private function validateIntComponent(string $componentName, int $componentValue): int
+    {
+        return $this->validateComponentValue($componentName, $componentValue);
+    }
+
+    /**
+     * @param string $componentName
+     * @param $componentValue
+     * @return int|string
+     * @throws InvalidUrlComponentException
+     */
+    private function validateComponentValue(string $componentName, $componentValue)
+    {
+        $validComponentValue = Validator::callValidationByComponentName($componentName, $componentValue);
+
+        if ($validComponentValue === null) {
+            throw new InvalidUrlComponentException('Invalid ' . $componentName . '.');
+        }
+
+        return $validComponentValue;
+    }
+
+    /**
      * Regenerate the full url after changing components.
      */
     private function updateFullUrl(): void
@@ -885,6 +900,24 @@ class Url
         $this->updateFullUrl();
 
         return $this;
+    }
+
+    /**
+     * Throws an Exception when the current path doesn't start with slash
+     *
+     * Used in authority and host methods, because it's not allowed to set an authority when path doesn't start with
+     * slash.
+     *
+     * @throws InvalidUrlComponentException
+     */
+    private function validatePathStartsWithSlash()
+    {
+        if ($this->path() && $this->path() !== '' && !Helpers::startsWith($this->path(), '/', 1)) {
+            throw new InvalidUrlComponentException(
+                'The current path doesn\'t start with a slash which is why an authority component can\'t be ' .
+                'added to the url.'
+            );
+        }
     }
 
     /**
