@@ -236,7 +236,7 @@ class Validator
         if (trim($host) !== '') {
             $host = self::encodeIdnAndLowercase($host);
 
-            if (!self::containsCharactersNotAllowedInHost($host) && !self::hostHasEmptyLabel($host)) {
+            if (self::containsOnly($host, self::hostCharacters()) && self::hostLabelsAreValid($host)) {
                 return $host;
             }
         }
@@ -258,7 +258,7 @@ class Validator
         if ($domain !== '') {
             $domain = self::encodeIdnAndLowercase($domain);
 
-            if (!self::containsCharactersNotAllowedInHost($domain)) {
+            if (self::containsOnly($domain, self::hostCharacters())) {
                 $suffix = Helpers::suffixes()->getByHost($domain);
 
                 if ($suffix) {
@@ -287,7 +287,7 @@ class Validator
         if ($domainLabel !== '') {
             $domainLabel = self::encodeIdnAndLowercase($domainLabel);
 
-            if (!self::containsCharactersNotAllowedInHost($domainLabel, true)) {
+            if (self::containsOnly($domainLabel, self::hostCharacters(true))) {
                 return $domainLabel;
             }
         }
@@ -310,7 +310,7 @@ class Validator
             $domainSuffix = self::encodeIdnAndLowercase($domainSuffix);
 
             if (
-                !self::containsCharactersNotAllowedInHost($domainSuffix) &&
+                self::containsOnly($domainSuffix, self::hostCharacters()) &&
                 Helpers::suffixes()->exists($domainSuffix)
             ) {
                 return $domainSuffix;
@@ -333,7 +333,7 @@ class Validator
         if (trim($subdomain) !== '') {
             $subdomain = self::encodeIdnAndLowercase($subdomain);
 
-            if (!self::containsCharactersNotAllowedInHost($subdomain)) {
+            if (self::containsOnly($subdomain, self::hostCharacters())) {
                 return $subdomain;
             }
         }
@@ -465,14 +465,14 @@ class Validator
     {
         $authority = self::getAuthorityFromUrl($url);
 
-        if ($authority === null || !self::containsCharactersNotAllowedInHost($authority)) {
+        if ($authority === null || self::containsOnly($authority, self::hostCharacters())) {
             return $url;
         }
 
         $authority = self::stripUserInfoFromAuthority($authority);
         $host = self::stripPortFromAuthority($authority);
 
-        if (is_string($host) && $host !== '' && self::containsCharactersNotAllowedInHost($host)) {
+        if (is_string($host) && $host !== '' && !self::containsOnly($host, self::hostCharacters())) {
             $encodedHost = idn_to_ascii($host);
             $url = Helpers::replaceFirstOccurrence($host, $encodedHost, $url);
         }
@@ -867,7 +867,7 @@ class Validator
      */
     private static function encodeIdnAndLowercase(string $string): string
     {
-        if (self::containsCharactersNotAllowedInHost($string)) {
+        if (!self::containsOnly($string, self::hostCharacters())) {
             $string = idn_to_ascii($string);
         }
 
@@ -875,25 +875,54 @@ class Validator
     }
 
     /**
-     * Check if string contains characters not allowed in the host component.
+     * Returns true when subject string contains only characters matching the characters in regex pattern.
      *
-     * @param string $string
-     * @param bool $noDot  Set to true when dot should not be allowed (e.g. checking only domain label).
+     * @param string $subject
+     * @param string $regexPattern  Only characters, no square brackets for character class or delimiters.
      * @return bool
      */
-    private static function containsCharactersNotAllowedInHost(string $string, bool $noDot = false): bool
+    private static function containsOnly(string $subject, string $regexPattern): bool
     {
-        $pattern = '/[^a-zA-Z0-9\-\.]/';
+        return preg_match('/[^' . $regexPattern . ']/', $subject) ? false : true;
+    }
 
-        if ($noDot === true) {
-            $pattern = '/[^a-zA-Z0-9\-]/';
+    /**
+     * Returns regex pattern to match characters valid in host name
+     *
+     * Without delimiters and square brackets for character class.
+     *
+     * @param bool $noDot  Set to true in case you want to match only labels not including "."
+     * @return string
+     */
+    private static function hostCharacters(bool $noDot = false): string
+    {
+        return 'a-zA-Z0-9\-' . ($noDot ? '' : '\.');
+    }
+
+    /**
+     * Further validation checks of host labels
+     *
+     * Checks for empty labels within a host name and if each labels starts and ends with alphanumeric character.
+     * https://tools.ietf.org/html/rfc3986#section-3.2.2
+     *
+     * @param string $host
+     * @return bool
+     */
+    private static function hostLabelsAreValid(string $host): bool
+    {
+        $splitLabels = explode('.', $host);
+
+        foreach ($splitLabels as $key => $label) {
+            if ($label === '' && $key !== (count($splitLabels) - 1)) {
+                return false; // Empty label is invalid
+            }
+
+            if (!preg_match('/^[a-zA-Z0-9]/', $label) || !preg_match('/[a-zA-Z0-9]$/', $label)) {
+                return false; // Label must start and end with alphanumeric character.
+            }
         }
 
-        if (preg_match($pattern, $string)) {
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     /**
@@ -946,25 +975,5 @@ class Validator
         }
 
         return $pattern . "]/";
-    }
-
-    /**
-     * Check for empty label parts in a host component
-     *
-     * Check for empty parts when splitting the host string at '.' (.com or www..com => invalid).
-     * https://tools.ietf.org/html/rfc3986#section-3.2.2
-     *
-     * @param string $host
-     * @return bool
-     */
-    private static function hostHasEmptyLabel(string $host = ''): bool
-    {
-        foreach (explode('.', $host) as $label) {
-            if (trim($label) === '') {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
