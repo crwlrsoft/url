@@ -473,7 +473,7 @@ class Validator
         $host = self::stripPortFromAuthority($authority);
 
         if (is_string($host) && $host !== '' && !self::containsOnly($host, self::hostCharacters())) {
-            $encodedHost = idn_to_ascii($host);
+            $encodedHost = Helpers::idn_to_ascii($host);
             $url = Helpers::replaceFirstOccurrence($host, $encodedHost, $url);
         }
 
@@ -868,7 +868,7 @@ class Validator
     private static function encodeIdnAndLowercase(string $string): string
     {
         if (!self::containsOnly($string, self::hostCharacters())) {
-            $string = idn_to_ascii($string);
+            $string = Helpers::idn_to_ascii($string);
         }
 
         return strtolower($string);
