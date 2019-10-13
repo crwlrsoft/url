@@ -68,7 +68,7 @@ class Suffixes extends Store
 
         // Not found, maybe $key is an encoded idn domain suffix, so try decoding it.
         if ($idnDecoded === false) {
-            $decodedKey = idn_to_utf8($key);
+            $decodedKey = Helpers::idn_to_utf8($key);
 
             if ($key !== $decodedKey && $this->exists($decodedKey, true)) {
                 return true;
