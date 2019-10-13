@@ -290,7 +290,6 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::host('under_score.org'));
         $this->assertNull(Validator::host('www.(parenthesis).net'));
         $this->assertNull(Validator::host('idk.amper&sand.uk'));
-        $this->assertNull(Validator::host('per%cent.de'));
         $this->assertNull(Validator::host('equals=.ch'));
         $this->assertNull(Validator::host('apostrophe\'.at'));
         $this->assertNull(Validator::host('one+one.mobile'));
