@@ -838,7 +838,7 @@ class Url
      */
     private function isValidComponentName(string $componentName): bool
     {
-        if (in_array($componentName, $this->components)) {
+        if (in_array($componentName, $this->components, true)) {
             return true;
         }
 

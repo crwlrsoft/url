@@ -31,7 +31,8 @@
         "symfony/polyfill-intl-idn": "^1.11"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.0"
+        "phpunit/phpunit": "^7.0",
+        "friendsofphp/php-cs-fixer": "^2.15"
     },
     "autoload": {
         "psr-4": {
@@ -40,6 +41,7 @@
     },
     "scripts": {
         "test": "@php vendor/bin/phpunit",
+        "cs": "@php vendor/bin/php-cs-fixer fix -v --diff --dry-run --allow-risky=yes",
         "update-suffixes": "@php bin/update-suffixes",
         "update-schemes": "@php bin/update-schemes"
     }

@@ -995,7 +995,7 @@ class Validator
     {
         return preg_replace_callback(
             $exceptRegexPattern,
-            function($match) {
+            function ($match) {
                 return rawurlencode($match[0]);
             },
             $encode
