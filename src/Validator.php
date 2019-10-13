@@ -234,6 +234,10 @@ class Validator
     public static function host(string $host): ?string
     {
         if (trim($host) !== '') {
+            if (self::isIpHost($host)) {
+                return strtolower($host);
+            }
+
             $host = self::encodeIdnAndLowercase($host);
 
             if (self::containsOnly($host, self::hostCharacters()) && self::hostLabelsAreValid($host)) {
@@ -242,6 +246,25 @@ class Validator
         }
 
         return null;
+    }
+
+    /**
+     * Returns true when host is an IP address
+     *
+     * @param string $host
+     * @return bool
+     */
+    private static function isIpHost(string $host): bool
+    {
+        if (Helpers::startsWith($host, '[', 1) && substr($host, -1, 1) === ']') {
+            $host = substr($host, 1, strlen($host) - 2);
+        }
+
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
@@ -472,7 +495,11 @@ class Validator
         $authority = self::stripUserInfoFromAuthority($authority);
         $host = self::stripPortFromAuthority($authority);
 
-        if (is_string($host) && $host !== '' && !self::containsOnly($host, self::hostCharacters())) {
+        if (is_string($host) &&
+            $host !== '' &&
+            !self::isIpHost($host) &&
+            !self::containsOnly($host, self::hostCharacters())
+        ) {
             $encodedHost = idn_to_ascii($host);
             $url = Helpers::replaceFirstOccurrence($host, $encodedHost, $url);
         }
@@ -867,11 +894,28 @@ class Validator
      */
     private static function encodeIdnAndLowercase(string $string): string
     {
+        return strtolower(self::encodeIdn($string));
+    }
+
+    /**
+     * Encode a (potential) internationalized domain name
+     *
+     * Also decode percent encoded characters first.
+     *
+     * @param string $string
+     * @return string
+     */
+    private static function encodeIdn(string $string): string
+    {
+        if (preg_match('/%[0-9A-Fa-f][0-9A-Fa-f]/', $string)) {
+            $string = rawurldecode($string);
+        }
+
         if (!self::containsOnly($string, self::hostCharacters())) {
             $string = idn_to_ascii($string);
         }
 
-        return strtolower($string);
+        return $string;
     }
 
     /**

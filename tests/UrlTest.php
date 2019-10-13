@@ -132,6 +132,33 @@ final class UrlTest extends TestCase
         $url->scheme('1nvalidSch3m3');
     }
 
+    public function testSchemeContainingPlus()
+    {
+        $url = Url::parse('coap+tcp://example.com');
+        $this->assertEquals('coap+tcp', $url->scheme());
+    }
+
+    public function testSchemeContainingDash()
+    {
+        $url = Url::parse('chrome-extension://extension-id/page.html');
+        $this->assertEquals('chrome-extension', $url->scheme());
+    }
+
+    public function testSchemeContainingDot()
+    {
+        $url = Url::parse('soap.beep://stockquoteserver.example.com/StockQuote');
+        $this->assertEquals('soap.beep', $url->scheme());
+    }
+
+    public function testParseUrlWithoutScheme()
+    {
+        $url = Url::parse('//www.example.com/test.html');
+        $this->assertEquals('//www.example.com/test.html', $url->toString());
+        $this->assertEquals('www.example.com', $url->host());
+        $url->scheme('http');
+        $this->assertEquals('http://www.example.com/test.html', $url->toString());
+    }
+
     public function testReplaceAuthority()
     {
         $url = $this->createDefaultUrlObject();
@@ -246,6 +273,13 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://a:b%3Ac@sub.sub.example.com:8080/some/path?some=query#fragment', $url->toString());
     }
 
+    public function testUrlWithEmptyUserInfo()
+    {
+        $url = Url::parse('https://@example.com');
+        $this->assertEquals('https://example.com', $url->toString());
+        $this->assertEquals('', $url->userInfo());
+    }
+
     public function testReplaceHost()
     {
         $url = $this->createDefaultUrlObject();
@@ -268,6 +302,59 @@ final class UrlTest extends TestCase
         $url = $this->createDefaultUrlObject();
         $this->expectException(InvalidUrlComponentException::class);
         $url->host('crw!r.software');
+    }
+
+    public function testPercentEncodedCharactersInHost()
+    {
+        $url = Url::parse('https://www.m%C3%A4nnersalon.at');
+        $this->assertEquals('www.xn--mnnersalon-q5a.at', $url->host());
+    }
+
+    public function testIpAddressHost()
+    {
+        $url = Url::parse('https://192.168.0.1/foo/bar');
+        $this->assertEquals('192.168.0.1', $url->host());
+        $this->assertEquals('https://192.168.0.1/foo/bar', $url->toString());
+
+        $url = Url::parse('https://[192.0.2.16]:80/foo/bar');
+        $this->assertEquals('[192.0.2.16]', $url->host());
+        $this->assertEquals('https://[192.0.2.16]:80/foo/bar', $url->toString());
+    }
+
+    /**
+     * Example addresses from https://tools.ietf.org/html/rfc2732#section-2
+     */
+    public function testIpV6AddressHost()
+    {
+        $url = Url::parse('http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html');
+        // Host must be lowercased as stated in https://tools.ietf.org/html/rfc3986#section-3.2.2
+        $this->assertEquals('[fedc:ba98:7654:3210:fedc:ba98:7654:3210]', $url->host());
+        // Port 80 isn't contained in printed url because it's the standard port for http.
+        $this->assertEquals('http://[fedc:ba98:7654:3210:fedc:ba98:7654:3210]/index.html', $url->toString());
+
+        $url = Url::parse('http://[1080:0:0:0:8:800:200C:417A]/index.html');
+        $this->assertEquals('[1080:0:0:0:8:800:200c:417a]', $url->host());
+        $this->assertEquals('http://[1080:0:0:0:8:800:200c:417a]/index.html', $url->toString());
+
+        $url = Url::parse('http://[3ffe:2a00:100:7031::1]');
+        $this->assertEquals('[3ffe:2a00:100:7031::1]', $url->host());
+        $this->assertEquals('http://[3ffe:2a00:100:7031::1]', $url->toString());
+
+        $url = Url::parse('http://[1080::8:800:200C:417A]/foo');
+        $this->assertEquals('[1080::8:800:200c:417a]', $url->host());
+        $this->assertEquals('http://[1080::8:800:200c:417a]/foo', $url->toString());
+
+        $url = Url::parse('http://[::192.9.5.5]/ipng');
+        $this->assertEquals('[::192.9.5.5]', $url->host());
+        $this->assertEquals('http://[::192.9.5.5]/ipng', $url->toString());
+
+        $url = Url::parse('http://[::FFFF:129.144.52.38]:80/index.html');
+        $this->assertEquals('[::ffff:129.144.52.38]', $url->host());
+        $this->assertEquals('http://[::ffff:129.144.52.38]/index.html', $url->toString());
+
+        $url = Url::parse('http://[2010:836B:4179::836B:4179]');
+        $this->assertEquals('[2010:836b:4179::836b:4179]', $url->host());
+        $this->assertEquals('http://[2010:836b:4179::836b:4179]', $url->toString());
     }
 
     public function testReplaceSubdomain()
@@ -405,6 +492,13 @@ final class UrlTest extends TestCase
         $url = $this->createDefaultUrlObject();
         $this->expectException(InvalidUrlComponentException::class);
         $url->port(-3);
+    }
+
+    public function testUrlWithEmptyPort()
+    {
+        $url = Url::parse('https://www.example.com:/foo/bar');
+        $this->assertEquals('https://www.example.com/foo/bar', $url->toString());
+        $this->assertEquals(null, $url->port());
     }
 
     public function testReplacePath()
