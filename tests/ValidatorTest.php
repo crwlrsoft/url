@@ -270,6 +270,7 @@ final class ValidatorTest extends TestCase
     {
         $this->assertEquals('example.com', Validator::host('example.com'));
         $this->assertEquals('www.example.com', Validator::host('www.example.com'));
+        $this->assertEquals('www.example.com.', Validator::host('www.example.com.'));
         $this->assertEquals('subdomain.example.com', Validator::host('subdomain.example.com'));
         $this->assertEquals('www.some-domain.io', Validator::host('www.some-domain.io'));
         $this->assertEquals('123456.co.uk', Validator::host('123456.co.uk'));
@@ -297,6 +298,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::host('co:lon.com'));
         $this->assertNull(Validator::host('semi;colon.net'));
         $this->assertNull(Validator::host('<html>.codes'));
+        $this->assertNull(Validator::host('www..com'));
     }
 
     public function testValidateDomainSuffix()

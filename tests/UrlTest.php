@@ -514,6 +514,18 @@ final class UrlTest extends TestCase
         );
     }
 
+    public function testParseUrlWithEmptyPath()
+    {
+        $url = Url::parse('https://www.example.com?foo=bar');
+        $this->assertEquals('foo=bar', $url->query());
+        $this->assertNull($url->path());
+        $this->assertEquals('https://www.example.com?foo=bar', $url->toString());
+
+        $url = Url::parse('https://www.example.com#foo');
+        $this->assertEquals('foo', $url->fragment());
+        $this->assertEquals('https://www.example.com#foo', $url->toString());
+    }
+
     public function testReplaceQueryString()
     {
         $url = $this->createDefaultUrlObject();
@@ -537,6 +549,26 @@ final class UrlTest extends TestCase
         );
     }
 
+    public function testParseUrlWithEmptyQuery()
+    {
+        $url = Url::parse('https://www.example.com/path?#fragment');
+        $this->assertEquals('/path', $url->path());
+        $this->assertNull($url->query());
+        $this->assertEquals('fragment', $url->fragment());
+        $this->assertEquals('https://www.example.com/path#fragment', $url->toString());
+
+        $url = Url::parse('https://www.example.com?#fragment');
+        $this->assertNull($url->path());
+        $this->assertNull($url->query());
+        $this->assertEquals('fragment', $url->fragment());
+        $this->assertEquals('https://www.example.com#fragment', $url->toString());
+
+        $url = Url::parse('https://www.example.com?');
+        $this->assertNull($url->path());
+        $this->assertNull($url->query());
+        $this->assertEquals('https://www.example.com', $url->toString());
+    }
+
     public function testReplaceFragment()
     {
         $url = $this->createDefaultUrlObject();
@@ -548,6 +580,23 @@ final class UrlTest extends TestCase
             'https://user:password@sub.sub.example.com:8080/some/path?some=query#test',
             $url->toString()
         );
+    }
+
+    public function testParseUrlWithEmptyFragment()
+    {
+        $url = Url::parse('https://www.example.com/path?query=string#');
+        $this->assertEquals('query=string', $url->query());
+        $this->assertNull($url->fragment());
+        $this->assertEquals('https://www.example.com/path?query=string', $url->toString());
+
+        $url = Url::parse('https://www.example.com/path#');
+        $this->assertEquals('/path', $url->path());
+        $this->assertNull($url->fragment());
+        $this->assertEquals('https://www.example.com/path', $url->toString());
+
+        $url = Url::parse('https://www.example.com#');
+        $this->assertNull($url->fragment());
+        $this->assertEquals('https://www.example.com', $url->toString());
     }
 
     public function testChainReplacementCalls()
@@ -567,6 +616,58 @@ final class UrlTest extends TestCase
 
         $this->assertInstanceOf(Url::class, $url);
         $this->assertEquals('http://john:god@www.crwlr.software:8081/foo/bar?key=value#anchor', $url->toString());
+    }
+
+    public function testParseRelativeReferences()
+    {
+        $url = Url::parse('/path?query#fragment');
+        $this->assertEquals('/path', $url->path());
+        $this->assertEquals('query', $url->query());
+        $this->assertEquals('fragment', $url->fragment());
+
+        $url = Url::parse('path?query#fragment');
+        $this->assertEquals('path', $url->path());
+        $this->assertEquals('query', $url->query());
+        $this->assertEquals('fragment', $url->fragment());
+
+        $url = Url::parse('/path?query');
+        $this->assertEquals('/path', $url->path());
+        $this->assertEquals('query', $url->query());
+        $this->assertNull($url->fragment());
+
+        $url = Url::parse('?query#fragment');
+        $this->assertNull($url->path());
+        $this->assertEquals('query', $url->query());
+        $this->assertEquals('fragment', $url->fragment());
+
+        $url = Url::parse('path#fragment');
+        $this->assertEquals('path', $url->path());
+        $this->assertNull($url->query());
+        $this->assertEquals('fragment', $url->fragment());
+
+        $url = Url::parse('path');
+        $this->assertEquals('path', $url->path());
+        $this->assertNull($url->query());
+        $this->assertNull($url->fragment());
+
+        $url = Url::parse('?query');
+        $this->assertNull($url->path());
+        $this->assertEquals('query', $url->query());
+        $this->assertNull($url->fragment());
+
+        $url = Url::parse('#fragment');
+        $this->assertNull($url->path());
+        $this->assertNull($url->query());
+        $this->assertEquals('fragment', $url->fragment());
+
+        $url = Url::parse('../relative/path');
+        $this->assertEquals('../relative/path', $url->path());
+        $this->assertEquals('../relative/path', $url->toString());
+
+        $url = Url::parse('https');
+        $this->assertEquals('https', $url->path());
+        $this->assertNull($url->scheme());
+        $this->assertEquals('https', $url->toString());
     }
 
     public function testIsRelativeReference()
@@ -865,6 +966,66 @@ final class UrlTest extends TestCase
 
         $this->expectException(InvalidUrlComponentException::class);
         $url->authority('www.example.com');
+    }
+
+    public function testParseUrlWithSchemeAndPathButWithoutAuthority()
+    {
+        $url = Url::parse('http:/foo/bar');
+        $this->assertEquals('http', $url->scheme());
+        $this->assertEquals('/foo/bar', $url->path());
+        $this->assertEquals('http:/foo/bar', $url->toString());
+
+        $url = Url::parse('http:path#fragment');
+        $this->assertEquals('http', $url->scheme());
+        $this->assertEquals('path', $url->path());
+        $this->assertEquals('fragment', $url->fragment());
+        $this->assertEquals('http:path#fragment', $url->toString());
+    }
+
+    public function testParseUrlWithoutSchemeAndPathButPortQueryAndFragment()
+    {
+        $url = Url::parse('//www.example.com:80?query=string#fragment');
+        $this->assertEquals('www.example.com', $url->host());
+        $this->assertEquals(80, $url->port());
+        $this->assertEquals('query=string', $url->query());
+        $this->assertEquals('fragment', $url->fragment());
+        $this->assertEquals('//www.example.com:80?query=string#fragment', $url->toString());
+    }
+
+    public function testParseUrlWithEmptyQueryAndFragment()
+    {
+        $url = Url::parse('https://www.example.com/?#');
+        $this->assertEquals('/', $url->path());
+        $this->assertNull($url->query());
+        $this->assertNull($url->fragment());
+        $this->assertEquals('https://www.example.com/', $url->toString());
+
+        $url = Url::parse('https://www.example.com?#');
+        $this->assertNull($url->query());
+        $this->assertNull($url->fragment());
+        $this->assertEquals('https://www.example.com', $url->toString());
+    }
+
+    public function testParseUrlWithHostWithTrailingDot()
+    {
+        $url = Url::parse('https://www.example.com./path');
+        $this->assertEquals('www.example.com.', $url->host());
+        $this->assertEquals('/path', $url->path());
+        $this->assertEquals('https://www.example.com./path', $url->toString());
+    }
+
+    public function testParseUrlWithPathInFragment()
+    {
+        $url = Url::parse('https://www.example.com#fragment/foo/bar');
+        $this->assertEquals('fragment/foo/bar', $url->fragment());
+        $this->assertEquals('https://www.example.com#fragment/foo/bar', $url->toString());
+    }
+
+    public function testParseUrlWithColonInPath()
+    {
+        $url = Url::parse('https://www.example.com/path:foo/bar');
+        $this->assertEquals('/path:foo/bar', $url->path());
+        $this->assertEquals('https://www.example.com/path:foo/bar', $url->toString());
     }
 
     /**

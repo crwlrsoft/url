@@ -957,7 +957,11 @@ class Validator
         $splitLabels = explode('.', $host);
 
         foreach ($splitLabels as $key => $label) {
-            if ($label === '' && $key !== (count($splitLabels) - 1)) {
+            if ($label === '') {
+                if ($key === count($splitLabels) - 1) { // Last element in array empty means trailing dot
+                    return true;
+                }
+
                 return false; // Empty label is invalid
             }
 
