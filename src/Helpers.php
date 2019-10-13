@@ -284,6 +284,34 @@ class Helpers
     }
 
     /**
+     * IDN to ASCII
+     *
+     * Wrapper method for idn_to_ascii because from PHP 7.2 on variant INTL_IDNA_VARIANT_2003 is deprecated,
+     * but still the default value for argument variant (PHP 7.4 uses INTL_IDNA_VARIANT_UTS46 as default).
+     *
+     * @param string $string
+     * @return string
+     */
+    public static function idn_to_ascii(string $string): string
+    {
+        return idn_to_ascii($string, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46);
+    }
+
+    /**
+     * IDN to UTF-8
+     *
+     * Wrapper method for idn_to_utf8 because from PHP 7.2 on variant INTL_IDNA_VARIANT_2003 is deprecated,
+     * but still the default value for argument variant (PHP 7.4 uses INTL_IDNA_VARIANT_UTS46 as default).
+     *
+     * @param string $string
+     * @return string
+     */
+    public static function idn_to_utf8(string $string): string
+    {
+        return idn_to_utf8($string, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46);
+    }
+
+    /**
      * Helper method for queryStringToArray
      *
      * When keys within a url query string contain dots, PHP's parse_str() method converts them to underscores. This

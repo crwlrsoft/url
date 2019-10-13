@@ -500,7 +500,7 @@ class Validator
             !self::isIpHost($host) &&
             !self::containsOnly($host, self::hostCharacters())
         ) {
-            $encodedHost = idn_to_ascii($host);
+            $encodedHost = Helpers::idn_to_ascii($host);
             $url = Helpers::replaceFirstOccurrence($host, $encodedHost, $url);
         }
 
@@ -912,7 +912,7 @@ class Validator
         }
 
         if (!self::containsOnly($string, self::hostCharacters())) {
-            $string = idn_to_ascii($string);
+            $string = Helpers::idn_to_ascii($string);
         }
 
         return $string;
