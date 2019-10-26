@@ -26,12 +26,12 @@
         }
     ],
     "require": {
-        "php" : "~7.1",
+        "php" : "~7.2",
         "psr/http-message": "^1.0",
         "symfony/polyfill-intl-idn": "^1.11"
     },
     "require-dev": {
-        "phpunit/phpunit": "^7.0",
+        "phpunit/phpunit": "^8.0",
         "friendsofphp/php-cs-fixer": "^2.15"
     },
     "autoload": {

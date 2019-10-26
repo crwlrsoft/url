@@ -18,7 +18,7 @@ it's also no problem to parse __internationalized domain names (IDN)__.
 
 ## Requirements
 
-Requires PHP version 7.1 or above.
+Requires PHP version 7.2 or above.
 
 ## Installation
 
