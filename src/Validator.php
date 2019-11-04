@@ -249,25 +249,6 @@ class Validator
     }
 
     /**
-     * Returns true when host is an IP address
-     *
-     * @param string $host
-     * @return bool
-     */
-    private static function isIpHost(string $host): bool
-    {
-        if (Helpers::startsWith($host, '[', 1) && substr($host, -1, 1) === ']') {
-            $host = substr($host, 1, strlen($host) - 2);
-        }
-
-        if (filter_var($host, FILTER_VALIDATE_IP)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Validate a registrable domain
      *
      * Returns a valid registrable domain or null if invalid.
@@ -443,6 +424,51 @@ class Validator
         $fragment = self::encodePercentCharacter($fragment);
 
         return self::urlEncodeExcept($fragment, self::pcharRegexPattern(['/', '?', '%']));
+    }
+
+    /**
+     * Validate a component value by a variable component name
+     *
+     * This method is here to avoid calling validation like self::$componentName() and thereby loosing traceability
+     * of method calls for IDEs.
+     *
+     * @param string $componentName
+     * @param $value
+     * @return string|int|null
+     */
+    public static function callValidationByComponentName(string $componentName, $value)
+    {
+        if ($componentName === 'scheme') {
+            return self::scheme($value);
+        } elseif ($componentName === 'authority') {
+            return self::authority($value);
+        } elseif ($componentName === 'userInfo') {
+            return self::userInfo($value);
+        } elseif ($componentName === 'user') {
+            return self::userOrPassword($value);
+        } elseif ($componentName === 'password' || $componentName === 'pass') {
+            return self::userOrPassword($value);
+        } elseif ($componentName === 'host') {
+            return self::host($value);
+        } elseif ($componentName === 'domain') {
+            return self::domain($value);
+        } elseif ($componentName === 'domainLabel') {
+            return self::domainLabel($value);
+        } elseif ($componentName === 'domainSuffix') {
+            return self::domainSuffix($value);
+        } elseif ($componentName === 'subdomain') {
+            return self::subdomain($value);
+        } elseif ($componentName === 'port') {
+            return self::port($value);
+        } elseif ($componentName === 'path') {
+            return self::path($value);
+        } elseif ($componentName === 'query') {
+            return self::query($value);
+        } elseif ($componentName === 'fragment') {
+            return self::fragment($value);
+        }
+
+        return null;
     }
 
     /**
@@ -674,51 +700,6 @@ class Validator
     }
 
     /**
-     * Validate a component value by a variable component name
-     *
-     * This method is here to avoid calling validation like self::$componentName() and thereby loosing traceability
-     * of method calls for IDEs.
-     *
-     * @param string $componentName
-     * @param $value
-     * @return string|int|null
-     */
-    public static function callValidationByComponentName(string $componentName, $value)
-    {
-        if ($componentName === 'scheme') {
-            return self::scheme($value);
-        } elseif ($componentName === 'authority') {
-            return self::authority($value);
-        } elseif ($componentName === 'userInfo') {
-            return self::userInfo($value);
-        } elseif ($componentName === 'user') {
-            return self::userOrPassword($value);
-        } elseif ($componentName === 'password' || $componentName === 'pass') {
-            return self::userOrPassword($value);
-        } elseif ($componentName === 'host') {
-            return self::host($value);
-        } elseif ($componentName === 'domain') {
-            return self::domain($value);
-        } elseif ($componentName === 'domainLabel') {
-            return self::domainLabel($value);
-        } elseif ($componentName === 'domainSuffix') {
-            return self::domainSuffix($value);
-        } elseif ($componentName === 'subdomain') {
-            return self::subdomain($value);
-        } elseif ($componentName === 'port') {
-            return self::port($value);
-        } elseif ($componentName === 'path') {
-            return self::path($value);
-        } elseif ($componentName === 'query') {
-            return self::query($value);
-        } elseif ($componentName === 'fragment') {
-            return self::fragment($value);
-        }
-
-        return null;
-    }
-
-    /**
      * Helper method for the url and absoluteUrl methods.
      *
      * Because it's the same for both methods.
@@ -884,6 +865,25 @@ class Validator
         $string = self::encodePercentCharacter($string);
 
         return self::urlEncodeExcept($string, "/[^a-zA-Z0-9-._~!$&'() * +,;=%]/");
+    }
+
+    /**
+     * Returns true when host is an IP address
+     *
+     * @param string $host
+     * @return bool
+     */
+    private static function isIpHost(string $host): bool
+    {
+        if (Helpers::startsWith($host, '[', 1) && substr($host, -1, 1) === ']') {
+            $host = substr($host, 1, strlen($host) - 2);
+        }
+
+        if (filter_var($host, FILTER_VALIDATE_IP)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
