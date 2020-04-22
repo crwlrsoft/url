@@ -43,6 +43,7 @@
         "test": "@php vendor/bin/phpunit",
         "cs": "@php vendor/bin/php-cs-fixer fix -v --diff --dry-run --allow-risky=yes",
         "update-suffixes": "@php bin/update-suffixes",
-        "update-schemes": "@php bin/update-schemes"
+        "update-schemes": "@php bin/update-schemes",
+        "add-git-hooks": "@php bin/add-git-hooks"
     }
 }
