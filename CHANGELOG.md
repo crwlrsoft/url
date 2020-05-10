@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2020-05-10
+
 ### Added
 - Adapter class Uri that implements the PSR-7 `UriInterface`.
 - New methods in `Url` class:
