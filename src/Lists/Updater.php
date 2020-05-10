@@ -3,7 +3,6 @@
 namespace Crwlr\Url\Lists;
 
 use Crwlr\Url\Exceptions\ListUpdaterException;
-use Exception;
 
 /**
  * Class Updater
@@ -114,7 +113,7 @@ abstract class Updater
         $content = file_get_contents($this->url, false, $context);
 
         if (!$content) {
-            throw new Exception("Fetching list file failed.");
+            throw new ListUpdaterException("Fetching list file failed.");
         }
 
         $content = str_replace("\r\n", "\n", $content); // Replace CRLF line breaks.
