@@ -52,6 +52,8 @@ this repo that will run tests and linting. Add it to your local
 clone by running:  
 `composer add-git-hooks`
 
+Also please don't forget to add new test cases if necessary.
+
 ### Documentation
 
 For any code change please don't forget to add an entry to the
