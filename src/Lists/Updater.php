@@ -3,6 +3,7 @@
 namespace Crwlr\Url\Lists;
 
 use Crwlr\Url\Exceptions\ListUpdaterException;
+use Exception;
 
 /**
  * Class Updater
@@ -30,9 +31,10 @@ abstract class Updater
     protected $originalFilename = '';
 
     /**
-     *
+     * Path where the original source file will be stored.
      *
      * @var string
+     * @see Updater::setOriginalPath()
      */
     protected $originalPath = '';
 
@@ -45,14 +47,12 @@ abstract class Updater
         $this->setOriginalPath();
     }
 
+    /**
+     * @throws Exception
+     */
     public function update(): void
     {
-        try {
-            $content = $this->loadAndStoreOriginal();
-        } catch (\Exception $exception) {
-            $content = $this->getContentFromOldFile();
-        }
-
+        $content = $this->loadAndStoreOriginal();
         $parsed = $this->parseContent($content);
         $this->storeList($parsed);
     }
@@ -99,29 +99,28 @@ abstract class Updater
 
     /**
      * @return string
+     * @throws Exception
      */
     private function loadAndStoreOriginal(): string
     {
-        $content = file_get_contents($this->url);
+        $context = stream_context_create(['http' =>
+            [
+                'method' => 'GET',
+                'header'  => [
+                    'User-Agent: https://github.com/crwlrsoft/url/blob/master/src/Schemes/Updater.php',
+                ]
+            ]
+        ]);
+        $content = file_get_contents($this->url, false, $context);
 
-        if (!is_string($content)) {
-            return '';
+        if (!$content) {
+            throw new Exception("Fetching list file failed.");
         }
 
         $content = str_replace("\r\n", "\n", $content); // Replace CRLF line breaks.
         file_put_contents($this->originalPath, $content);
 
         return $content;
-    }
-
-    /**
-     * @return string
-     */
-    private function getContentFromOldFile(): string
-    {
-        $content = file_get_contents($this->originalPath);
-
-        return is_string($content) ? $content : '';
     }
 
     /**
