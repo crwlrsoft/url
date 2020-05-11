@@ -17,7 +17,7 @@ namespace Crwlr\Url\Lists;
  * The exists method in this class will first check the fallback list before loading the full list.
  */
 
-class Store
+abstract class Store
 {
     /**
      * The list as an array, with the values as the keys for fast search
@@ -60,7 +60,7 @@ class Store
      * @param mixed $key
      * @return bool
      */
-    public function exists($key) : bool
+    public function exists($key): bool
     {
         if (isset($this->fallbackList[$key])) {
             return true;
@@ -76,24 +76,24 @@ class Store
     }
 
     /**
-     * Generates the full store path of the file where the list is stored in the data directory at the root level.
-     * If the child class does not declare a store filename the list will be empty.
-     */
-    private function setStorePath()
-    {
-        if (is_string($this->storeFilename) && trim($this->storeFilename) !== '') {
-            $this->storePath = dirname(__DIR__) . '/../data/' . $this->storeFilename;
-        }
-    }
-
-    /**
      * Returns the full path where the parsed list is stored.
      *
      * @return string
      */
-    public function getStorePath() : string
+    public function getStorePath(): string
     {
         return $this->storePath;
+    }
+
+    /**
+     * Generates the full store path of the file where the list is stored in the data directory at the root level.
+     * If the child class does not declare a store filename the list will be empty.
+     */
+    private function setStorePath(): void
+    {
+        if (is_string($this->storeFilename) && trim($this->storeFilename) !== '') {
+            $this->storePath = realpath(dirname(__DIR__) . '/../data/' . $this->storeFilename);
+        }
     }
 
     /**
@@ -101,7 +101,7 @@ class Store
      * A child class of the Store may be instantiated but never queried, so only load it when necessary.
      * If the exists() method is replaced in a child class you need to call this method.
      */
-    protected function loadFullList()
+    protected function loadFullList(): void
     {
         if (!is_array($this->list) && !empty($this->storePath)) {
             $this->list = include($this->storePath);

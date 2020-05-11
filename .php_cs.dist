@@ -1,0 +1,13 @@
+<?php
+
+$finder = PhpCsFixer\Finder::create()
+    ->in([__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/bin']);
+
+return PhpCsFixer\Config::create()
+    ->setRules([
+        '@PSR2' => true,
+        'strict_param' => true,
+        'array_syntax' => ['syntax' => 'short'],
+        'single_class_element_per_statement' => false,
+    ])
+    ->setFinder($finder);

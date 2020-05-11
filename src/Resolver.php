@@ -13,23 +13,10 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
 class Resolver
 {
     /**
-     * @var Validator
-     */
-    private $validator;
-
-    /**
-     * @param Validator|null $validator
-     */
-    public function __construct(Validator $validator = null)
-    {
-        $this->validator = ($validator instanceof Validator) ? $validator : new Validator();
-    }
-
-    /**
-     * Resolve any relative url you may find on a website to an absolute url with the base url of the
-     * document where the relative url was found.
-     * e.g.:
-     * https://www.example.com/foo/bar/baz
+     * Resolve any relative reference to an absolute url against a base url.
+     *
+     * Example:
+     * Base: https://www.example.com/foo/bar/baz
      * <a href="../link"> => ../link resolves to https://www.example.com/foo/link
      *
      * @param string $subject
@@ -37,13 +24,13 @@ class Resolver
      * @return Url
      * @throws InvalidUrlException
      */
-    public function resolve(string $subject = '', Url $base) : Url
+    public function resolve(string $subject, Url $base): Url
     {
-        try {
-            $subject = trim(str_replace(' ', '%20', $subject));
-            $validUrl = $this->validator->url($subject);
-            return new Url($validUrl); // If subject is not a relative url but a full valid url, return it immediately.
-        } catch (InvalidUrlException $e) { }
+        $absoluteUrl = Validator::absoluteUrl($subject);
+
+        if ($absoluteUrl) {
+            return new Url($absoluteUrl);
+        }
 
         $firstChar = substr($subject, 0, 1);
 
@@ -61,18 +48,21 @@ class Resolver
     }
 
     /**
+     * Resolve a relative reference against a base path.
+     *
      * @param string $resolvePath
      * @param string $basePath
      * @return string
      */
-    public function resolvePath(string $resolvePath, string $basePath) : string
+    public function resolvePath(string $resolvePath, string $basePath): string
     {
         return $this->resolveDots($resolvePath, $basePath);
     }
 
     /**
      * Resolve all . in the subject path with the base path.
-     * e.g.:
+     *
+     * Example:
      * subject: ./foo/../bar/./baz
      * base path: /one/two/three
      * result: /one/two/bar/baz
@@ -81,7 +71,7 @@ class Resolver
      * @param string $basePath
      * @return string
      */
-    private function resolveDots(string $subject = '', string $basePath = '') : string
+    private function resolveDots(string $subject = '', string $basePath = ''): string
     {
         $basePathDir = $this->getDirectoryPath($basePath);
         $splitBySlash = explode('/', $subject);
@@ -92,11 +82,11 @@ class Resolver
             } elseif ($part === '..') {
                 $parentDirKey = $this->getParentDirFromArray($splitBySlash, $key);
 
-                if ($parentDirKey !== false) {
-                    unset($splitBySlash[$parentDirKey], $splitBySlash[$key]);
-                } else {
+                if ($parentDirKey === null) {
                     $basePathDir = $this->getParentDirectoryPath($basePathDir);
                     unset($splitBySlash[$key]);
+                } else {
+                    unset($splitBySlash[$parentDirKey], $splitBySlash[$key]);
                 }
             }
         }
@@ -115,14 +105,16 @@ class Resolver
     }
 
     /**
+     * Helper method for resolveDots
+     *
      * @param array $splitPath
      * @param int $currentKey
-     * @return bool|int
+     * @return null|int
      */
-    private function getParentDirFromArray(array $splitPath = [], int $currentKey = 0)
+    private function getParentDirFromArray(array $splitPath = [], int $currentKey = 0): ?int
     {
         if ($currentKey === 0) {
-            return false;
+            return null;
         }
 
         for ($i = ($currentKey - 1); $i >= 0; $i--) {
@@ -131,7 +123,7 @@ class Resolver
             }
         }
 
-        return false;
+        return null;
     }
 
     /**
@@ -140,7 +132,7 @@ class Resolver
      * @param string $path
      * @return string
      */
-    private function getParentDirectoryPath(string $path = '') : string
+    private function getParentDirectoryPath(string $path = ''): string
     {
         if (substr($path, -1, 1) !== '/') {
             $path = $this->getDirectoryPath($path);
@@ -150,20 +142,21 @@ class Resolver
             return $path;
         }
 
-        $path = Parser::stripFromEnd($path, '/');
+        $path = Helpers::stripFromEnd($path, '/');
         $splitBySlash = explode('/', $path);
 
-        return Parser::stripFromEnd($path, end($splitBySlash));
+        return Helpers::stripFromEnd($path, end($splitBySlash));
     }
 
     /**
-     * Returns the $path until the last /
-     * e.g. /foo/bar => /foo/
+     * Returns the $path until the last slash.
+     *
+     * /foo/bar => /foo/
      *
      * @param string $path
      * @return string
      */
-    private function getDirectoryPath(string $path = '') : string
+    private function getDirectoryPath(string $path = ''): string
     {
         if (substr($path, -1, 1) === '/') {
             return $path;
@@ -171,6 +164,6 @@ class Resolver
 
         $splitBySlash = explode('/', $path);
 
-        return Parser::stripFromEnd($path, end($splitBySlash));
+        return Helpers::stripFromEnd($path, end($splitBySlash));
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Crwlr\Url\Exceptions;
 
-class ListUpdaterException extends \Exception
+use Exception;
+
+class ListUpdaterException extends Exception
 {
 }

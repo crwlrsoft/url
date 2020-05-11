@@ -1,267 +1,439 @@
 <?php
 declare(strict_types=1);
 
+use Crwlr\Url\Validator;
 use PHPUnit\Framework\TestCase;
 
 final class ValidatorTest extends TestCase
 {
-    /**
-     * @throws \Crwlr\Url\Exceptions\InvalidUrlException
-     */
     public function testValidateUrl()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals(
+            'https://www.crwlr.software/packages/url/v0.1.2#installation',
+            Validator::url('https://www.crwlr.software/packages/url/v0.1.2#installation')
+        );
+    }
 
+    public function testValidateUrlWithSpecialCharacters()
+    {
         $this->assertEquals(
-            $validator->url('https://www.crwlr.software'),
-            'https://www.crwlr.software'
+            'https://u%C2%A7er:p%C3%A1ssword@sub.xn--domin-ira.example.org:345' .
+            '/f%C3%B6%C3%B4/b%C3%A1r?qu%C3%A4r.y=str%C3%AFng#fr%C3%A4gm%C3%A4nt',
+            Validator::url('https://u§er:pássword@sub.domäin.example.org:345/föô/bár?quär.y=strïng#frägmänt')
         );
-        $this->assertEquals(
-            $validator->url('mailto:you@example.com?subject=crwlr software'),
-            'mailto:you@example.com?subject=crwlr%20software'
-        );
-        $this->assertEquals(
-            $validator->url('  https://wwww.example.com  '),
-            'https://wwww.example.com'
-        );
-        $this->assertEquals(
-            $validator->url('ftp://username:password@example.org'),
-            'ftp://username:password@example.org'
-        );
-        $this->assertEquals(
-            $validator->url('http://www.example.онлайн/stuff'),
-            'http://www.example.xn--80asehdb/stuff'
+    }
+
+    /**
+     * Invalid url strings.
+     */
+    public function testValidateInvalidUrl()
+    {
+        $this->assertNull(Validator::url('1http://example.com/stuff'));
+        $this->assertNull(Validator::url('  https://wwww.example.com  '));
+        $this->assertNull(Validator::url('http://'));
+        $this->assertNull(Validator::url('http://.'));
+        $this->assertNull(Validator::url('https://..'));
+        $this->assertNull(Validator::url('https://../'));
+        $this->assertNull(Validator::url('http://?'));
+        $this->assertNull(Validator::url('http://#'));
+        $this->assertNull(Validator::url('//'));
+        $this->assertNull(Validator::url('///foo'));
+        $this->assertNull(Validator::url('http:///foo'));
+        $this->assertNull(Validator::url('://'));
+    }
+
+    public function testValidateUrlAndComponents()
+    {
+        $this->assertArrayContains(
+            Validator::urlAndComponents('https://www.crwlr.software/packages/url/v0.1.2#installation'),
+            [
+                'url' => 'https://www.crwlr.software/packages/url/v0.1.2#installation',
+                'scheme' => 'https',
+                'host' => 'www.crwlr.software',
+                'path' => '/packages/url/v0.1.2',
+                'fragment' => 'installation',
+            ]
         );
 
-        $invalidUrls = [
-            null,
-            'this is not an url',
-            '1http://example.com/stuff',
-            'mäilto:user@example.com',
-            '/foo/bar',
-        ];
+        $this->assertArrayContains(
+            Validator::urlAndComponents('/foo/bar?query=string#fragment'),
+            [
+                'url' => '/foo/bar?query=string#fragment',
+                'path' => '/foo/bar',
+                'query' => 'query=string',
+                'fragment' => 'fragment',
+            ]
+        );
 
-        foreach ($invalidUrls as $url) {
-            $this->expectException(\Crwlr\Url\Exceptions\InvalidUrlException::class);
-            $validator->url($url);
-        }
+        $this->assertArrayContains(
+            Validator::urlAndComponents('ftp://username:password@example.org'),
+            [
+                'url' => 'ftp://username:password@example.org',
+                'scheme' => 'ftp',
+                'user' => 'username',
+                'pass' => 'password',
+                'host' => 'example.org',
+            ]
+        );
+
+        $this->assertArrayContains(
+            Validator::urlAndComponents('mailto:you@example.com?subject=crwlr software'),
+            ['url' => 'mailto:you@example.com?subject=crwlr%20software']
+        );
+    }
+
+    public function testValidateIdnUrlAndComponents()
+    {
+        $this->assertArrayContains(
+            Validator::urlAndComponents('http://✪df.ws/123'),
+            [
+                'url' => 'http://xn--df-oiy.ws/123',
+                'scheme' => 'http',
+                'host' => 'xn--df-oiy.ws',
+                'path' => '/123',
+            ]
+        );
+
+        $this->assertArrayContains(
+            Validator::urlAndComponents('https://www.example.онлайн/stuff'),
+            [
+                'url' => 'https://www.example.xn--80asehdb/stuff',
+                'scheme' => 'https',
+                'host' => 'www.example.xn--80asehdb',
+                'path' => '/stuff',
+            ]
+        );
+    }
+
+    public function testValidateInvalidUrlAndComponents()
+    {
+        $this->assertNull(Validator::urlAndComponents('1http://example.com/stuff'));
+        $this->assertNull(Validator::urlAndComponents('  https://wwww.example.com  '));
+        $this->assertNull(Validator::urlAndComponents('http://'));
+        $this->assertNull(Validator::urlAndComponents('http://.'));
+        $this->assertNull(Validator::urlAndComponents('https://..'));
+        $this->assertNull(Validator::urlAndComponents('https://../'));
+        $this->assertNull(Validator::urlAndComponents('http://?'));
+        $this->assertNull(Validator::urlAndComponents('http://#'));
+        $this->assertNull(Validator::urlAndComponents('//'));
+        $this->assertNull(Validator::urlAndComponents('///foo'));
+        $this->assertNull(Validator::urlAndComponents('http:///foo'));
+        $this->assertNull(Validator::urlAndComponents('://'));
+    }
+
+    public function testValidateAbsoluteUrl()
+    {
+        $this->assertEquals(
+            'https://www.crwlr.software/packages/url/v0.1.2#installation',
+            Validator::absoluteUrl('https://www.crwlr.software/packages/url/v0.1.2#installation')
+        );
+
+        $this->assertNull(Validator::absoluteUrl('/foo/bar?query=string#fragment'));
+    }
+
+    public function testValidateAbsoluteUrlAndComponents()
+    {
+        $this->assertArrayContains(
+            Validator::absoluteUrlAndComponents('https://www.crwlr.software/packages/url/v0.1.2#installation'),
+            [
+                'url' => 'https://www.crwlr.software/packages/url/v0.1.2#installation',
+                'scheme' => 'https',
+                'host' => 'www.crwlr.software',
+                'path' => '/packages/url/v0.1.2',
+                'fragment' => 'installation',
+            ]
+        );
+
+        $this->assertNull(Validator::absoluteUrlAndComponents('/foo/bar?query=string#fragment'));
     }
 
     public function testValidateScheme()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals('http', Validator::scheme('http'));
+        $this->assertEquals('mailto', Validator::scheme('mailto'));
+        $this->assertEquals('ssh', Validator::scheme('ssh'));
+        $this->assertEquals('ftp', Validator::scheme('ftp'));
+        $this->assertEquals('sftp', Validator::scheme('sftp'));
+        $this->assertEquals('wss', Validator::scheme('wss'));
+        $this->assertEquals('https', Validator::scheme('HTTPS'));
 
-        $this->assertEquals($validator->scheme('http'), 'http');
-        $this->assertEquals($validator->scheme('mailto'), 'mailto');
-        $this->assertEquals($validator->scheme('ssh'), 'ssh');
-        $this->assertEquals($validator->scheme('ftp'), 'ftp');
-        $this->assertEquals($validator->scheme('sftp'), 'sftp');
-        $this->assertEquals($validator->scheme('wss'), 'wss');
-        $this->assertEquals($validator->scheme('HTTPS'), 'https');
-
-        $this->assertFalse($validator->scheme('1invalidscheme'));
-        $this->assertFalse($validator->scheme('mäilto'));
+        $this->assertNull(Validator::scheme('1invalidscheme'));
+        $this->assertNull(Validator::scheme('mäilto'));
     }
 
-    public function testValidateUserOrPassword()
+    public function testValidateAuthority()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals('12.34.56.78', Validator::authority('12.34.56.78'));
+        $this->assertEquals('localhost', Validator::authority('localhost'));
+        $this->assertEquals('www.example.com:8080', Validator::authority('www.example.com:8080'));
+        $this->assertEquals(
+            'user:password@www.example.org:1234',
+            Validator::authority('user:password@www.example.org:1234')
+        );
+    }
 
-        $this->assertEquals($validator->userOrPassword('user'), 'user');
-        $this->assertEquals($validator->userOrPassword('pASS123'), 'pASS123');
-        $this->assertEquals($validator->userOrPassword('user-123'), 'user-123');
-        $this->assertEquals($validator->userOrPassword('P4ss.123'), 'P4ss.123');
-        $this->assertEquals($validator->userOrPassword('user_123'), 'user_123');
-        $this->assertEquals($validator->userOrPassword('p4ss~123'), 'p4ss~123');
-        $this->assertEquals($validator->userOrPassword('user%123'), 'user%123');
-        $this->assertEquals($validator->userOrPassword('p4ss-123!'), 'p4ss-123!');
-        $this->assertEquals($validator->userOrPassword('u$3r_n4m3!'), 'u$3r_n4m3!');
-        $this->assertEquals($validator->userOrPassword('p4$$&w0rD'), 'p4$$&w0rD');
-        $this->assertEquals($validator->userOrPassword('u$3r\'$_n4m3'), 'u$3r\'$_n4m3');
-        $this->assertEquals($validator->userOrPassword('(p4$$-w0rD)'), '(p4$$-w0rD)');
-        $this->assertEquals($validator->userOrPassword('u$3r*n4m3'), 'u$3r*n4m3');
-        $this->assertEquals($validator->userOrPassword('p4$$+W0rD'), 'p4$$+W0rD');
-        $this->assertEquals($validator->userOrPassword('u$3r,n4m3'), 'u$3r,n4m3');
-        $this->assertEquals($validator->userOrPassword('P4ss;w0rd'), 'P4ss;w0rd');
-        $this->assertEquals($validator->userOrPassword('=u$3r='), '=u$3r=');
+    public function testValidateInvalidAuthority()
+    {
+        $this->assertNull(Validator::authority('user:password@:1234'));
+        $this->assertNull(Validator::authority(''));
+    }
 
-        $this->assertFalse($validator->userOrPassword('u§3rname'));
-        $this->assertFalse($validator->userOrPassword('"password"'));
-        $this->assertFalse($validator->userOrPassword('user:name'));
-        $this->assertFalse($validator->userOrPassword('pass`word'));
-        $this->assertFalse($validator->userOrPassword('Üsernäme'));
-        $this->assertFalse($validator->userOrPassword('pass^word'));
-        $this->assertFalse($validator->userOrPassword('user°name'));
-        $this->assertFalse($validator->userOrPassword('pass🤓moji'));
-        $this->assertFalse($validator->userOrPassword('<username>'));
-        $this->assertFalse($validator->userOrPassword('pass\word'));
-        $this->assertFalse($validator->userOrPassword('usern@me'));
-        $this->assertFalse($validator->userOrPassword('paßword'));
-        $this->assertFalse($validator->userOrPassword('us€rname'));
+    public function testValidateAuthorityComponents()
+    {
+        $this->assertArrayContains(
+            Validator::authorityComponents('user:password@www.example.org:1234'),
+            [
+                'userInfo' => 'user:password',
+                'user' => 'user',
+                'password' => 'password',
+                'host' => 'www.example.org',
+                'port' => 1234,
+            ]
+        );
+    }
+
+    public function testValidateInvalidAuthorityComponents()
+    {
+        $this->assertNull(Validator::authorityComponents('user:password@:1234'));
+        $this->assertNull(Validator::authorityComponents(''));
+    }
+
+    public function testValidateUserInfo()
+    {
+        $this->assertEquals('user:password', Validator::userInfo('user:password'));
+        $this->assertEquals('u%C2%A7er:p%C3%A1ssword', Validator::userInfo('u§er:pássword'));
+        $this->assertNull(Validator::userInfoComponents(':password'));
+    }
+
+    public function testValidateUserInfoComponents()
+    {
+        $this->assertArrayContains(
+            Validator::userInfoComponents('crwlr:software'),
+            [
+                'user' => 'crwlr',
+                'password' => 'software',
+            ]
+        );
+
+        $this->assertArrayContains(
+            Validator::userInfoComponents('u§er:pássword'),
+            [
+                'user' => 'u%C2%A7er',
+                'password' => 'p%C3%A1ssword',
+            ]
+        );
+
+        $this->assertNull(Validator::userInfoComponents(':password'));
+    }
+
+    public function testValidateUser()
+    {
+        $this->assertEquals('user', Validator::user('user'));
+        $this->assertEquals('user-123', Validator::user('user-123'));
+        $this->assertEquals('user_123', Validator::user('user_123'));
+        $this->assertEquals('user%123', Validator::user('user%123'));
+        $this->assertEquals('u$3r_n4m3!', Validator::user('u$3r_n4m3!'));
+        $this->assertEquals('u$3r\'$_n4m3', Validator::user('u$3r\'$_n4m3'));
+        $this->assertEquals('u$3r*n4m3', Validator::user('u$3r*n4m3'));
+        $this->assertEquals('u$3r,n4m3', Validator::user('u$3r,n4m3'));
+        $this->assertEquals('=u$3r=', Validator::user('=u$3r='));
+
+        $this->assertEquals('u%C2%A73rname', Validator::user('u§3rname'));
+        $this->assertEquals('user%3Aname', Validator::user('user:name'));
+        $this->assertEquals('%C3%9Csern%C3%A4me', Validator::user('Üsernäme'));
+        $this->assertEquals('user%C2%B0name', Validator::user('user°name'));
+        $this->assertEquals('%3Cusername%3E', Validator::user('<username>'));
+        $this->assertEquals('usern%40me', Validator::user('usern@me'));
+        $this->assertEquals('us%E2%82%ACrname', Validator::user('us€rname'));
+    }
+
+    public function testValidatePassword()
+    {
+        $this->assertEquals('pASS123', Validator::password('pASS123'));
+        $this->assertEquals('P4ss.123', Validator::pass('P4ss.123'));
+        $this->assertEquals('p4ss~123', Validator::password('p4ss~123'));
+        $this->assertEquals('p4ss-123!', Validator::pass('p4ss-123!'));
+        $this->assertEquals('p4$$&w0rD', Validator::password('p4$$&w0rD'));
+        $this->assertEquals('(p4$$-w0rD)', Validator::pass('(p4$$-w0rD)'));
+        $this->assertEquals('p4$$+W0rD', Validator::password('p4$$+W0rD'));
+        $this->assertEquals('P4ss;w0rd', Validator::pass('P4ss;w0rd'));
+
+        $this->assertEquals('%22password%22', Validator::password('"password"'));
+        $this->assertEquals('pass%60word', Validator::pass('pass`word'));
+        $this->assertEquals('pass%5Eword', Validator::password('pass^word'));
+        $this->assertEquals('pass%F0%9F%A4%93moji', Validator::pass('pass🤓moji'));
+        $this->assertEquals('pass%5Cword', Validator::password('pass\word'));
+        $this->assertEquals('pa%C3%9Fword', Validator::pass('paßword'));
     }
 
     public function testValidateHost()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals('example.com', Validator::host('example.com'));
+        $this->assertEquals('www.example.com', Validator::host('www.example.com'));
+        $this->assertEquals('www.example.com.', Validator::host('www.example.com.'));
+        $this->assertEquals('subdomain.example.com', Validator::host('subdomain.example.com'));
+        $this->assertEquals('www.some-domain.io', Validator::host('www.some-domain.io'));
+        $this->assertEquals('123456.co.uk', Validator::host('123456.co.uk'));
+        $this->assertEquals('www.example.com', Validator::host('WWW.EXAMPLE.COM'));
+        $this->assertEquals('www-something.blog', Validator::host('www-something.blog'));
+        $this->assertEquals('h4ck0r.software', Validator::host('h4ck0r.software'));
+        $this->assertEquals('g33ks.org', Validator::host('g33ks.org'));
+        $this->assertEquals('example.xn--80asehdb', Validator::host('example.онлайн'));
+        $this->assertEquals('example.xn--80asehdb', Validator::host('example.xn--80asehdb'));
+        $this->assertEquals('www.xn--80a7a.com', Validator::host('www.са.com')); // Fake "a" in ca.com => idn domain
+        $this->assertEquals('12.34.56.78', Validator::host('12.34.56.78'));
+        $this->assertEquals('localhost', Validator::host('localhost'));
+        $this->assertEquals('dev.local', Validator::host('dev.local'));
 
-        $this->assertEquals($validator->host('example.com'), 'example.com');
-        $this->assertEquals($validator->host('www.example.com'), 'www.example.com');
-        $this->assertEquals($validator->host('subdomain.example.com'), 'subdomain.example.com');
-        $this->assertEquals($validator->host('www.some-domain.io'), 'www.some-domain.io');
-        $this->assertEquals($validator->host('123456.co.uk'), '123456.co.uk');
-        $this->assertEquals($validator->host('WWW.EXAMPLE.COM'), 'WWW.EXAMPLE.COM');
-        $this->assertEquals($validator->host('www-something.blog'), 'www-something.blog');
-        $this->assertEquals($validator->host('h4ck0r.software'), 'h4ck0r.software');
-        $this->assertEquals($validator->host('g33ks.org'), 'g33ks.org');
-        $this->assertEquals($validator->host('example.xn--80asehdb'), 'example.xn--80asehdb');
-        $this->assertEquals($validator->host('example.онлайн'), 'example.xn--80asehdb');
-        $this->assertEquals($validator->host('12.34.56.78'), '12.34.56.78');
-        $this->assertEquals($validator->host('localhost'), 'localhost');
-        $this->assertEquals($validator->host('dev.local'), 'dev.local');
-
-        $this->assertFalse($validator->host('slash/example.com'));
-        $this->assertFalse($validator->host('exclamation!mark.co'));
-        $this->assertFalse($validator->host('question?mark.blog'));
-        $this->assertFalse($validator->host('under_score.org'));
-        $this->assertFalse($validator->host('www.(parenthesis).net'));
-        $this->assertFalse($validator->host('idk.amper&sand.uk'));
-        $this->assertFalse($validator->host('per%cent.de'));
-        $this->assertFalse($validator->host('equals=.ch'));
-        $this->assertFalse($validator->host('apostrophe\'.at'));
-        $this->assertFalse($validator->host('one+one.mobile'));
-        $this->assertFalse($validator->host('hash#tag.social'));
-        $this->assertFalse($validator->host('co:lon.com'));
-        $this->assertFalse($validator->host('semi;colon.net'));
-        $this->assertFalse($validator->host('<html>.codes'));
+        $this->assertNull(Validator::host('slash/example.com'));
+        $this->assertNull(Validator::host('exclamation!mark.co'));
+        $this->assertNull(Validator::host('question?mark.blog'));
+        $this->assertNull(Validator::host('under_score.org'));
+        $this->assertNull(Validator::host('www.(parenthesis).net'));
+        $this->assertNull(Validator::host('idk.amper&sand.uk'));
+        $this->assertNull(Validator::host('equals=.ch'));
+        $this->assertNull(Validator::host('apostrophe\'.at'));
+        $this->assertNull(Validator::host('one+one.mobile'));
+        $this->assertNull(Validator::host('hash#tag.social'));
+        $this->assertNull(Validator::host('co:lon.com'));
+        $this->assertNull(Validator::host('semi;colon.net'));
+        $this->assertNull(Validator::host('<html>.codes'));
+        $this->assertNull(Validator::host('www..com'));
     }
 
     public function testValidateDomainSuffix()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals('com', Validator::domainSuffix('com'));
+        $this->assertEquals('org', Validator::domainSuffix('org'));
+        $this->assertEquals('net', Validator::domainSuffix('net'));
+        $this->assertEquals('blog', Validator::domainSuffix('blog'));
+        $this->assertEquals('codes', Validator::domainSuffix('codes'));
+        $this->assertEquals('wtf', Validator::domainSuffix('wtf'));
+        $this->assertEquals('sexy', Validator::domainSuffix('sexy'));
+        $this->assertEquals('tennis', Validator::domainSuffix('tennis'));
+        $this->assertEquals('versicherung', Validator::domainSuffix('versicherung'));
+        $this->assertEquals('xn--3pxu8k', Validator::domainSuffix('点看'));
+        $this->assertEquals('xn--80asehdb', Validator::domainSuffix('онлайн'));
+        $this->assertEquals('xn--pssy2u', Validator::domainSuffix('大拿'));
+        $this->assertEquals('co.uk', Validator::domainSuffix('co.uk'));
+        $this->assertEquals('co.at', Validator::domainSuffix('co.at'));
+        $this->assertEquals('or.at', Validator::domainSuffix('or.at'));
+        $this->assertEquals('anything.bd', Validator::domainSuffix('anything.bd'));
 
-        $this->assertEquals($validator->domainSuffix('com'), 'com');
-        $this->assertEquals($validator->domainSuffix('org'), 'org');
-        $this->assertEquals($validator->domainSuffix('net'), 'net');
-        $this->assertEquals($validator->domainSuffix('blog'), 'blog');
-        $this->assertEquals($validator->domainSuffix('codes'), 'codes');
-        $this->assertEquals($validator->domainSuffix('wtf'), 'wtf');
-        $this->assertEquals($validator->domainSuffix('sexy'), 'sexy');
-        $this->assertEquals($validator->domainSuffix('tennis'), 'tennis');
-        $this->assertEquals($validator->domainSuffix('versicherung'), 'versicherung');
-        $this->assertEquals($validator->domainSuffix('点看'), 'xn--3pxu8k');
-        $this->assertEquals($validator->domainSuffix('онлайн'), 'xn--80asehdb');
-        $this->assertEquals($validator->domainSuffix('大拿'), 'xn--pssy2u');
-        $this->assertEquals($validator->domainSuffix('co.uk'), 'co.uk');
-        $this->assertEquals($validator->domainSuffix('co.at'), 'co.at');
-        $this->assertEquals($validator->domainSuffix('or.at'), 'or.at');
-        $this->assertEquals($validator->domainSuffix('anything.bd'), 'anything.bd');
-
-        $this->assertFalse($validator->domainSuffix('süffix'));
-        $this->assertFalse($validator->domainSuffix('idk'));
+        $this->assertNull(Validator::domainSuffix('süffix'));
+        $this->assertNull(Validator::domainSuffix('idk'));
     }
 
     public function testValidateDomain()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals('google.com', Validator::domain('google.com'));
+        $this->assertEquals('example.xn--80asehdb', Validator::domain('example.xn--80asehdb'));
+        $this->assertEquals('example.xn--80asehdb', Validator::domain('example.онлайн'));
 
-        $this->assertEquals($validator->domain('google.com'), 'google.com');
-        $this->assertEquals($validator->domain('example.xn--80asehdb'), 'example.xn--80asehdb');
-        $this->assertEquals($validator->domain('example.онлайн'), 'example.xn--80asehdb');
-        $this->assertEquals($validator->domain('yolo', true), 'yolo');
+        $this->assertNull(Validator::domain('www.google.com'));
+        $this->assertNull(Validator::domain('yolo'));
+        $this->assertNull(Validator::domain('subdomain.example.онлайн'));
+    }
 
-        $this->assertFalse($validator->domain('www.google.com'));
-        $this->assertFalse($validator->domain('yolo'));
-        $this->assertFalse($validator->domain('subdomain.example.онлайн'));
+    public function testValidateDomainLabel()
+    {
+        $this->assertEquals('yolo', Validator::domainLabel('yolo'));
+        $this->assertEquals('xn--mnnersalon-q5a', Validator::domainLabel('männersalon'));
+    }
+
+    public function testValidateInvalidDomainLabel()
+    {
+        $this->assertNull(Validator::domainLabel('yo!lo'));
+        $this->assertNull(Validator::domainLabel(''));
     }
 
     public function testValidateSubdomain()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals('www', Validator::subdomain('www'));
+        $this->assertEquals('sub.domain', Validator::subdomain('sub.domain'));
+        $this->assertEquals('sub.do.main', Validator::subdomain('SUB.DO.MAIN'));
 
-        $this->assertEquals($validator->subdomain('www'), 'www');
-        $this->assertEquals($validator->subdomain('sub.domain'), 'sub.domain');
-        $this->assertEquals($validator->subdomain('SUB.DO.MAIN'), 'sub.do.main');
-
-        $this->assertFalse($validator->subdomain('sub_domain'));
+        $this->assertNull(Validator::subdomain('sub_domain'));
     }
 
     public function testValidatePort()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals(0, Validator::port(0));
+        $this->assertEquals(8080, Validator::port(8080));
+        $this->assertEquals(65535, Validator::port(65535));
 
-        $this->assertEquals($validator->port(0), 0);
-        $this->assertEquals($validator->port('0'), 0);
-        $this->assertEquals($validator->port(8080), 8080);
-        $this->assertEquals($validator->port('8080'), 8080);
-        $this->assertEquals($validator->port(65535), 65535);
-        $this->assertEquals($validator->port('65535'), 65535);
-
-        $this->assertFalse($validator->port(-1));
-        $this->assertFalse($validator->port('invalid'));
-        $this->assertFalse($validator->port(65536));
+        $this->assertNull(Validator::port(-1));
+        $this->assertNull(Validator::port(65536));
     }
 
     public function testValidatePath()
     {
-        $validator = new \Crwlr\Url\Validator();
-
-        $this->assertEquals($validator->path('/FoO/bAr'), '/FoO/bAr');
-        $this->assertEquals($validator->path('/foo-123/bar_456'), '/foo-123/bar_456');
-        $this->assertEquals($validator->path('/~foo/!bar$/&baz\''), '/~foo/!bar$/&baz\'');
-        $this->assertEquals($validator->path('/(foo)/*bar+'), '/(foo)/*bar+');
-        $this->assertEquals($validator->path('/foo,bar;baz:'), '/foo,bar;baz:');
-        $this->assertEquals($validator->path('/foo=bar@baz'), '/foo=bar@baz');
-        $this->assertEquals($validator->path('no/leading/slash'), 'no/leading/slash');
-        $this->assertEquals($validator->path('/"foo"'), '/%22foo%22');
-        $this->assertEquals($validator->path('/foo\\bar'), '/foo%5Cbar');
-        $this->assertEquals($validator->path('/bößer/pfad'), '/b%C3%B6%C3%9Fer/pfad');
-        $this->assertEquals($validator->path('/<html>'), '/%3Chtml%3E');
+        $this->assertEquals('/FoO/bAr', Validator::path('/FoO/bAr'));
+        $this->assertEquals('/foo-123/bar_456', Validator::path('/foo-123/bar_456'));
+        $this->assertEquals('/~foo/!bar$/&baz\'', Validator::path('/~foo/!bar$/&baz\''));
+        $this->assertEquals('/(foo)/*bar+', Validator::path('/(foo)/*bar+'));
+        $this->assertEquals('/foo,bar;baz:', Validator::path('/foo,bar;baz:'));
+        $this->assertEquals('/foo=bar@baz', Validator::path('/foo=bar@baz'));
+        $this->assertEquals('/%22foo%22', Validator::path('/"foo"'));
+        $this->assertEquals('/foo%5Cbar', Validator::path('/foo\\bar'));
+        $this->assertEquals('/b%C3%B6%C3%9Fer/pfad', Validator::path('/bößer/pfad'));
+        $this->assertEquals('/%3Chtml%3E', Validator::path('/<html>'));
 
         // Percent character not encoded (to %25) because %ba could be legitimate percent encoded character.
-        $this->assertEquals($validator->path('/foo%bar'), '/foo%bar');
+        $this->assertEquals('/foo%bar', Validator::path('/foo%bar'));
 
         // Percent character encoded because %ga isn't a valid percent encoded character.
-        $this->assertEquals($validator->path('/foo%gar'), '/foo%25gar');
+        $this->assertEquals('/foo%25gar', Validator::path('/foo%gar'));
     }
 
     public function testValidateQuery()
     {
-        $validator = new \Crwlr\Url\Validator();
-
-        $this->assertEquals($validator->query('foo=bar'), 'foo=bar');
-        $this->assertEquals($validator->query('?foo=bar'), 'foo=bar');
-        $this->assertEquals($validator->query('foo1=bar&foo2=baz'), 'foo1=bar&foo2=baz');
-        $this->assertEquals($validator->query('.foo-=_bar~'), '.foo-=_bar~');
-        $this->assertEquals($validator->query('%foo!=$bar\''), '%25foo!=$bar\'');
-        $this->assertEquals($validator->query('(foo)=*bar+'), '(foo)=*bar+');
-        $this->assertEquals($validator->query('f,o;o==bar:'), 'f,o;o==bar:');
-        $this->assertEquals($validator->query('?@foo=/bar?'), '@foo=/bar%3F');
-        $this->assertEquals($validator->query('"foo"=bar'), '%22foo%22=bar');
-        $this->assertEquals($validator->query('foo#=bar'), 'foo%23=bar');
-        $this->assertEquals($validator->query('föo=bar'), 'f%C3%B6o=bar');
-        $this->assertEquals($validator->query('boeßer=query'), 'boe%C3%9Fer=query');
-        $this->assertEquals($validator->query('foo`=bar'), 'foo%60=bar');
-        $this->assertEquals($validator->query('foo%25bar=baz'), 'foo%25bar=baz');
+        $this->assertEquals('foo=bar', Validator::query('foo=bar'));
+        $this->assertEquals('foo=bar', Validator::query('?foo=bar'));
+        $this->assertEquals('foo1=bar&foo2=baz', Validator::query('foo1=bar&foo2=baz'));
+        $this->assertEquals('.foo-=_bar~', Validator::query('.foo-=_bar~'));
+        $this->assertEquals('%25foo!=$bar\'', Validator::query('%foo!=$bar\''));
+        $this->assertEquals('(foo)=*bar+', Validator::query('(foo)=*bar+'));
+        $this->assertEquals('f,o;o==bar:', Validator::query('f,o;o==bar:'));
+        $this->assertEquals('@foo=/bar%3F', Validator::query('?@foo=/bar?'));
+        $this->assertEquals('%22foo%22=bar', Validator::query('"foo"=bar'));
+        $this->assertEquals('foo%23=bar', Validator::query('foo#=bar'));
+        $this->assertEquals('f%C3%B6o=bar', Validator::query('föo=bar'));
+        $this->assertEquals('boe%C3%9Fer=query', Validator::query('boeßer=query'));
+        $this->assertEquals('foo%60=bar', Validator::query('foo`=bar'));
+        $this->assertEquals('foo%25bar=baz', Validator::query('foo%25bar=baz'));
     }
 
     public function testValidateFragment()
     {
-        $validator = new \Crwlr\Url\Validator();
+        $this->assertEquals('fragment', Validator::fragment('fragment'));
+        $this->assertEquals('fragment', Validator::fragment('#fragment'));
+        $this->assertEquals('fragment1234567890', Validator::fragment('fragment1234567890'));
+        $this->assertEquals('-.fragment_~', Validator::fragment('-.fragment_~'));
+        $this->assertEquals('%25!fragment$&', Validator::fragment('%!fragment$&'));
+        $this->assertEquals('(\'fragment*)', Validator::fragment('(\'fragment*)'));
+        $this->assertEquals('+,fragment;:', Validator::fragment('#+,fragment;:'));
+        $this->assertEquals('@=fragment/?', Validator::fragment('@=fragment/?'));
+        $this->assertEquals('%22fragment%22', Validator::fragment('#"fragment"'));
+        $this->assertEquals('fragment%23', Validator::fragment('#fragment#'));
+        $this->assertEquals('%23fragment', Validator::fragment('##fragment'));
+        $this->assertEquals('fr%C3%A4gment', Validator::fragment('frägment'));
+        $this->assertEquals('boe%C3%9Fesfragment', Validator::fragment('boeßesfragment'));
+        $this->assertEquals('fragment%60', Validator::fragment('fragment`'));
+        $this->assertEquals('fragm%E2%82%ACnt', Validator::fragment('fragm%E2%82%ACnt'));
+    }
 
-        $this->assertEquals($validator->fragment('fragment'), 'fragment');
-        $this->assertEquals($validator->fragment('#fragment'), 'fragment');
-        $this->assertEquals($validator->fragment('fragment1234567890'), 'fragment1234567890');
-        $this->assertEquals($validator->fragment('-.fragment_~'), '-.fragment_~');
-        $this->assertEquals($validator->fragment('%!fragment$&'), '%25!fragment$&');
-        $this->assertEquals($validator->fragment('(\'fragment*)'), '(\'fragment*)');
-        $this->assertEquals($validator->fragment('#+,fragment;:'), '+,fragment;:');
-        $this->assertEquals($validator->fragment('@=fragment/?'), '@=fragment/?');
-        $this->assertEquals($validator->fragment('#"fragment"'), '%22fragment%22');
-        $this->assertEquals($validator->fragment('#fragment#'), 'fragment%23');
-        $this->assertEquals($validator->fragment('##fragment'), '%23fragment');
-        $this->assertEquals($validator->fragment('frägment'), 'fr%C3%A4gment');
-        $this->assertEquals($validator->fragment('boeßesfragment'), 'boe%C3%9Fesfragment');
-        $this->assertEquals($validator->fragment('fragment`'), 'fragment%60');
-        $this->assertEquals($validator->fragment('fragm%E2%82%ACnt'), 'fragm%E2%82%ACnt');
+    /**
+     * @param $validationResult
+     * @param array $contains
+     */
+    private function assertArrayContains($validationResult, array $contains)
+    {
+        $this->assertIsArray($validationResult);
+
+        foreach ($contains as $key => $value) {
+            $this->assertArrayHasKey($key, $validationResult);
+            $this->assertEquals($value, $validationResult[$key]);
+        }
     }
 }

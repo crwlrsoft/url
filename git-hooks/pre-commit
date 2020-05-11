@@ -1,0 +1,24 @@
+#!/usr/bin/env php
+<?php
+
+function handleFail($output, $returnCode) {
+    if ($returnCode !== 0) {
+        // Show full output
+        echo PHP_EOL . implode($output, PHP_EOL) . PHP_EOL;
+        echo "Aborting commit.." . PHP_EOL;
+        exit(1);
+    }
+}
+
+echo "Running tests.. ";
+exec('composer test', $output, $returnCode);
+handleFail($output, $returnCode);
+
+echo "Running php-cs-fixer.. ";
+exec('composer cs', $output, $returnCode);
+handleFail($output, $returnCode);
+
+// Show summary (last line)
+echo array_pop($output) . PHP_EOL;
+
+exit(0);

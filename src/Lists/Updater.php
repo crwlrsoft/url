@@ -1,6 +1,7 @@
 <?php
 
 namespace Crwlr\Url\Lists;
+
 use Crwlr\Url\Exceptions\ListUpdaterException;
 
 /**
@@ -29,9 +30,10 @@ abstract class Updater
     protected $originalFilename = '';
 
     /**
-     *
+     * Path where the original source file will be stored.
      *
      * @var string
+     * @see Updater::setOriginalPath()
      */
     protected $originalPath = '';
 
@@ -45,40 +47,35 @@ abstract class Updater
     }
 
     /**
+     * @throws Exception
+     */
+    public function update(): void
+    {
+        $content = $this->loadAndStoreOriginal();
+        $parsed = $this->parseContent($content);
+        $this->storeList($parsed);
+    }
+
+    /**
      * In a child class write a method that parses the contents of the original file and return
      * a simple array containing the list values.
      *
      * @param string $content
      * @return array
      */
-    abstract protected function parseContent(string $content = '') : array;
+    abstract protected function parseContent(string $content = ''): array;
 
     /**
      * A child class needs this function that returns the path where the parsed list will be stored.
      *
      * @return string
      */
-    abstract protected function getListStorePath() : string;
-
-    /**
-     * Perform update.
-     */
-    public function update()
-    {
-        try {
-            $content = $this->loadAndStoreOriginal();
-        } catch (\Exception $exception) {
-            $content = $this->getContentFromOldFile();
-        }
-
-        $parsed = $this->parseContent($content);
-        $this->storeList($parsed);
-    }
+    abstract protected function getListStorePath(): string;
 
     /**
      * @throws ListUpdaterException
      */
-    private function checkUrl()
+    private function checkUrl(): void
     {
         if (!is_string($this->url) || trim($this->url) === '') {
             throw new ListUpdaterException('No url to load the original list from is defined.');
@@ -88,7 +85,7 @@ abstract class Updater
     /**
      * @throws ListUpdaterException
      */
-    private function setOriginalPath()
+    private function setOriginalPath(): void
     {
         if (!is_string($this->originalFilename) || trim($this->originalFilename) === '') {
             throw new ListUpdaterException(
@@ -101,10 +98,24 @@ abstract class Updater
 
     /**
      * @return string
+     * @throws Exception
      */
-    private function loadAndStoreOriginal() : string
+    private function loadAndStoreOriginal(): string
     {
-        $content = file_get_contents($this->url);
+        $context = stream_context_create(['http' =>
+            [
+                'method' => 'GET',
+                'header'  => [
+                    'User-Agent: https://github.com/crwlrsoft/url/blob/master/src/Schemes/Updater.php',
+                ]
+            ]
+        ]);
+        $content = file_get_contents($this->url, false, $context);
+
+        if (!$content) {
+            throw new ListUpdaterException("Fetching list file failed.");
+        }
+
         $content = str_replace("\r\n", "\n", $content); // Replace CRLF line breaks.
         file_put_contents($this->originalPath, $content);
 
@@ -112,17 +123,9 @@ abstract class Updater
     }
 
     /**
-     * @return bool|string
-     */
-    private function getContentFromOldFile()
-    {
-        return file_get_contents($this->originalPath);
-    }
-
-    /**
      * @param array $parsed
      */
-    private function storeList(array $parsed = [])
+    private function storeList(array $parsed = []): void
     {
         $storeContent = "<?php return [";
 

@@ -4,6 +4,6 @@ namespace Crwlr\Url\Exceptions;
 
 use UnexpectedValueException;
 
-class InvalidUrlException extends UnexpectedValueException
+class InvalidUrlComponentException extends UnexpectedValueException
 {
 }
