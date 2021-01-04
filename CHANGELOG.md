@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2021-01-04
+### Fixed
+- Support for PHP 8.0
+    - Minor change in Validator because output of PHP's
+      parse_url is different when an url includes a
+      delimiter for query or fragment but has no actual query
+      or fragment (followed by empty string).
+    - Change PHP version requirement in composer.json.
+    - Only relevant for development: Temporarily add
+      PHP_CS_FIXER_IGNORE_ENV=1 to `composer cs` command
+      until PHP Coding Standards Fixer fully supports 
+      PHP 8.0.
+- Getting standard ports for schemes on systems where
+  /etc/services file is missing. PHP's getservbyname()
+  function uses that file and when it's missing the function
+  returns false for all schemes. Fixed that by having a list
+  within the package.
+
 ## [1.0.0] - 2020-05-11
 
 ### Added
