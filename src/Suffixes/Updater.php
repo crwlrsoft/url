@@ -2,6 +2,7 @@
 
 namespace Crwlr\Url\Suffixes;
 
+use Crwlr\Url\Lists\WebUpdater;
 use Crwlr\Url\Suffixes;
 
 /**
@@ -10,7 +11,7 @@ use Crwlr\Url\Suffixes;
  * Load, parse and store the Mozilla Publix Suffix List https://publicsuffix.org/list/
  */
 
-class Updater extends \Crwlr\Url\Lists\Updater
+class Updater extends WebUpdater
 {
     /**
      * @var string
@@ -26,7 +27,7 @@ class Updater extends \Crwlr\Url\Lists\Updater
      * @param string $content
      * @return array
      */
-    protected function parseContent(string $content = ''): array
+    protected function parseContent($content = ''): array
     {
         $suffixes = [];
         $lines = explode("\n", $content);

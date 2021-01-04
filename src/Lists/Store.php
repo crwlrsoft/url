@@ -10,7 +10,7 @@ namespace Crwlr\Url\Lists;
  * the root level.
  *
  * This is a parent class for the objects that are used to look-up these parsed lists. It provides functionality
- * for loading the list from it's file in the data directory and a basic exists() method.
+ * for loading the list from it's file in the data directory and basic get() and exists() methods.
  *
  * You can define a fallback list in the child class to ensure basic look-ups will work even if loading of the
  * list in the data directory fails. It can also be useful for performance if the full list is very big.
@@ -54,25 +54,24 @@ abstract class Store
         $this->setStorePath();
     }
 
-    /**
-     * Returns true if $key is contained in the list.
-     *
-     * @param mixed $key
-     * @return bool
-     */
     public function exists($key): bool
     {
+        return $this->get($key) !== null;
+    }
+
+    public function get($key)
+    {
         if (isset($this->fallbackList[$key])) {
-            return true;
+            return $this->fallbackList[$key];
         }
 
         $this->loadFullList();
 
         if (isset($this->list[$key])) {
-            return true;
+            return $this->list[$key];
         }
 
-        return false;
+        return null;
     }
 
     /**
