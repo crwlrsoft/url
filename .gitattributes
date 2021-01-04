@@ -6,3 +6,4 @@ phpunit.xml export-ignore
 tests export-ignore
 git-hooks export-ignore
 bin/add-git-hooks export-ignore
+.github export-ignore
