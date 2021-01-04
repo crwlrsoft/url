@@ -15,14 +15,19 @@ namespace Crwlr\Url;
 class Helpers
 {
     /**
-     * @var Suffixes
+     * @var null|Suffixes
      */
     private static $suffixes;
 
     /**
-     * @var Schemes
+     * @var null|Schemes
      */
     private static $schemes;
+
+    /**
+     * @var null|DefaultPorts
+     */
+    private static $defaultPorts;
 
     /**
      * Get an instance of the Suffixes class.
@@ -50,6 +55,20 @@ class Helpers
         }
 
         return self::$schemes;
+    }
+
+    /**
+     * Get an instance of the DefaultPorts class.
+     *
+     * @return DefaultPorts
+     */
+    public static function defaultPorts(): DefaultPorts
+    {
+        if (!self::$defaultPorts instanceof DefaultPorts) {
+            self::$defaultPorts = new DefaultPorts();
+        }
+
+        return self::$defaultPorts;
     }
 
     /**
@@ -158,7 +177,8 @@ class Helpers
     /**
      * Get the standard port for a url scheme.
      *
-     * Uses PHP's built-in getservbyname() function. If no standard port is found it returns null.
+     * Uses the DefaultPorts list class or tries as fallback PHPs built-in getservbyname() function that get's
+     * default ports from the /etc/services file. If no standard port is found it returns null.
      *
      * @param string $scheme
      * @return int|null
@@ -169,6 +189,12 @@ class Helpers
 
         if ($scheme === '') {
             return null;
+        }
+
+        $defaultPort = self::defaultPorts()->get($scheme);
+
+        if ($defaultPort) {
+            return $defaultPort;
         }
 
         $standardPortTcp = getservbyname($scheme, 'tcp');

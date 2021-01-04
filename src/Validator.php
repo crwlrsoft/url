@@ -490,6 +490,7 @@ class Validator
             !empty($components) &&
             ($onlyAbsoluteUrl === false || filter_var($url, FILTER_VALIDATE_URL) !== false)
         ) {
+            $components = self::filterEmptyStringComponents($components);
             $validComponents = self::validateUrlComponents($components);
 
             if (!empty($validComponents)) {
@@ -668,6 +669,28 @@ class Validator
         }
 
         return null;
+    }
+
+    /**
+     * Filter empty string elements from array returned by parse_url()
+     *
+     * In PHP 7 parsing urls containing a delimiter for a component followed by nothing or another delimiter
+     * (e.g. https://example.com/foo?#) returns an array without the keys (query and fragment). In PHP 8 that changed
+     * and the returned array contains query and fragment with empty strings as values.
+     * Remove empty string elements for the same outcome in both versions.
+     *
+     * @param array $components
+     * @return array
+     */
+    private static function filterEmptyStringComponents(array $components = []): array
+    {
+        foreach ($components as $componentName => $componentValue) {
+            if ($componentValue === '') {
+                unset($components[$componentName]);
+            }
+        }
+
+        return $components;
     }
 
     /**

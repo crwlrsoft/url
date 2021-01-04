@@ -2,6 +2,7 @@
 
 namespace Crwlr\Url\Schemes;
 
+use Crwlr\Url\Lists\WebUpdater;
 use Crwlr\Url\Schemes;
 
 /**
@@ -11,7 +12,7 @@ use Crwlr\Url\Schemes;
  * https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml
  */
 
-class Updater extends \Crwlr\Url\Lists\Updater
+class Updater extends WebUpdater
 {
     /**
      * @var string
@@ -27,7 +28,7 @@ class Updater extends \Crwlr\Url\Lists\Updater
      * @param string $content
      * @return array
      */
-    protected function parseContent(string $content = ''): array
+    protected function parseContent($content = ''): array
     {
         $schemes = [];
 
