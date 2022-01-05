@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2022-01-05
+### Changed
+- Run tests also on PHP 8.1 in CI.
+- Update schemes and suffixes lists.
+
 ## [1.0.1] - 2021-01-04
 ### Fixed
 - Support for PHP 8.0
