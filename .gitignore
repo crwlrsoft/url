@@ -1,6 +1,7 @@
 composer.lock
 vendor
 .php_cs.cache
+.php-cs-fixer.cache
 .phpunit.result.cache
 data/public_suffix_list.dat
 data/uri-schemes.csv

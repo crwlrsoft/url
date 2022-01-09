@@ -49,3 +49,25 @@ jobs:
 
       - name: Run tests
         run: composer test
+
+  stan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.2'
+
+      - name: Check PHP Version
+        run: php -v
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run PHPStan
+        run: composer stan

@@ -25,7 +25,7 @@ class Updater extends WebUpdater
 
     /**
      * @param string $content
-     * @return array
+     * @return array|string[]
      */
     protected function parseContent($content = ''): array
     {

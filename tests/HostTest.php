@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 final class HostTest extends TestCase
 {
-    public function testParseHost()
+    public function testParseHost(): void
     {
         $host = new Host('www.example.com');
         $this->assertInstanceOf(Host::class, $host);
@@ -30,7 +30,7 @@ final class HostTest extends TestCase
         $this->assertEquals('xn--80asehdb', $host->domainSuffix());
     }
 
-    public function testSubdomain()
+    public function testSubdomain(): void
     {
         $host = new Host('www.example.com');
 
@@ -47,7 +47,7 @@ final class HostTest extends TestCase
         $this->assertEquals('foo.bar.yololo.example.com', $host->__toString());
     }
 
-    public function testDomain()
+    public function testDomain(): void
     {
         $host = new Host('www.example.com');
 
@@ -64,7 +64,7 @@ final class HostTest extends TestCase
         $this->assertEquals('www.crwlr.software', $host->__toString());
     }
 
-    public function testDomainLabel()
+    public function testDomainLabel(): void
     {
         $host = new Host('www.example.com');
 
@@ -85,7 +85,7 @@ final class HostTest extends TestCase
         $this->assertEquals('www.google.com', $host->__toString());
     }
 
-    public function testDomainSuffix()
+    public function testDomainSuffix(): void
     {
         $host = new Host('www.example.com');
 
@@ -106,7 +106,7 @@ final class HostTest extends TestCase
         $this->assertEquals('www.example.software', $host->__toString());
     }
 
-    public function testHasIdn()
+    public function testHasIdn(): void
     {
         $host = new Host('www.example.com');
         $this->assertFalse($host->hasIdn());

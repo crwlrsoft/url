@@ -76,7 +76,7 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array $components
+     * @param array|(int|string)[] $components
      * @return string
      */
     public static function buildUrlFromComponents(array $components): string
@@ -108,7 +108,7 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array $components
+     * @param array|(int|string)[] $components
      * @return string
      */
     public static function buildAuthorityFromComponents(array $components): string
@@ -137,7 +137,7 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array $components
+     * @param array|(int|string)[] $components
      * @return string
      */
     public static function buildUserInfoFromComponents(array $components): string
@@ -161,7 +161,7 @@ class Helpers
      * Converts a url query string to array.
      *
      * @param string $query
-     * @return array
+     * @return string[]
      */
     public static function queryStringToArray(string $query = ''): array
     {
@@ -200,13 +200,13 @@ class Helpers
         $standardPortTcp = getservbyname($scheme, 'tcp');
 
         if ($standardPortTcp) {
-            return (int) $standardPortTcp;
+            return $standardPortTcp;
         }
 
         $standardPortUdp = getservbyname($scheme, 'udp');
 
         if ($standardPortUdp) {
-            return (int) $standardPortUdp;
+            return $standardPortUdp;
         }
 
         return null;
@@ -304,6 +304,10 @@ class Helpers
      */
     public static function containsXBeforeFirstY(string $string, string $x, string $y): bool
     {
+        if ($y === '') {
+            return strpos($string, $x) !== false;
+        }
+
         $untilFirstY = explode($y, $string)[0];
 
         return strpos($untilFirstY, $x) !== false;
@@ -320,7 +324,9 @@ class Helpers
      */
     public static function idn_to_ascii(string $string): string
     {
-        return idn_to_ascii($string, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46);
+        $converted = idn_to_ascii($string, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46);
+
+        return $converted !== false ? $converted : $string;
     }
 
     /**
@@ -334,7 +340,9 @@ class Helpers
      */
     public static function idn_to_utf8(string $string): string
     {
-        return idn_to_utf8($string, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46);
+        $converted = idn_to_utf8($string, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46);
+
+        return $converted !== false ? $converted : $string;
     }
 
     /**
@@ -344,8 +352,8 @@ class Helpers
      * method works around this issue so the requested query array returns the proper keys with dots.
      *
      * @param string $query
-     * @param array $array
-     * @return array
+     * @param string[] $array
+     * @return string[]
      */
     private static function replaceKeysContainingDots(string $query, array $array): array
     {
@@ -354,7 +362,7 @@ class Helpers
         $brokenKeys = $fixedArray = [];
 
         // Create mapping of broken keys to original proper keys.
-        foreach ($matches[1] as $key => $value) {
+        foreach ($matches[1] as $value) {
             if (strpos($value, '.') !== false) {
                 $brokenKeys[str_replace('.', '_', $value)] = $value;
             }

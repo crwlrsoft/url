@@ -18,13 +18,17 @@ class Updater extends \Crwlr\Url\Lists\Updater
     protected $storeValuesAsKeys = false;
 
     /**
-     * @return mixed
+     * @return int[]
      */
-    protected function getOriginalContent()
+    protected function getOriginalContent(): array
     {
         return include(dirname(__DIR__) . '/../data/schemes.php');
     }
 
+    /**
+     * @param int[] $content
+     * @return int[]
+     */
     protected function parseContent($content = []): array
     {
         $defaultPorts = [];

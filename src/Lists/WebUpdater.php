@@ -74,7 +74,7 @@ abstract class WebUpdater extends Updater
     }
 
     /**
-     * @param array $parsed
+     * @param array|(string|int)[] $parsed
      */
     protected function storeList(array $parsed = []): void
     {

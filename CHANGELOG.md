@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.0] - 2021-01-10
+### Added
+- Static method to create PSR-7 Uri object
+  (`Url::parsePsr7('https://...')`).
+
+### Fixed
+- Error when resolving something to a url with an empty path.
+
 ## [1.0.2] - 2022-01-05
 ### Changed
 - Run tests also on PHP 8.1 in CI.

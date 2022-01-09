@@ -384,10 +384,8 @@ instance of the `Url` class in a private property and thus assures immutability.
 #### Usage Example
 
 ```php
-use Crwlr\Url\Psr\Uri;
-
 $url = 'https://user:password@www.example.com:1234/foo/bar?some=query#fragment';
-$uri = new Uri($url);
+$uri = Url::parsePsr7($url); // Or instead: new Crwlr\Url\Psr\Uri($url);
 
 var_dump($uri->getScheme());        // => 'https'
 var_dump($uri->getAuthority());     // => 'user:password@www.example.com:1234'

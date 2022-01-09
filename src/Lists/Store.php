@@ -2,6 +2,8 @@
 
 namespace Crwlr\Url\Lists;
 
+use Crwlr\Url\Exceptions\ListStoreException;
+
 /**
  * Class Store
  *
@@ -23,14 +25,14 @@ abstract class Store
      * The list as an array, with the values as the keys for fast search
      * (in_array would be slow with a large number of values).
      *
-     * @var array
+     * @var array|int[]
      */
-    protected $list;
+    protected $list = [];
 
     /**
      * Fallback list if list file loading fails.
      *
-     * @var array
+     * @var array|int[]
      */
     protected $fallbackList = [];
 
@@ -49,17 +51,23 @@ abstract class Store
      */
     protected $storePath = '';
 
+    /**
+     * @throws ListStoreException
+     */
     public function __construct()
     {
         $this->setStorePath();
     }
 
-    public function exists($key): bool
+    public function exists(string $key): bool
     {
         return $this->get($key) !== null;
     }
 
-    public function get($key)
+    /**
+     * @return string|int|null
+     */
+    public function get(string $key)
     {
         if (isset($this->fallbackList[$key])) {
             return $this->fallbackList[$key];
@@ -87,11 +95,19 @@ abstract class Store
     /**
      * Generates the full store path of the file where the list is stored in the data directory at the root level.
      * If the child class does not declare a store filename the list will be empty.
+     *
+     * @throws ListStoreException
      */
     private function setStorePath(): void
     {
         if (is_string($this->storeFilename) && trim($this->storeFilename) !== '') {
-            $this->storePath = realpath(dirname(__DIR__) . '/../data/' . $this->storeFilename);
+            $storePath = realpath(dirname(__DIR__) . '/../data/' . $this->storeFilename);
+
+            if ($storePath === false) {
+                throw new ListStoreException('Looks like store path does not exist.');
+            }
+
+            $this->storePath = $storePath;
         }
     }
 
@@ -102,7 +118,7 @@ abstract class Store
      */
     protected function loadFullList(): void
     {
-        if (!is_array($this->list) && !empty($this->storePath)) {
+        if (empty($this->list) && !empty($this->storePath)) {
             $this->list = include($this->storePath);
         } elseif (!is_array($this->list)) {
             $this->list = [];

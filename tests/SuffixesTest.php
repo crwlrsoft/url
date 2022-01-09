@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 final class SuffixesTest extends TestCase
 {
-    public function testExists()
+    public function testExists(): void
     {
         $suffixes = new Suffixes();
 
@@ -18,7 +18,7 @@ final class SuffixesTest extends TestCase
         $this->assertFalse($suffixes->exists('does.not.exist'));
     }
 
-    public function testGetStorePath()
+    public function testGetStorePath(): void
     {
         $schemes = new Suffixes();
         $this->assertEquals(realpath(dirname(__DIR__) . '/data/suffixes.php'), $schemes->getStorePath());

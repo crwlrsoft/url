@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ValidatorTest extends TestCase
 {
-    public function testValidateUrl()
+    public function testValidateUrl(): void
     {
         $this->assertEquals(
             'https://www.crwlr.software/packages/url/v0.1.2#installation',
@@ -14,7 +14,7 @@ final class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidateUrlWithSpecialCharacters()
+    public function testValidateUrlWithSpecialCharacters(): void
     {
         $this->assertEquals(
             'https://u%C2%A7er:p%C3%A1ssword@sub.xn--domin-ira.example.org:345' .
@@ -26,7 +26,7 @@ final class ValidatorTest extends TestCase
     /**
      * Invalid url strings.
      */
-    public function testValidateInvalidUrl()
+    public function testValidateInvalidUrl(): void
     {
         $this->assertNull(Validator::url('1http://example.com/stuff'));
         $this->assertNull(Validator::url('  https://wwww.example.com  '));
@@ -42,7 +42,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::url('://'));
     }
 
-    public function testValidateUrlAndComponents()
+    public function testValidateUrlAndComponents(): void
     {
         $this->assertArrayContains(
             Validator::urlAndComponents('https://www.crwlr.software/packages/url/v0.1.2#installation'),
@@ -82,7 +82,7 @@ final class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidateIdnUrlAndComponents()
+    public function testValidateIdnUrlAndComponents(): void
     {
         $this->assertArrayContains(
             Validator::urlAndComponents('http://✪df.ws/123'),
@@ -105,7 +105,7 @@ final class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidateInvalidUrlAndComponents()
+    public function testValidateInvalidUrlAndComponents(): void
     {
         $this->assertNull(Validator::urlAndComponents('1http://example.com/stuff'));
         $this->assertNull(Validator::urlAndComponents('  https://wwww.example.com  '));
@@ -121,7 +121,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::urlAndComponents('://'));
     }
 
-    public function testValidateAbsoluteUrl()
+    public function testValidateAbsoluteUrl(): void
     {
         $this->assertEquals(
             'https://www.crwlr.software/packages/url/v0.1.2#installation',
@@ -131,7 +131,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::absoluteUrl('/foo/bar?query=string#fragment'));
     }
 
-    public function testValidateAbsoluteUrlAndComponents()
+    public function testValidateAbsoluteUrlAndComponents(): void
     {
         $this->assertArrayContains(
             Validator::absoluteUrlAndComponents('https://www.crwlr.software/packages/url/v0.1.2#installation'),
@@ -147,7 +147,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::absoluteUrlAndComponents('/foo/bar?query=string#fragment'));
     }
 
-    public function testValidateScheme()
+    public function testValidateScheme(): void
     {
         $this->assertEquals('http', Validator::scheme('http'));
         $this->assertEquals('mailto', Validator::scheme('mailto'));
@@ -161,7 +161,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::scheme('mäilto'));
     }
 
-    public function testValidateAuthority()
+    public function testValidateAuthority(): void
     {
         $this->assertEquals('12.34.56.78', Validator::authority('12.34.56.78'));
         $this->assertEquals('localhost', Validator::authority('localhost'));
@@ -172,13 +172,13 @@ final class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidateInvalidAuthority()
+    public function testValidateInvalidAuthority(): void
     {
         $this->assertNull(Validator::authority('user:password@:1234'));
         $this->assertNull(Validator::authority(''));
     }
 
-    public function testValidateAuthorityComponents()
+    public function testValidateAuthorityComponents(): void
     {
         $this->assertArrayContains(
             Validator::authorityComponents('user:password@www.example.org:1234'),
@@ -192,20 +192,20 @@ final class ValidatorTest extends TestCase
         );
     }
 
-    public function testValidateInvalidAuthorityComponents()
+    public function testValidateInvalidAuthorityComponents(): void
     {
         $this->assertNull(Validator::authorityComponents('user:password@:1234'));
         $this->assertNull(Validator::authorityComponents(''));
     }
 
-    public function testValidateUserInfo()
+    public function testValidateUserInfo(): void
     {
         $this->assertEquals('user:password', Validator::userInfo('user:password'));
         $this->assertEquals('u%C2%A7er:p%C3%A1ssword', Validator::userInfo('u§er:pássword'));
         $this->assertNull(Validator::userInfoComponents(':password'));
     }
 
-    public function testValidateUserInfoComponents()
+    public function testValidateUserInfoComponents(): void
     {
         $this->assertArrayContains(
             Validator::userInfoComponents('crwlr:software'),
@@ -226,7 +226,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::userInfoComponents(':password'));
     }
 
-    public function testValidateUser()
+    public function testValidateUser(): void
     {
         $this->assertEquals('user', Validator::user('user'));
         $this->assertEquals('user-123', Validator::user('user-123'));
@@ -247,7 +247,7 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('us%E2%82%ACrname', Validator::user('us€rname'));
     }
 
-    public function testValidatePassword()
+    public function testValidatePassword(): void
     {
         $this->assertEquals('pASS123', Validator::password('pASS123'));
         $this->assertEquals('P4ss.123', Validator::pass('P4ss.123'));
@@ -266,7 +266,7 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('pa%C3%9Fword', Validator::pass('paßword'));
     }
 
-    public function testValidateHost()
+    public function testValidateHost(): void
     {
         $this->assertEquals('example.com', Validator::host('example.com'));
         $this->assertEquals('www.example.com', Validator::host('www.example.com'));
@@ -301,7 +301,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::host('www..com'));
     }
 
-    public function testValidateDomainSuffix()
+    public function testValidateDomainSuffix(): void
     {
         $this->assertEquals('com', Validator::domainSuffix('com'));
         $this->assertEquals('org', Validator::domainSuffix('org'));
@@ -324,7 +324,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::domainSuffix('idk'));
     }
 
-    public function testValidateDomain()
+    public function testValidateDomain(): void
     {
         $this->assertEquals('google.com', Validator::domain('google.com'));
         $this->assertEquals('example.xn--80asehdb', Validator::domain('example.xn--80asehdb'));
@@ -335,19 +335,19 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::domain('subdomain.example.онлайн'));
     }
 
-    public function testValidateDomainLabel()
+    public function testValidateDomainLabel(): void
     {
         $this->assertEquals('yolo', Validator::domainLabel('yolo'));
         $this->assertEquals('xn--mnnersalon-q5a', Validator::domainLabel('männersalon'));
     }
 
-    public function testValidateInvalidDomainLabel()
+    public function testValidateInvalidDomainLabel(): void
     {
         $this->assertNull(Validator::domainLabel('yo!lo'));
         $this->assertNull(Validator::domainLabel(''));
     }
 
-    public function testValidateSubdomain()
+    public function testValidateSubdomain(): void
     {
         $this->assertEquals('www', Validator::subdomain('www'));
         $this->assertEquals('sub.domain', Validator::subdomain('sub.domain'));
@@ -356,7 +356,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::subdomain('sub_domain'));
     }
 
-    public function testValidatePort()
+    public function testValidatePort(): void
     {
         $this->assertEquals(0, Validator::port(0));
         $this->assertEquals(8080, Validator::port(8080));
@@ -366,7 +366,7 @@ final class ValidatorTest extends TestCase
         $this->assertNull(Validator::port(65536));
     }
 
-    public function testValidatePath()
+    public function testValidatePath(): void
     {
         $this->assertEquals('/FoO/bAr', Validator::path('/FoO/bAr'));
         $this->assertEquals('/foo-123/bar_456', Validator::path('/foo-123/bar_456'));
@@ -386,7 +386,7 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('/foo%25gar', Validator::path('/foo%gar'));
     }
 
-    public function testValidateQuery()
+    public function testValidateQuery(): void
     {
         $this->assertEquals('foo=bar', Validator::query('foo=bar'));
         $this->assertEquals('foo=bar', Validator::query('?foo=bar'));
@@ -404,7 +404,7 @@ final class ValidatorTest extends TestCase
         $this->assertEquals('foo%25bar=baz', Validator::query('foo%25bar=baz'));
     }
 
-    public function testValidateFragment()
+    public function testValidateFragment(): void
     {
         $this->assertEquals('fragment', Validator::fragment('fragment'));
         $this->assertEquals('fragment', Validator::fragment('#fragment'));
@@ -424,10 +424,10 @@ final class ValidatorTest extends TestCase
     }
 
     /**
-     * @param $validationResult
-     * @param array $contains
+     * @param array|mixed $validationResult
+     * @param array|mixed[] $contains
      */
-    private function assertArrayContains($validationResult, array $contains)
+    private function assertArrayContains($validationResult, array $contains): void
     {
         $this->assertIsArray($validationResult);
 

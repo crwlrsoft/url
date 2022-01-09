@@ -8,13 +8,13 @@ use PHPUnit\Framework\TestCase;
 
 final class HelpersTest extends TestCase
 {
-    public function testGetHelperClassInstancesStatically()
+    public function testGetHelperClassInstancesStatically(): void
     {
         $this->assertInstanceOf(Suffixes::class, Helpers::suffixes());
         $this->assertInstanceOf(Schemes::class, Helpers::schemes());
     }
 
-    public function testBuildUrlFromComponents()
+    public function testBuildUrlFromComponents(): void
     {
         $this->assertEquals(
             'https://user:pass@www.example.com:1234/foo/bar?query=string#fragment',
@@ -31,7 +31,7 @@ final class HelpersTest extends TestCase
         );
     }
 
-    public function testBuildAuthorityFromComponents()
+    public function testBuildAuthorityFromComponents(): void
     {
         $this->assertEquals(
             'user:password@www.example.com:1234',
@@ -54,7 +54,7 @@ final class HelpersTest extends TestCase
         );
     }
 
-    public function testBuildUserInfoFromComponents()
+    public function testBuildUserInfoFromComponents(): void
     {
         $this->assertEquals(
             'user:password',
@@ -72,7 +72,7 @@ final class HelpersTest extends TestCase
      * string to array. The problem is, that dots within keys in the query string are replaced with underscores.
      * For more information see https://github.com/crwlrsoft/url/issues/2
      */
-    public function testQueryStringToArray()
+    public function testQueryStringToArray(): void
     {
         $this->assertEquals(
             [
@@ -86,7 +86,7 @@ final class HelpersTest extends TestCase
         );
     }
 
-    public function testGetStandardPortsByScheme()
+    public function testGetStandardPortsByScheme(): void
     {
         $this->assertEquals(21, Helpers::getStandardPortByScheme('ftp'));
         $this->assertEquals(9418, Helpers::getStandardPortByScheme('git'));
@@ -102,33 +102,33 @@ final class HelpersTest extends TestCase
         $this->assertNull(Helpers::getStandardPortByScheme('unknownscheme'));
     }
 
-    public function testStripFromEnd()
+    public function testStripFromEnd(): void
     {
         $this->assertEquals('example', Helpers::stripFromEnd('examplestring', 'string'));
         $this->assertEquals('examplestring', Helpers::stripFromEnd('examplestring', 'strong'));
         $this->assertEquals('examplestring', Helpers::stripFromEnd('examplestring', 'strin'));
     }
 
-    public function testStripFromStart()
+    public function testStripFromStart(): void
     {
         $this->assertEquals('string', Helpers::stripFromStart('examplestring', 'example'));
         $this->assertEquals('examplestring', Helpers::stripFromStart('examplestring', 'eggsample'));
         $this->assertEquals('examplestring', Helpers::stripFromStart('examplestring', 'xample'));
     }
 
-    public function testReplaceFirstOccurrence()
+    public function testReplaceFirstOccurrence(): void
     {
         $this->assertEquals('foo bas baz bar', Helpers::replaceFirstOccurrence('bar', 'bas', 'foo bar baz bar'));
         $this->assertEquals('foo bar bar', Helpers::replaceFirstOccurrence('baz', 'bar', 'foo bar baz'));
     }
 
-    public function testStartsWith()
+    public function testStartsWith(): void
     {
         $this->assertTrue(Helpers::startsWith('Raindrops Keep Fallin\' on My Head', 'Raindrops Keep'));
         $this->assertFalse(Helpers::startsWith('Raindrops Keep Fallin\' on My Head', 'Braindrops Keep'));
     }
 
-    public function testContainsXBeforeFirstY()
+    public function testContainsXBeforeFirstY(): void
     {
         $this->assertTrue(Helpers::containsXBeforeFirstY('one-two-three-two', '-', 'two'));
         $this->assertFalse(Helpers::containsXBeforeFirstY('one-two-three-two', 'three', 'two'));

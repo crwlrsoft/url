@@ -21,7 +21,7 @@ class Schemes extends Store
     /**
      * Fallback list if list file loading fails.
      *
-     * @var array
+     * @var int[]
      */
     protected $fallbackList = [
         'cvs' => 0,

@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 final class DefaultPortsTest extends TestCase
 {
-    public function testGetFallbackDefaultPorts()
+    public function testGetFallbackDefaultPorts(): void
     {
         $this->assertEquals(21, (new DefaultPorts())->get('ftp'));
         $this->assertEquals(9418, (new DefaultPorts())->get('git'));
@@ -23,7 +23,7 @@ final class DefaultPortsTest extends TestCase
         $this->assertEquals(22, (new DefaultPorts())->get('ssh'));
     }
 
-    public function testGetDefaultPortsNotInFallbackList()
+    public function testGetDefaultPortsNotInFallbackList(): void
     {
         $this->assertEquals(2019, (new DefaultPorts())->get('about'));
         $this->assertEquals(674, (new DefaultPorts())->get('acap'));
@@ -36,13 +36,13 @@ final class DefaultPortsTest extends TestCase
         $this->assertEquals(516, (new DefaultPorts())->get('videotex'));
     }
 
-    public function testExists()
+    public function testExists(): void
     {
         $this->assertTrue((new DefaultPorts())->exists('http'));
         $this->assertFalse((new DefaultPorts())->exists('notexistingscheme'));
     }
 
-    public function testGetStorePath()
+    public function testGetStorePath(): void
     {
         $defaultPorts = new DefaultPorts();
         $this->assertEquals(realpath(dirname(__DIR__) . '/data/default-ports.php'), $defaultPorts->getStorePath());

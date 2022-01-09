@@ -6,7 +6,7 @@ use PHPUnit\Framework\TestCase;
 
 final class SchemesTest extends TestCase
 {
-    public function testExists()
+    public function testExists(): void
     {
         $schemes = new Schemes();
 
@@ -21,7 +21,7 @@ final class SchemesTest extends TestCase
         $this->assertFalse($schemes->exists('doesnt-exist'));
     }
 
-    public function testGetStorePath()
+    public function testGetStorePath(): void
     {
         $schemes = new Schemes();
         $this->assertEquals(realpath(dirname(__DIR__) . '/data/schemes.php'), $schemes->getStorePath());

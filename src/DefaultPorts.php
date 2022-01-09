@@ -14,6 +14,9 @@ class DefaultPorts extends Store
 {
     protected $storeFilename = 'default-ports.php';
 
+    /**
+     * @var int[]
+     */
     protected $fallbackList = [
         'ftp' => 21,
         'git' => 9418,

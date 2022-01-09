@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ResolverTest extends TestCase
 {
-    public function testResolveRelativeUrls()
+    public function testResolveRelativeUrls(): void
     {
         $baseUrlObject = $this->getBaseUrlObject();
         $resolver = new Resolver();
@@ -84,10 +84,18 @@ final class ResolverTest extends TestCase
         $this->assertEquals('/foo/one/three', $resolved->toString());
     }
 
+    public function testResolveRelativeUrlAgainstBaseUrlWithEmptyPath(): void
+    {
+        $baseUrlObject = Url::parse('https://www.crwlr.software');
+        $resolver = new Resolver();
+        $resolved = $resolver->resolve('/privacy', $baseUrlObject);
+        $this->assertEquals('https://www.crwlr.software/privacy', $resolved->toString());
+    }
+
     /**
      * When resolve() is called with an absolute url as subject, it should just return this absolute url.
      */
-    public function testResolveAbsoluteUrl()
+    public function testResolveAbsoluteUrl(): void
     {
         $baseUrlObject = $this->getBaseUrlObject();
         $resolver = new Resolver();
@@ -109,7 +117,7 @@ final class ResolverTest extends TestCase
     /**
      * Resolve a relative path against an absolute path.
      */
-    public function testResolvePaths()
+    public function testResolvePaths(): void
     {
         $resolver = new Resolver();
 
@@ -128,7 +136,7 @@ final class ResolverTest extends TestCase
      * @return Url
      * @throws InvalidUrlException
      */
-    private function getBaseUrlObject($url = '')
+    private function getBaseUrlObject(string $url = ''): Url
     {
         if ($url === '') {
             $url = 'https://www.example.com/foo/bar/baz';
