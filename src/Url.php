@@ -20,25 +20,49 @@ use InvalidArgumentException;
 class Url
 {
     /**
-     * All (string) url components.
-     *
      * @var string|null
      */
-    private $url, $scheme, $user, $pass, $path, $query, $fragment;
+    private $url;
 
     /**
-     * The host component is parsed to an instance of the Host class.
-     *
+     * @var string|null
+     */
+    private $scheme;
+
+    /**
+     * @var string|null
+     */
+    private $user;
+
+    /**
+     * @var string|null
+     */
+    private $pass;
+
+    /**
      * @var Host|null
      */
     private $host;
 
     /**
-     * Port url component (int).
-     *
      * @var int|null
      */
     private $port;
+
+    /**
+     * @var string|null
+     */
+    private $path;
+
+    /**
+     * @var string|null
+     */
+    private $query;
+
+    /**
+     * @var string|null
+     */
+    private $fragment;
 
     /**
      * List of all components including alias method names.
