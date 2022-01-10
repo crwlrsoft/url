@@ -10,7 +10,7 @@ final class DomainTest extends TestCase
      * The domain class is really simple and assumes input validation happens somewhere else, so this test
      * is rather short ;p
      */
-    public function testDomain()
+    public function testDomain(): void
     {
         $domain = new Domain('example.com');
         $this->assertInstanceOf(Domain::class, $domain);
@@ -25,7 +25,7 @@ final class DomainTest extends TestCase
         $this->assertEmpty($domain->__toString());
     }
 
-    public function testIsIdn()
+    public function testIsIdn(): void
     {
         $domain = new Domain('example.com');
         $this->assertFalse($domain->isIdn());

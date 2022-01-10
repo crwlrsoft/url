@@ -38,7 +38,7 @@ class Resolver
             return new Url($base->root() . $base->path() . $subject);
         }
 
-        $subject = $this->resolveDots($subject, $base->path());
+        $subject = $this->resolveDots($subject, $base->path() ?? '');
 
         if (substr($subject, 0, 2) === '//') {
             return new Url($base->scheme() . ':' . $subject);
@@ -107,11 +107,11 @@ class Resolver
     /**
      * Helper method for resolveDots
      *
-     * @param array $splitPath
+     * @param array|string[] $splitPath
      * @param int $currentKey
      * @return null|int
      */
-    private function getParentDirFromArray(array $splitPath = [], int $currentKey = 0): ?int
+    private function getParentDirFromArray(array $splitPath, int $currentKey = 0): ?int
     {
         if ($currentKey === 0) {
             return null;

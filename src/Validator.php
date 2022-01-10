@@ -39,7 +39,7 @@ class Validator
      * Returns an array like ['url' => '...', 'scheme' => '...'] or null for invalid url.
      *
      * @param string $url
-     * @return array|null
+     * @return null|array|(string|int)[]
      */
     public static function urlAndComponents(string $url): ?array
     {
@@ -79,7 +79,7 @@ class Validator
      * Same as method urlAndComponents() but only an absolute url is valid. Returns null for relative references.
      *
      * @param string $url
-     * @return array|null
+     * @return null|array|(string|int)[]
      */
     public static function absoluteUrlAndComponents(string $url): ?array
     {
@@ -138,7 +138,7 @@ class Validator
      * Returns null if any component is invalid.
      *
      * @param string $authority
-     * @return array|null
+     * @return null|array|(string|int)[]
      */
     public static function authorityComponents(string $authority): ?array
     {
@@ -176,7 +176,7 @@ class Validator
      * Percent-encodes special characters. Returns null for invalid user information.
      *
      * @param string $userInfo
-     * @return array|null
+     * @return string[]|null
      */
     public static function userInfoComponents(string $userInfo): ?array
     {
@@ -433,7 +433,7 @@ class Validator
      * of method calls for IDEs.
      *
      * @param string $componentName
-     * @param $value
+     * @param mixed $value
      * @return string|int|null
      */
     public static function callValidationByComponentName(string $componentName, $value)
@@ -478,7 +478,7 @@ class Validator
      *
      * @param string $url
      * @param bool $onlyAbsoluteUrl  When set to true, it will also return null when the input is a relative reference.
-     * @return array|null
+     * @return null|array|(string|int)[]
      */
     private static function getValidUrlComponents(string $url, bool $onlyAbsoluteUrl = false): ?array
     {
@@ -522,11 +522,7 @@ class Validator
         $authority = self::stripUserInfoFromAuthority($authority);
         $host = self::stripPortFromAuthority($authority);
 
-        if (is_string($host) &&
-            $host !== '' &&
-            !self::isIpHost($host) &&
-            !self::containsOnly($host, self::hostCharacters())
-        ) {
+        if ($host !== '' && !self::isIpHost($host) && !self::containsOnly($host, self::hostCharacters())) {
             $encodedHost = Helpers::idn_to_ascii($host);
             $url = Helpers::replaceFirstOccurrence($host, $encodedHost, $url);
         }
@@ -679,8 +675,8 @@ class Validator
      * and the returned array contains query and fragment with empty strings as values.
      * Remove empty string elements for the same outcome in both versions.
      *
-     * @param array $components
-     * @return array
+     * @param array|(string|int)[] $components
+     * @return array|(string|int)[]
      */
     private static function filterEmptyStringComponents(array $components = []): array
     {
@@ -698,15 +694,15 @@ class Validator
      *
      * Returns an empty array when one of the components is invalid.
      *
-     * @param array $components
-     * @return array
+     * @param array|(string|int)[] $components
+     * @return array|(string|int)[]
      */
     private static function validateUrlComponents(array $components): array
     {
         foreach ($components as $componentName => $componentValue) {
             if (method_exists(self::class, $componentName)) {
                 if ($componentName === 'path') {
-                    $validComponent = self::path($componentValue, isset($components['host']) ? true : false);
+                    $validComponent = self::path($componentValue, isset($components['host']));
                 } else {
                     $validComponent = self::callValidationByComponentName($componentName, $componentValue);
                 }
@@ -727,8 +723,8 @@ class Validator
      *
      * Because it's the same for both methods.
      *
-     * @param array|null $validComponents
-     * @return array|null
+     * @param null|array|(string|int)[] $validComponents
+     * @return null|array|(string|int)[]
      */
     private static function returnValidUrlAndComponentsArray(?array $validComponents): ?array
     {
@@ -745,7 +741,7 @@ class Validator
      * Get an array of valid authority components (host, userInfo, user, password, port) from an authority string
      *
      * @param string $authority
-     * @return array|null
+     * @return null|array|(string|int)[]
      */
     private static function getValidAuthorityComponents(string $authority): ?array
     {
@@ -768,7 +764,7 @@ class Validator
      * Split an authority string to components (host, userInfo, port)
      *
      * @param string $authority
-     * @return array|null
+     * @return null|array|(string|int)[]
      */
     private static function splitAuthorityToComponents(string $authority): ?array
     {
@@ -803,7 +799,7 @@ class Validator
      * Split user info string <user>:<password> to user and password
      *
      * @param string $userInfo
-     * @return array|null
+     * @return string[]|null
      */
     private static function splitUserInfoToComponents(string $userInfo): ?array
     {
@@ -827,8 +823,8 @@ class Validator
     /**
      * Validate authority components (host, userInfo, port)
      *
-     * @param array $components
-     * @return array|null
+     * @param array|(string|int)[] $components
+     * @return null|array|(string|int)[]
      */
     private static function validateAuthorityComponents(array $components): ?array
     {
@@ -853,7 +849,7 @@ class Validator
      * Split user info string to user and password and validate.
      *
      * @param string $userInfo
-     * @return array|null
+     * @return array|string[]|null
      */
     private static function getValidUserInfoComponents(string $userInfo): ?array
     {
@@ -873,7 +869,7 @@ class Validator
     }
 
     /**
-     * Validate a user name or password
+     * Validate a username or password
      *
      * Percent encodes characters that aren't allowed within a user information component.
      *
@@ -887,7 +883,7 @@ class Validator
     {
         $string = self::encodePercentCharacter($string);
 
-        return self::urlEncodeExcept($string, "/[^a-zA-Z0-9-._~!$&'() * +,;=%]/");
+        return self::urlEncodeExcept($string, "/[^a-zA-Z0-9-._~!$&'()*+,;=%]/");
     }
 
     /**
@@ -950,7 +946,7 @@ class Validator
      */
     private static function containsOnly(string $subject, string $regexPattern): bool
     {
-        return preg_match('/[^' . $regexPattern . ']/', $subject) ? false : true;
+        return !preg_match('/[^' . $regexPattern . ']/', $subject);
     }
 
     /**
@@ -1034,7 +1030,7 @@ class Validator
      *
      * https://tools.ietf.org/html/rfc3986#appendix-A
      *
-     * @param array $additionalCharacters
+     * @param string[] $additionalCharacters
      * @return string
      */
     private static function pcharRegexPattern(array $additionalCharacters = []): string

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 final class UriTest extends TestCase
 {
-    public function testScheme()
+    public function testScheme(): void
     {
         $uri = $this->getUri();
         $this->assertEquals('http', $uri->getScheme());
@@ -26,7 +26,7 @@ final class UriTest extends TestCase
         $this->assertEquals('sftp', $uri->getScheme());
     }
 
-    public function testAuthority()
+    public function testAuthority(): void
     {
         $uri = $this->getUri();
         $this->assertEquals('www.example.com', $uri->getAuthority());
@@ -56,7 +56,7 @@ final class UriTest extends TestCase
         $this->assertEquals('http://example.com/foo/bar?query=string#fragment', $uri->__toString());
     }
 
-    public function testUserInfo()
+    public function testUserInfo(): void
     {
         $uri = $this->getUri();
         $this->assertEquals('', $uri->getUserInfo());
@@ -77,7 +77,7 @@ final class UriTest extends TestCase
         $this->assertEquals('http://www.example.com/foo/bar?query=string#fragment', $uri->__toString());
     }
 
-    public function testHost()
+    public function testHost(): void
     {
         $uri = $this->getUri();
         $this->assertEquals('www.example.com', $uri->getHost());
@@ -96,7 +96,7 @@ final class UriTest extends TestCase
         $this->assertEquals('sub.domain.example.com', $uri->getHost());
     }
 
-    public function testPort()
+    public function testPort(): void
     {
         $uri = $this->getUri();
         $this->assertNull($uri->getPort());
@@ -131,21 +131,21 @@ final class UriTest extends TestCase
         $this->assertEquals('http://www.example.com/foo/bar?query=string#fragment', $uri->__toString());
     }
 
-    public function testPortAboveRange()
+    public function testPortAboveRange(): void
     {
         $uri = $this->getUri();
         $this->expectException(InvalidArgumentException::class);
         $uri->withPort(65536);
     }
 
-    public function testNegativePort()
+    public function testNegativePort(): void
     {
         $uri = $this->getUri();
         $this->expectException(InvalidArgumentException::class);
         $uri->withPort(-1);
     }
 
-    public function testPath()
+    public function testPath(): void
     {
         $uri = $this->getUri();
         $this->assertEquals('/foo/bar', $uri->getPath());
@@ -181,7 +181,7 @@ final class UriTest extends TestCase
         $this->assertEquals('http://www.example.com/?query=string#fragment', $uri->__toString());
     }
 
-    public function testQuery()
+    public function testQuery(): void
     {
         $uri = $this->getUri();
         $this->assertEquals('query=string', $uri->getQuery());
@@ -196,7 +196,7 @@ final class UriTest extends TestCase
         $this->assertEquals('', $uri->getQuery());
     }
 
-    public function testFragment()
+    public function testFragment(): void
     {
         $uri = $this->getUri();
         $this->assertEquals('fragment', $uri->getFragment());
@@ -220,7 +220,7 @@ final class UriTest extends TestCase
         $this->assertEquals('fragm%E2%82%ACnt', $uri->getFragment());
     }
 
-    public function testToString()
+    public function testToString(): void
     {
         $uri = new Uri('/foo/bar?query=string#fragment');
         $this->assertEquals('', $uri->getScheme());
@@ -258,7 +258,7 @@ final class UriTest extends TestCase
      * @return Uri
      * @throws InvalidUrlException
      */
-    private function getUri()
+    private function getUri(): Uri
     {
         return new Uri('http://www.example.com/foo/bar?query=string#fragment');
     }

@@ -31,14 +31,16 @@ abstract class Updater
 
     /**
      * In a child class implement a method that returns the original/source content (may be string, array or whatever).
+     *
+     * @return string|array|mixed
      */
     abstract protected function getOriginalContent();
 
     /**
      * In a child class implement a method that parses the contents to an array representing the list to store.
      *
-     * @param mixed $content
-     * @return array
+     * @param string|array|mixed $content
+     * @return array|(string|int)[]
      */
     abstract protected function parseContent($content = ''): array;
 
@@ -50,9 +52,9 @@ abstract class Updater
     abstract protected function getListStorePath(): string;
 
     /**
-     * @param array $parsed
+     * @param array|(string|int)[] $parsed
      */
-    protected function storeList(array $parsed = [])
+    protected function storeList(array $parsed = []): void
     {
         $content = "<?php return [";
 

@@ -4,6 +4,7 @@ namespace Crwlr\Url;
 
 use Crwlr\Url\Exceptions\InvalidUrlComponentException;
 use Crwlr\Url\Exceptions\InvalidUrlException;
+use Crwlr\Url\Psr\Uri;
 use InvalidArgumentException;
 
 /**
@@ -19,18 +20,49 @@ use InvalidArgumentException;
 class Url
 {
     /**
-     * All (string) url components.
-     *
      * @var string|null
      */
-    private $url, $scheme, $user, $pass, $host, $path, $query, $fragment;
+    private $url;
 
     /**
-     * Port url component (int).
-     *
+     * @var string|null
+     */
+    private $scheme;
+
+    /**
+     * @var string|null
+     */
+    private $user;
+
+    /**
+     * @var string|null
+     */
+    private $pass;
+
+    /**
+     * @var Host|null
+     */
+    private $host;
+
+    /**
      * @var int|null
      */
     private $port;
+
+    /**
+     * @var string|null
+     */
+    private $path;
+
+    /**
+     * @var string|null
+     */
+    private $query;
+
+    /**
+     * @var string|null
+     */
+    private $fragment;
 
     /**
      * List of all components including alias method names.
@@ -61,7 +93,7 @@ class Url
     ];
 
     /**
-     * @var Resolver
+     * @var Resolver|null
      */
     private $resolver;
 
@@ -116,6 +148,17 @@ class Url
     }
 
     /**
+     * Parses $url to a new instance of the PSR-7 UriInterface compatible Uri class.
+     *
+     * @param string $url
+     * @return Uri
+     */
+    public static function parsePsr7(string $url = ''): Uri
+    {
+        return new Uri(Url::parse($url));
+    }
+
+    /**
      * Get or set the scheme component.
      *
      * @param null|string $scheme
@@ -129,7 +172,7 @@ class Url
         } elseif ($scheme === '') {
             $this->scheme = null;
         } else {
-            $this->scheme = $this->validateStringComponent('scheme', $scheme);
+            $this->scheme = $this->validateComponentValue('scheme', $scheme);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -138,7 +181,7 @@ class Url
     /**
      * Get or set the url authority (= [userinfo"@"]host[":"port]).
      *
-     * @param null|string
+     * @param null|string $authority
      * @return string|null|Url
      * @throws InvalidUrlComponentException
      */
@@ -183,7 +226,7 @@ class Url
         } elseif ($user === '') {
             $this->user = $this->pass = null;
         } else {
-            $this->user = $this->validateStringComponent('user', $user);
+            $this->user = $this->validateComponentValue('user', $user);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -203,7 +246,7 @@ class Url
         } elseif ($password === '') {
             $this->pass = null;
         } else {
-            $this->pass = $this->validateStringComponent('password', $password);
+            $this->pass = $this->validateComponentValue('password', $password);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -263,7 +306,7 @@ class Url
             $this->host = null;
         } else {
             $this->validatePathStartsWithSlash();
-            $validHost = $this->validateStringComponent('host', $host);
+            $validHost = $this->validateComponentValue('host', $host);
             $this->host = new Host($validHost);
         }
 
@@ -286,7 +329,7 @@ class Url
             return $this->host instanceof Host ? $this->host->domain() : null;
         }
 
-        $validDomain = $this->validateStringComponent('domain', $domain);
+        $validDomain = $this->validateComponentValue('domain', $domain);
 
         if ($this->host instanceof Host) {
             $this->host->domain($validDomain);
@@ -320,7 +363,7 @@ class Url
         }
 
         $this->host->domainLabel(
-            $this->validateStringComponent('domainLabel', $domainLabel)
+            $this->validateComponentValue('domainLabel', $domainLabel)
         );
 
         return $this->updateFullUrlAndReturnInstance();
@@ -349,7 +392,7 @@ class Url
         }
 
         $this->host->domainSuffix(
-            $this->validateStringComponent('domainSuffix', $domainSuffix)
+            $this->validateComponentValue('domainSuffix', $domainSuffix)
         );
 
         return $this->updateFullUrlAndReturnInstance();
@@ -378,7 +421,7 @@ class Url
         }
 
         $this->host->subdomain(
-            $this->validateStringComponent('subdomain', $subdomain)
+            $this->validateComponentValue('subdomain', $subdomain)
         );
 
         return $this->updateFullUrlAndReturnInstance();
@@ -401,7 +444,7 @@ class Url
             return ($scheme && $this->port === Helpers::getStandardPortByScheme($scheme)) ? null : $this->port;
         }
 
-        $this->port = $this->validateIntComponent('port', $port);
+        $this->port = $this->validateComponentValue('port', $port);
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -427,7 +470,7 @@ class Url
             return $this->path;
         }
 
-        $this->path = $this->validateStringComponent('path', $path);
+        $this->path = $this->validateComponentValue('path', $path);
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -445,7 +488,7 @@ class Url
         } elseif ($query === '') {
             $this->query = null;
         } else {
-            $this->query = $this->validateStringComponent('query', $query);
+            $this->query = $this->validateComponentValue('query', $query);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -454,15 +497,15 @@ class Url
     /**
      * Get or set the query component as array.
      *
-     * @param null|array $query
-     * @return array|Url
+     * @param null|array|string[] $query
+     * @return string[]|Url
      */
     public function queryArray(?array $query = null)
     {
         if ($query === null) {
             return $this->query ? Helpers::queryStringToArray($this->query) : [];
-        } elseif (is_array($query)) {
-            $this->query = $this->validateStringComponent('query', http_build_query($query));
+        } else {
+            $this->query = $this->validateComponentValue('query', http_build_query($query));
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -481,7 +524,7 @@ class Url
         } elseif ($fragment === '') {
             $this->fragment = null;
         } else {
-            $this->fragment = $this->validateStringComponent('fragment', $fragment);
+            $this->fragment = $this->validateComponentValue('fragment', $fragment);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -564,7 +607,7 @@ class Url
      */
     public function hasIdn(): bool
     {
-        return $this->host instanceof Host ? $this->host->hasIdn() : false;
+        return $this->host instanceof Host && $this->host->hasIdn();
     }
 
     /**
@@ -595,7 +638,7 @@ class Url
     /**
      * Returns true when the scheme component is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -607,7 +650,7 @@ class Url
     /**
      * Returns true when the authority is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -619,7 +662,7 @@ class Url
     /**
      * Returns true when the user is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -631,7 +674,7 @@ class Url
     /**
      * Returns true when the password is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -644,7 +687,7 @@ class Url
      * Returns true when the user information (both user and password) is the same in the current instance and the
      * url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -656,7 +699,7 @@ class Url
     /**
      * Returns true when the host component is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -668,7 +711,7 @@ class Url
     /**
      * Returns true when the registrable domain is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -680,7 +723,7 @@ class Url
     /**
      * Returns true when the domain label is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -692,7 +735,7 @@ class Url
     /**
      * Returns true when the domain suffix is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -704,7 +747,7 @@ class Url
     /**
      * Returns true when the subdomain is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -716,7 +759,7 @@ class Url
     /**
      * Returns true when the port component is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -728,7 +771,7 @@ class Url
     /**
      * Returns true when the path component is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -740,7 +783,7 @@ class Url
     /**
      * Returns true when the query component is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -752,7 +795,7 @@ class Url
     /**
      * Returns true when the fragment component is the same in the current instance and the url you want to compare.
      *
-     * @param $url
+     * @param string|Url $url
      * @return bool
      * @throws InvalidArgumentException
      */
@@ -784,7 +827,7 @@ class Url
      * Population from another instance is just like cloning and it's necessary for the PSR-7 UriInterface Adapter
      * class.
      *
-     * @param string[]|Url $components
+     * @param array|(string|int)[]|Url $components
      */
     private function populate($components): void
     {
@@ -809,7 +852,7 @@ class Url
      * Parse and validate $url in case it's a string, return when it's an instance of Url or throw an Exception.
      *
      * @param string|Url $url
-     * @return array|Url
+     * @return Url|array|(string|int)[]
      * @throws InvalidArgumentException
      * @throws InvalidUrlException
      */
@@ -847,29 +890,7 @@ class Url
 
     /**
      * @param string $componentName
-     * @param string $componentValue
-     * @return string
-     * @throws InvalidUrlComponentException
-     */
-    private function validateStringComponent(string $componentName, string $componentValue): string
-    {
-        return $this->validateComponentValue($componentName, $componentValue);
-    }
-
-    /**
-     * @param string $componentName
-     * @param int $componentValue
-     * @return int
-     * @throws InvalidUrlComponentException
-     */
-    private function validateIntComponent(string $componentName, int $componentValue): int
-    {
-        return $this->validateComponentValue($componentName, $componentValue);
-    }
-
-    /**
-     * @param string $componentName
-     * @param $componentValue
+     * @param mixed $componentValue
      * @return int|string
      * @throws InvalidUrlComponentException
      */
@@ -910,7 +931,7 @@ class Url
      *
      * @throws InvalidUrlComponentException
      */
-    private function validatePathStartsWithSlash()
+    private function validatePathStartsWithSlash(): void
     {
         if ($this->path() && $this->path() !== '' && !Helpers::startsWith($this->path(), '/', 1)) {
             throw new InvalidUrlComponentException(
@@ -935,7 +956,7 @@ class Url
     /**
      * Compares the current instance with another url.
      *
-     * @param $compareToUrl
+     * @param string|Url $compareToUrl
      * @param string|null $componentName  Compare either only a certain component of the urls or the whole urls if null.
      * @return bool
      * @throws InvalidArgumentException
@@ -964,7 +985,7 @@ class Url
     }
 
     /**
-     * @return array
+     * @return array|(string|int)[]
      */
     private function authorityComponents(): array
     {
@@ -972,7 +993,7 @@ class Url
     }
 
     /**
-     * @return array
+     * @return array|string[]
      */
     private function userInfoComponents(): array
     {

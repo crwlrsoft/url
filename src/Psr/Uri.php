@@ -29,12 +29,12 @@ class Uri implements UriInterface
     private $resolver;
 
     /**
-     * @param string $url
+     * @param Url|string $url
      * @param Resolver|null $resolver
      * @throws InvalidUrlException
      * @throws InvalidArgumentException
      */
-    public function __construct($url, $resolver = null)
+    public function __construct($url, ?Resolver $resolver = null)
     {
         if ($url instanceof Url) {
             $this->url = $url;
@@ -44,7 +44,7 @@ class Uri implements UriInterface
             throw new InvalidArgumentException('Param url must be either a string or an instance of Crwlr\Url\Url.');
         }
 
-        $this->resolver = $resolver instanceof Resolver ? $resolver : new Resolver();
+        $this->resolver = $resolver ?? new Resolver();
     }
 
     /**
@@ -189,7 +189,7 @@ class Uri implements UriInterface
         }
 
         if (substr($path, 0, 1) !== '/' && trim($path) !== '') {
-            $path = $this->resolver->resolvePath($path, $this->url->path());
+            $path = $this->resolver->resolvePath($path, $this->url->path() ?? '');
         }
 
         $newUrl->path($path);

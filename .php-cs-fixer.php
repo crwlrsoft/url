@@ -1,13 +1,17 @@
 <?php
 
-$finder = PhpCsFixer\Finder::create()
-    ->in([__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/bin']);
+use PhpCsFixer\Config;
+use PhpCsFixer\Finder;
 
-return PhpCsFixer\Config::create()
+$finder = Finder::create()
+    ->in([__DIR__ . '/src', __DIR__ . '/tests', __DIR__ . '/bin']);
+$config = new Config();
+
+return $config->setFinder($finder)
     ->setRules([
         '@PSR2' => true,
         'strict_param' => true,
-        'array_syntax' => ['syntax' => 'short'],
         'single_class_element_per_statement' => false,
     ])
-    ->setFinder($finder);
+    ->setRiskyAllowed(true)
+    ->setUsingCache(true);

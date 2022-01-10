@@ -37,7 +37,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^8.0",
-        "friendsofphp/php-cs-fixer": "^2.15"
+        "friendsofphp/php-cs-fixer": "^3.4",
+        "phpstan/phpstan": "^1.3"
     },
     "autoload": {
         "psr-4": {
@@ -46,7 +47,9 @@
     },
     "scripts": {
         "test": "@php vendor/bin/phpunit",
-        "cs": "PHP_CS_FIXER_IGNORE_ENV=1 php vendor/bin/php-cs-fixer fix -v --diff --dry-run --allow-risky=yes",
+        "cs": "@php vendor/bin/php-cs-fixer fix -v --dry-run",
+        "cs-fix": "@php vendor/bin/php-cs-fixer fix -v",
+        "stan": "@php vendor/bin/phpstan analyse -c phpstan.neon",
         "update-suffixes": "@php bin/update-suffixes",
         "update-schemes": "@php bin/update-schemes",
         "update-default-ports": "@php bin/update-default-ports",

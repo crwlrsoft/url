@@ -22,7 +22,7 @@ class Host
     private $subdomain;
 
     /**
-     * @var Domain
+     * @var Domain|null
      */
     private $domain;
 
@@ -121,7 +121,7 @@ class Host
      */
     public function hasIdn(): bool
     {
-        return $this->domain instanceof Domain ? $this->domain->isIdn() : false;
+        return $this->domain instanceof Domain && $this->domain->isIdn();
     }
 
     /**
