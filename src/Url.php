@@ -152,6 +152,7 @@ class Url
      *
      * @param string $url
      * @return Uri
+     * @throws InvalidUrlException
      */
     public static function parsePsr7(string $url = ''): Uri
     {

@@ -29,7 +29,7 @@ guarantee that your feature will be merged.
 ### Coding Style
 
 This package follows the 
-[PSR-2](https://www.php-fig.org/psr/psr-2/) coding standard.
+[PSR-12](https://www.php-fig.org/psr/psr-12/) coding standard.
 Linting can be executed using the `composer cs` command.
 
 ### Branching
@@ -40,12 +40,13 @@ please send your pull request to the branch of the latest version
 affected by the issue. If you're developing a new feature, branch
 out from the master branch.
 
-### Tests and linting
+### Code quality tools
 
 When you're making changes to this package please always run
 tests and linting. Commands:  
 `composer test`  
 `composer cs`
+`composer stan`
 
 Ideally you add the pre-commit git hook that is shipped with
 this repo that will run tests and linting. Add it to your local
