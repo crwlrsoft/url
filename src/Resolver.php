@@ -38,7 +38,7 @@ class Resolver
             return new Url($base->root() . $base->path() . $subject);
         }
 
-        $subject = $this->resolveDots($subject, $base->path() ?? '');
+        $subject = $this->resolveDots($subject, $base->path() ?? '/');
 
         if (substr($subject, 0, 2) === '//') {
             return new Url($base->scheme() . ':' . $subject);

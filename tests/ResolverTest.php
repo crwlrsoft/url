@@ -92,6 +92,15 @@ final class ResolverTest extends TestCase
         $this->assertEquals('https://www.crwlr.software/privacy', $resolved->toString());
     }
 
+    public function testResolveRelativePathWithoutLeadingSlashAgainstBaseUrlWithEmptyPath(): void
+    {
+        $resolver = new Resolver();
+        $this->assertEquals(
+            'https://www.otsch.codes/foo',
+            $resolver->resolve('foo', Url::parse('https://www.otsch.codes'))
+        );
+    }
+
     /**
      * When resolve() is called with an absolute url as subject, it should just return this absolute url.
      */

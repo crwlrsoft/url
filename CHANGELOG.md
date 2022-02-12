@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.1.1] - 2022-01-12
+### Fixed
+- Resolving relative paths without leading slash against a
+  base url with an empty path.
+
+### Changed
+- Update schemes and suffixes lists.
+
 ## [1.1.0] - 2021-01-10
 ### Added
 - Static method to create PSR-7 Uri object
