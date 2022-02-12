@@ -9,9 +9,10 @@ $config = new Config();
 
 return $config->setFinder($finder)
     ->setRules([
-        '@PSR2' => true,
+        '@PSR12' => true,
         'strict_param' => true,
-        'single_class_element_per_statement' => false,
+        'array_syntax' => ['syntax' => 'short'],
+        'blank_line_after_opening_tag' => false,
     ])
     ->setRiskyAllowed(true)
     ->setUsingCache(true);
