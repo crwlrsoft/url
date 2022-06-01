@@ -73,7 +73,7 @@ jobs:
         run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Install query-string package
-        run: composer require crwlr/query-string:dev-main
+        run: composer require crwlr/query-string
 
       - name: Run tests
         run: composer test
