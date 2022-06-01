@@ -11,7 +11,7 @@ final class QueryStringTest extends TestCase
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
+        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
             $this->assertInstanceOf(Query::class, $url->queryString());
         } else {
             $this->expectException(Exception::class);
@@ -24,7 +24,7 @@ final class QueryStringTest extends TestCase
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
+        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
             $url->queryString()->set('baz', 'quz');
 
             $this->assertEquals('foo=bar&baz=quz', $url->query());
@@ -39,7 +39,7 @@ final class QueryStringTest extends TestCase
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
+        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
             $url->queryString()->set('baz', 'quz');
 
             $this->assertEquals(['foo' => 'bar', 'baz' => 'quz'], $url->queryArray());
@@ -54,7 +54,7 @@ final class QueryStringTest extends TestCase
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
+        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
             $url->queryString->set('baz', 'quz'); // @phpstan-ignore-line
 
             $this->assertEquals(['foo' => 'bar', 'baz' => 'quz'], $url->queryArray());
@@ -69,7 +69,7 @@ final class QueryStringTest extends TestCase
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
+        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
             $url->queryString()->set('baz', 'quz');
 
             $url->query('yo=lo');
@@ -88,7 +88,7 @@ final class QueryStringTest extends TestCase
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=')) {
+        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
             $url->queryString()->set('baz', 'quz');
 
             $url->queryArray(['boo' => 'yah']);

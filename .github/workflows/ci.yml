@@ -20,17 +20,17 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
+        run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run PHP CS Fixer
         run: composer cs
 
-  tests:
+  tests7x:
     name: PHPUnit tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php-versions: ['7.2', '7.3', '7.4', '8.0', '8.1']
+        php-versions: ['7.2', '7.3', '7.4']
 
     steps:
       - name: Checkout code
@@ -45,7 +45,35 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Run tests
+        run: composer test
+
+  tests8x:
+    name: PHPUnit tests
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php-versions: ['8.0', '8.1']
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-versions }}
+
+      - name: Check PHP Version
+        run: php -v
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest
+
+      - name: Install query-string package
+        run: composer require crwlr/query-string
 
       - name: Run tests
         run: composer test
@@ -67,7 +95,7 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
+        run: composer install --prefer-dist --no-progress --no-suggest
 
       - name: Run PHPStan
         run: composer stan
