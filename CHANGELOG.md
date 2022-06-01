@@ -6,10 +6,15 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [1.2.0] - 2022-06-01
 ### Added
 - The new `queryString()` method can be used to access and
   manipulate the query via a `Query` object when the
   `crwlr/query-string` package is installed.
+
+### Changed
+- Update schemes and suffixes lists.
 
 ## [1.1.1] - 2022-01-12
 ### Fixed
