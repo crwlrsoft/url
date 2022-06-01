@@ -20,7 +20,7 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
 
       - name: Run PHP CS Fixer
         run: composer cs
@@ -45,7 +45,7 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
 
       - name: Run tests
         run: composer test
@@ -67,7 +67,7 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress --no-suggest --ignore-platform-reqs
 
       - name: Run PHPStan
         run: composer stan
