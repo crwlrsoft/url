@@ -170,6 +170,31 @@ array(2) {
 }
 ```
 
+If you're already on PHP 8 you can additionally install the
+`crwlr/query-string` package for a more advanced API to access and manipulate
+the query string.
+
+```bash
+composer require crwlr/query-string
+```
+
+After the package is installed the `queryString()` method returns an instance
+of the `Query` class from that package. You can find the docs for this
+class [here](https://www.crwlr.software/packages/query-string/v1.0/getting-started).
+A quick example:
+
+```php
+$url = Url::parse('https://www.example.com/listing?page[number]=3&page[size]=25');
+
+$url->queryString()
+    ->get('page')
+    ->set('number', '4');
+
+var_dump($url->__toString());
+
+// string(68) "https://www.example.com/listing?page%5Bnumber%5D=4&page%5Bsize%5D=25"
+```
+
 ### Modifying urls
 
 All methods that are used to get a component's value can also be used to

@@ -2,9 +2,11 @@
 
 namespace Crwlr\Url;
 
+use Crwlr\QueryString\Query;
 use Crwlr\Url\Exceptions\InvalidUrlComponentException;
 use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Psr\Uri;
+use Exception;
 use InvalidArgumentException;
 
 /**
@@ -55,7 +57,7 @@ class Url
     private $path;
 
     /**
-     * @var string|null
+     * @var string|Query|null
      */
     private $query;
 
@@ -87,6 +89,7 @@ class Url
         'path',
         'query',
         'queryArray',
+        'queryString',
         'fragment',
         'root',
         'relative',
@@ -164,7 +167,7 @@ class Url
      *
      * @param null|string $scheme
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function scheme(?string $scheme = null)
     {
@@ -184,7 +187,7 @@ class Url
      *
      * @param null|string $authority
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function authority(?string $authority = null)
     {
@@ -218,7 +221,7 @@ class Url
      *
      * @param null|string $user
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function user(?string $user = null)
     {
@@ -238,7 +241,7 @@ class Url
      *
      * @param null|string $password
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function password(?string $password = null)
     {
@@ -258,7 +261,7 @@ class Url
      *
      * @param null|string $pass
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function pass(?string $pass = null)
     {
@@ -270,7 +273,7 @@ class Url
      *
      * @param string|null $userInfo
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function userInfo(?string $userInfo = null)
     {
@@ -297,7 +300,7 @@ class Url
      *
      * @param null|string $host
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function host(?string $host = null)
     {
@@ -322,7 +325,7 @@ class Url
      *
      * @param null|string $domain
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function domain(?string $domain = null)
     {
@@ -349,7 +352,7 @@ class Url
      *
      * @param null|string $domainLabel
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function domainLabel(?string $domainLabel = null)
     {
@@ -378,7 +381,7 @@ class Url
      *
      * @param null|string $domainSuffix
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function domainSuffix(?string $domainSuffix = null)
     {
@@ -407,7 +410,7 @@ class Url
      *
      * @param null|string $subdomain
      * @return string|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function subdomain(?string $subdomain = null)
     {
@@ -435,7 +438,7 @@ class Url
      *
      * @param null|int $port
      * @return int|null|Url
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     public function port(?int $port = null)
     {
@@ -452,6 +455,8 @@ class Url
 
     /**
      * Reset the port component to null.
+     *
+     * @throws Exception
      */
     public function resetPort(): void
     {
@@ -464,6 +469,7 @@ class Url
      *
      * @param null|string $path
      * @return string|null|Url
+     * @throws Exception
      */
     public function path(?string $path = null)
     {
@@ -481,11 +487,12 @@ class Url
      *
      * @param null|string $query
      * @return string|null|Url
+     * @throws Exception
      */
     public function query(?string $query = null)
     {
         if ($query === null) {
-            return $this->query;
+            return $this->query instanceof Query ? $this->query->toString() : $this->query;
         } elseif ($query === '') {
             $this->query = null;
         } else {
@@ -500,10 +507,15 @@ class Url
      *
      * @param null|array|string[] $query
      * @return string[]|Url
+     * @throws Exception
      */
     public function queryArray(?array $query = null)
     {
         if ($query === null) {
+            if ($this->query instanceof Query) {
+                return $this->query->toArray();
+            }
+
             return $this->query ? Helpers::queryStringToArray($this->query) : [];
         } else {
             $this->query = $this->validateComponentValue('query', http_build_query($query));
@@ -513,10 +525,43 @@ class Url
     }
 
     /**
+     * @throws Exception
+     */
+    public function queryString(): Query
+    {
+        if (version_compare(PHP_VERSION, '8.0.0', '<')) {
+            throw new Exception(
+                'The queryString() method uses the crwlr/query-string composer package under the hood, which ' .
+                'requires PHP version 8.0.0 or above.'
+            );
+        }
+
+        if (!class_exists(Query::class)) {
+            throw new Exception(
+                'The queryString() method uses the crwlr/query-string composer package under the hood, but it isn\'t ' .
+                'installed yet. Install it by running: composer require crwlr/query-string.'
+            );
+        }
+
+        if (!$this->query instanceof Query) {
+            $this->query = Query::fromString($this->query ?? '');
+
+            $url = $this;
+
+            $this->query->setDirtyHook(function () use ($url) {
+                $url->updateFullUrl();
+            });
+        }
+
+        return $this->query;
+    }
+
+    /**
      * Get or set the fragment component.
      *
      * @param null|string $fragment
      * @return string|null|Url
+     * @throws Exception
      */
     public function fragment(?string $fragment = null)
     {
@@ -537,6 +582,7 @@ class Url
      * https://www.example.com/path?query=string => https://www.example.com
      *
      * @return string
+     * @throws Exception
      */
     public function root(): string
     {
@@ -554,6 +600,7 @@ class Url
      * If that's the case, starting slashes in the path are reduced to one in the return value of this method.
      *
      * @return string
+     * @throws Exception
      */
     public function relative(): string
     {
@@ -575,6 +622,7 @@ class Url
      * https://tools.ietf.org/html/rfc3986#section-4.1
      *
      * @return bool
+     * @throws Exception
      */
     public function isRelativeReference(): bool
     {
@@ -908,6 +956,8 @@ class Url
 
     /**
      * Regenerate the full url after changing components.
+     *
+     * @throws Exception
      */
     private function updateFullUrl(): void
     {
@@ -916,6 +966,7 @@ class Url
 
     /**
      * @return Url
+     * @throws Exception
      */
     private function updateFullUrlAndReturnInstance(): Url
     {
@@ -930,7 +981,7 @@ class Url
      * Used in authority and host methods, because it's not allowed to set an authority when path doesn't start with
      * slash.
      *
-     * @throws InvalidUrlComponentException
+     * @throws InvalidUrlComponentException|Exception
      */
     private function validatePathStartsWithSlash(): void
     {
@@ -987,6 +1038,7 @@ class Url
 
     /**
      * @return array|(string|int)[]
+     * @throws Exception
      */
     private function authorityComponents(): array
     {
