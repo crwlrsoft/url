@@ -57,6 +57,7 @@ class Url
     private $path;
 
     /**
+     * @phpstan-ignore-next-line
      * @var string|Query|null
      */
     private $query;
@@ -492,7 +493,7 @@ class Url
     public function query(?string $query = null)
     {
         if ($query === null) {
-            return $this->query instanceof Query ? $this->query->toString() : $this->query;
+            return $this->query instanceof Query ? $this->query->toString() : $this->query; // @phpstan-ignore-line
         } elseif ($query === '') {
             $this->query = null;
         } else {
@@ -512,8 +513,8 @@ class Url
     public function queryArray(?array $query = null)
     {
         if ($query === null) {
-            if ($this->query instanceof Query) {
-                return $this->query->toArray();
+            if ($this->query instanceof Query) { // @phpstan-ignore-line
+                return $this->query->toArray();  // @phpstan-ignore-line
             }
 
             return $this->query ? Helpers::queryStringToArray($this->query) : [];
@@ -527,7 +528,7 @@ class Url
     /**
      * @throws Exception
      */
-    public function queryString(): Query
+    public function queryString(): Query // @phpstan-ignore-line
     {
         if (version_compare(PHP_VERSION, '8.0.0', '<')) {
             throw new Exception(
