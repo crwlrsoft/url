@@ -627,11 +627,7 @@ class Url
      */
     public function isRelativeReference(): bool
     {
-        if ($this->scheme() === null) {
-            return true;
-        }
-
-        return false;
+        return $this->scheme() === null;
     }
 
     /**
@@ -931,11 +927,7 @@ class Url
      */
     private function isValidComponentName(string $componentName): bool
     {
-        if (in_array($componentName, $this->components, true)) {
-            return true;
-        }
-
-        return false;
+        return in_array($componentName, $this->components, true);
     }
 
     /**
