@@ -904,6 +904,7 @@ class Url
      */
     private function validate($url)
     {
+        /** @phpstan-ignore-next-line */
         if (!is_string($url) && !$url instanceof Url) {
             throw new InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
         }
