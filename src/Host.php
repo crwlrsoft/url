@@ -143,10 +143,6 @@ class Host
      */
     private function domainNotEmpty(): bool
     {
-        if ($this->domain instanceof Domain && !empty($this->domain->__toString())) {
-            return true;
-        }
-
-        return false;
+        return $this->domain instanceof Domain && !empty($this->domain->__toString());
     }
 }
