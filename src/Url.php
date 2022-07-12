@@ -10,10 +10,10 @@ use Exception;
 use InvalidArgumentException;
 
 /**
- * Class Url
+ * Class URL
  *
- * This class is the central unit of this package. It represents a url, gives access to its components and also
- * to further functionality like resolving relative URLs to absolute ones and comparing (components of) another url to
+ * This class is the central unit of this package. It represents a URL, gives access to its components and also
+ * to further functionality like resolving relative URLs to absolute ones and comparing (components of) another URL to
  * the current instance.
  *
  * @link https://www.crwlr.software/packages/url Documentation
@@ -140,7 +140,7 @@ class Url
     }
 
     /**
-     * Returns a new Url instance with param $url.
+     * Returns a new URL instance with param $url.
      *
      * @param string $url
      * @return Url
@@ -184,7 +184,7 @@ class Url
     }
 
     /**
-     * Get or set the url authority (= [userinfo"@"]host[":"port]).
+     * Get or set the URL authority (= [userinfo"@"]host[":"port]).
      *
      * @param null|string $authority
      * @return string|null|Url
@@ -349,7 +349,7 @@ class Url
      * Get or set the domain label.
      *
      * That's the registrable domain without the domain suffix (e.g. domain: "crwlr.software" => domain label: "crwlr").
-     * It can only be set when the current url contains a host with a registrable domain.
+     * It can only be set when the current URL contains a host with a registrable domain.
      *
      * @param null|string $domainLabel
      * @return string|null|Url
@@ -378,7 +378,7 @@ class Url
      * Get or set the domain suffix.
      *
      * domain: "crwlr.software" => domain suffix: "software"
-     * It can only be set when the current url contains a host with a registrable domain.
+     * It can only be set when the current URL contains a host with a registrable domain.
      *
      * @param null|string $domainSuffix
      * @return string|null|Url
@@ -407,7 +407,7 @@ class Url
      * Get or set the subdomain.
      *
      * host: "www.crwlr.software" => subdomain: "www"
-     * It can only be set when the current url contains a host with a registrable domain.
+     * It can only be set when the current URL contains a host with a registrable domain.
      *
      * @param null|string $subdomain
      * @return string|null|Url
@@ -617,9 +617,9 @@ class Url
     }
 
     /**
-     * Is the current url a relative reference
+     * Is the current URL a relative reference
      *
-     * Returns true if the current url does not begin with a scheme.
+     * Returns true if the current URL does not begin with a scheme.
      * https://tools.ietf.org/html/rfc3986#section-4.1
      *
      * @return bool
@@ -631,11 +631,11 @@ class Url
     }
 
     /**
-     * Resolve a relative reference against the url of the current instance.
+     * Resolve a relative reference against the URL of the current instance.
      *
-     * That basically means you get an absolute url from any relative reference (link href, image src, etc.) found on
+     * That basically means you get an absolute URL from any relative reference (link href, image src, etc.) found on
      * a web page.
-     * When the provided input already is an absolute url, it's just returned as it is (except for validation changes
+     * When the provided input already is an absolute URL, it's just returned as it is (except for validation changes
      * like percent encoding).
      *
      * @param string $relativeUrl
@@ -647,7 +647,7 @@ class Url
     }
 
     /**
-     * Return true when the current url contains an internationalized domain name in the host component.
+     * Return true when the current URL contains an internationalized domain name in the host component.
      *
      * @return bool
      */
@@ -657,7 +657,7 @@ class Url
     }
 
     /**
-     * Returns true if the current instance url is equal to the url you want to compare.
+     * Returns true if the current instance URL is equal to the URL you want to compare.
      *
      * @param Url|string $url
      * @return bool
@@ -669,7 +669,7 @@ class Url
     }
 
     /**
-     * Returns true when some component is the same in the current instance and the url you want to compare.
+     * Returns true when some component is the same in the current instance and the URL you want to compare.
      *
      * @param Url|string $url
      * @param string $componentName
@@ -682,7 +682,7 @@ class Url
     }
 
     /**
-     * Returns true when the scheme component is the same in the current instance and the url you want to compare.
+     * Returns true when the scheme component is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -694,7 +694,7 @@ class Url
     }
 
     /**
-     * Returns true when the authority is the same in the current instance and the url you want to compare.
+     * Returns true when the authority is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -706,7 +706,7 @@ class Url
     }
 
     /**
-     * Returns true when the user is the same in the current instance and the url you want to compare.
+     * Returns true when the user is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -718,7 +718,7 @@ class Url
     }
 
     /**
-     * Returns true when the password is the same in the current instance and the url you want to compare.
+     * Returns true when the password is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -731,7 +731,7 @@ class Url
 
     /**
      * Returns true when the user information (both user and password) is the same in the current instance and the
-     * url you want to compare.
+     * URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -743,7 +743,7 @@ class Url
     }
 
     /**
-     * Returns true when the host component is the same in the current instance and the url you want to compare.
+     * Returns true when the host component is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -755,7 +755,7 @@ class Url
     }
 
     /**
-     * Returns true when the registrable domain is the same in the current instance and the url you want to compare.
+     * Returns true when the registrable domain is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -767,7 +767,7 @@ class Url
     }
 
     /**
-     * Returns true when the domain label is the same in the current instance and the url you want to compare.
+     * Returns true when the domain label is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -779,7 +779,7 @@ class Url
     }
 
     /**
-     * Returns true when the domain suffix is the same in the current instance and the url you want to compare.
+     * Returns true when the domain suffix is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -791,7 +791,7 @@ class Url
     }
 
     /**
-     * Returns true when the subdomain is the same in the current instance and the url you want to compare.
+     * Returns true when the subdomain is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -803,7 +803,7 @@ class Url
     }
 
     /**
-     * Returns true when the port component is the same in the current instance and the url you want to compare.
+     * Returns true when the port component is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -815,7 +815,7 @@ class Url
     }
 
     /**
-     * Returns true when the path component is the same in the current instance and the url you want to compare.
+     * Returns true when the path component is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -827,7 +827,7 @@ class Url
     }
 
     /**
-     * Returns true when the query component is the same in the current instance and the url you want to compare.
+     * Returns true when the query component is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -839,7 +839,7 @@ class Url
     }
 
     /**
-     * Returns true when the fragment component is the same in the current instance and the url you want to compare.
+     * Returns true when the fragment component is the same in the current instance and the URL you want to compare.
      *
      * @param string|Url $url
      * @return bool
@@ -867,7 +867,7 @@ class Url
     }
 
     /**
-     * Populate the url components from an array or another instance of this class
+     * Populate the URL components from an array or another instance of this class
      *
      * This method does no validation so the components coming in via an array need to be valid!
      * Population from another instance is just like cloning and it's necessary for the PSR-7 UriInterface Adapter
@@ -895,7 +895,7 @@ class Url
     }
 
     /**
-     * Parse and validate $url in case it's a string, return when it's an instance of Url or throw an Exception.
+     * Parse and validate $url in case it's a string, return when it's an instance of URL or throw an Exception.
      *
      * @param string|Url $url
      * @return Url|array|(string|int)[]
@@ -906,7 +906,7 @@ class Url
     {
         /** @phpstan-ignore-next-line */
         if (!is_string($url) && !$url instanceof Url) {
-            throw new InvalidArgumentException('Param $url must either be of type string or an instance of Url.');
+            throw new InvalidArgumentException('Param $url must either be of type string or an instance of URL.');
         }
 
         if ($url instanceof Url) {
@@ -916,7 +916,7 @@ class Url
         $validComponents = Validator::urlAndComponents($url);
 
         if (!is_array($validComponents)) {
-            throw new InvalidUrlException($url . ' is not a valid url.');
+            throw new InvalidUrlException($url . ' is not a valid URL.');
         }
 
         return $validComponents;
@@ -949,7 +949,7 @@ class Url
     }
 
     /**
-     * Regenerate the full url after changing components.
+     * Regenerate the full URL after changing components.
      *
      * @throws Exception
      */
@@ -982,7 +982,7 @@ class Url
         if ($this->path() && $this->path() !== '' && !Helpers::startsWith($this->path(), '/', 1)) {
             throw new InvalidUrlComponentException(
                 'The current path doesn\'t start with a slash which is why an authority component can\'t be ' .
-                'added to the url.'
+                'added to the URL.'
             );
         }
     }
@@ -1000,7 +1000,7 @@ class Url
     }
 
     /**
-     * Compares the current instance with another url.
+     * Compares the current instance with another URL.
      *
      * @param string|Url $compareToUrl
      * @param string|null $componentName  Compare either only a certain component of the URLs or the whole URLs if null.
@@ -1013,12 +1013,12 @@ class Url
             try {
                 $compareToUrl = new Url($compareToUrl);
             } catch (InvalidUrlException $exception) {
-                // When the url to compare is invalid (and thereby has no valid components) it (or any component)
-                // can't be equal to this url instance, so return false.
+                // When the URL to compare is invalid (and thereby has no valid components) it (or any component)
+                // can't be equal to this URL instance, so return false.
                 return false;
             }
         } elseif (!$compareToUrl instanceof Url) {
-            throw new InvalidArgumentException('Param must be either string or instance of Url.');
+            throw new InvalidArgumentException('Param must be either string or instance of URL.');
         }
 
         if ($componentName === null) {

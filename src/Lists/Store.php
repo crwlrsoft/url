@@ -7,7 +7,7 @@ use Crwlr\Url\Exceptions\ListStoreException;
 /**
  * Class Store
  *
- * The Url Package uses lists like Mozilla's Public Suffix List that contains all public domain suffixes.
+ * The URL Package uses lists like Mozilla's Public Suffix List that contains all public domain suffixes.
  * These lists are loaded from an external source, parsed and stored in a php file in the data directory at
  * the root level.
  *

@@ -24,7 +24,7 @@ final class ValidatorTest extends TestCase
     }
 
     /**
-     * Invalid url strings.
+     * Invalid URL strings.
      */
     public function testValidateInvalidUrl(): void
     {

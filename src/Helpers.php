@@ -72,7 +72,7 @@ class Helpers
     }
 
     /**
-     * Builds a url from an array of url components.
+     * Builds a URL from an array of URL components.
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
@@ -158,7 +158,7 @@ class Helpers
     }
 
     /**
-     * Converts a url query string to array.
+     * Converts a URL query string to array.
      *
      * @param string $query
      * @return string[]
@@ -175,7 +175,7 @@ class Helpers
     }
 
     /**
-     * Get the standard port for a url scheme.
+     * Get the standard port for a URL scheme.
      *
      * Uses the DefaultPorts list class or tries as fallback PHPs built-in getservbyname() function that get's
      * default ports from the /etc/services file. If no standard port is found it returns null.
@@ -348,7 +348,7 @@ class Helpers
     /**
      * Helper method for queryStringToArray
      *
-     * When keys within a url query string contain dots, PHP's parse_str() method converts them to underscores. This
+     * When keys within a URL query string contain dots, PHP's parse_str() method converts them to underscores. This
      * method works around this issue so the requested query array returns the proper keys with dots.
      *
      * @param string $query

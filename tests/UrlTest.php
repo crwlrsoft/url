@@ -99,7 +99,7 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://user:password@sub.sub.example.com:8080', $url->root); // @phpstan-ignore-line
         $this->assertEquals('/some/path?some=query#fragment', $url->relative); // @phpstan-ignore-line
 
-        // other class properties that aren't components of the parsed url should not be available.
+        // other class properties that aren't components of the parsed URL should not be available.
         $this->assertNull($url->parser); // @phpstan-ignore-line
         $this->assertNull($url->validator); // @phpstan-ignore-line
         $this->assertNull($url->resolver); // @phpstan-ignore-line
@@ -342,7 +342,7 @@ final class UrlTest extends TestCase
         $url = Url::parse('http://[FEDC:BA98:7654:3210:FEDC:BA98:7654:3210]:80/index.html');
         // Host must be lowercased as stated in https://tools.ietf.org/html/rfc3986#section-3.2.2
         $this->assertEquals('[fedc:ba98:7654:3210:fedc:ba98:7654:3210]', $url->host());
-        // Port 80 isn't contained in printed url because it's the standard port for http.
+        // Port 80 isn't contained in printed URL because it's the standard port for http.
         $this->assertEquals('http://[fedc:ba98:7654:3210:fedc:ba98:7654:3210]/index.html', $url->toString());
 
         $url = Url::parse('http://[1080:0:0:0:8:800:200C:417A]/index.html');

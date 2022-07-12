@@ -3,10 +3,10 @@
 This package is for you when PHP's parse_url() is not enough.
 
 __Key Features:__
-* __Parse a url__ and access or modify all its __components__ separately.
+* __Parse a URL__ and access or modify all its __components__ separately.
 * Resolve any __relative reference__ you may find in an HTML document __to an
-absolute url__, based on the document's url.
-* Get not only the full __host__ of a url, but also the __registrable domain__,
+absolute URL__, based on the document's URL.
+* Get not only the full __host__ of a URL, but also the __registrable domain__,
 the __domain suffix__ and the __subdomain__ parts of the host separately
 (Thanks to the [Mozilla Public Suffix List](https://publicsuffix.org/)).
 * __Compare URLs__ or components of URLs (e.g. checking if different URLs
@@ -41,12 +41,12 @@ use Crwlr\Url\Url;
 ```
 
 To start using the library include composer's autoload file and import the
-Url class so you don't have to write the full namespace path again and again.
+URL class so you don't have to write the full namespace path again and again.
 Further code examples skip the above.
 
 ### Parsing URLs
 
-Parsing a url is easy as pie:
+Parsing a URL is easy as pie:
 
 ```php
 $url = Url::parse('https://john:123@www.example.com:8080/foo?bar=baz');
@@ -56,7 +56,7 @@ The static `parse` method of the `Url` class provides a convenient way to
 create a new instance and then access all of it's components separately.
 
 ```php
-// Accessing url components via method calls
+// Accessing URL components via method calls
 $port = $url->port();                   // => 8080
 $domainSuffix = $url->domainSuffix();   // => "com"
 $path = $url->path();                   // => "/foo"
@@ -78,8 +78,8 @@ $url = new Url('https://www.steve.jobs/');
 __Relative URLs__  
 
 New in v1.0 of this package is, that you can obtain an instance of `Url` from
-a relative url as well. Previous versions throw an `InvalidUrlException` when
-the url string doesn't contain a valid scheme component.
+a relative URL as well. Previous versions throw an `InvalidUrlException` when
+the URL string doesn't contain a valid scheme component.
 
 ```php
 $url = Url::parse('/some/path?query=string');
@@ -88,7 +88,7 @@ var_dump($url->scheme());       // => null
 var_dump($url->path());         // => '/some/path'
 ```
 
-#### Available url components
+#### Available URL components
 
 Below, you can see a visualization of all the components that are available to
 you via a `Url` object.
@@ -115,7 +115,7 @@ https://john:123@subdomain.example.com:8080/foo?bar=baz#anchor
         userInfo
 ```
 
-When a component is not present in a url (e.g. it doesn't contain user and
+When a component is not present in a URL (e.g. it doesn't contain user and
 password) the corresponding properties will return `NULL`.
 
 #### Further available component combinations
@@ -153,7 +153,7 @@ $relative = $url->relative();   // => "/foo?bar=baz#anchor"
 
 #### Parsing a query string
 
-If you're after the query of a url you may want to get it as an array. Don't
+If you're after the query of a URL you may want to get it as an array. Don't
 worry, nothing easier than that:
 
 ```php
@@ -264,7 +264,7 @@ array(4) {
 ```
 
 And that's the same for all components that are listed under the [available
-url components](#available-url-components).
+URL components](#available-url-components).
 
 And the query can even be set as an array:
 
@@ -278,14 +278,14 @@ __Output__
 https://www.example.com/foo?param=value&marco=polo
 ```
 
-Btw.: As you can see in the example above, you can use a Url object like
+Btw.: As you can see in the example above, you can use a URL object like
 a string because of its `__toString()` method.
 
 ### Resolving relative URLs
 
 When you scrape URLs from a website you will come across relative URLs like
 `/path/to/page`, `../path/to/page`, `?param=value`, `#anchor` and alike. This
-package makes it a breeze to resolve these URLs to absolute ones with the url
+package makes it a breeze to resolve these URLs to absolute ones with the URL
 of the page where they have been found on.
 
 ```php
@@ -318,10 +318,10 @@ array(4) {
 }
 ```
 
-If you pass an absolute url to `resolve()` it will just return that absolute
-url.
+If you pass an absolute URL to `resolve()` it will just return that absolute
+URL.
 
-### Comparing URLs or url components
+### Comparing URLs or URL components
 
 You may think to compare two URLs you don't need this library, but whenever
 you have URLs from an unpredictable input source, I'd recommend to use it.
@@ -336,7 +336,7 @@ var_dump($url1 === $url2);
 
 var_dump(Url::parse($url1)->isEqualTo($url2));
 // Returns true, because the path /foo/bár/báz is percent-encoded
-// in the Url class to /foo/b%C3%A1r/b%C3%A1z
+// in the URL class to /foo/b%C3%A1r/b%C3%A1z
 ```
 
 It's also really easy to compare the same component of two different
@@ -390,7 +390,7 @@ is used, so you don't need to have the
 [internationalization PHP extension](https://www.php.net/manual/de/intl.installation.php)
 installed to parse internationalized domain names.
 
-To check if a url contains an internationalized domain name you can use the
+To check if a URL contains an internationalized domain name you can use the
 `hasIdn` method:
 
 ```php
@@ -458,7 +458,7 @@ catch and handle them somehow.
 
 Mozilla's [Public Suffix List](https://publicsuffix.org/list/) is parsed and
 stored in a file in this package to be able to extract the domain suffix from
-a url's host component. It should be updated with every new release
+a URL's host component. It should be updated with every new release
 of this package. If you need to get the latest version of the list
 immediately, because a particular new suffix isn't included in the list in
 this repository, you can update it using the following composer command:

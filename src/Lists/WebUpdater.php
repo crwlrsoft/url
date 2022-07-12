@@ -15,7 +15,7 @@ use Exception;
 abstract class WebUpdater extends Updater
 {
     /**
-     * In a child class the url where the original list can be loaded from needs to be defined,
+     * In a child class the URL where the original list can be loaded from needs to be defined,
      * otherwise instantiating the child class will throw a ListUpdaterException.
      *
      * @var string
@@ -95,7 +95,7 @@ abstract class WebUpdater extends Updater
     private function checkUrl(): void
     {
         if (!is_string($this->url) || trim($this->url) === '') {
-            throw new ListUpdaterException('No url to load the original list from is defined.');
+            throw new ListUpdaterException('No URL to load the original list from is defined.');
         }
     }
 
