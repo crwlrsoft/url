@@ -7,13 +7,13 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
 /**
  * Class Resolver
  *
- * This class handles resolving a relative url to an absolute one given the url where the relative one was found.
+ * This class handles resolving a relative URL to an absolute one given the URL where the relative one was found.
  */
 
 class Resolver
 {
     /**
-     * Resolve any relative reference to an absolute url against a base url.
+     * Resolve any relative reference to an absolute URL against a base URL.
      *
      * Example:
      * Base: https://www.example.com/foo/bar/baz

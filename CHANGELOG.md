@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.1.1] - 2022-01-12
 ### Fixed
 - Resolving relative paths without leading slash against a
-  base url with an empty path.
+  base URL with an empty path.
 
 ### Changed
 - Update schemes and suffixes lists.
@@ -30,7 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (`Url::parsePsr7('https://...')`).
 
 ### Fixed
-- Error when resolving something to a url with an empty path.
+- Error when resolving something to a URL with an empty path.
 
 ## [1.0.2] - 2022-01-05
 ### Changed
@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Support for PHP 8.0
     - Minor change in Validator because output of PHP's
-      parse_url is different when an url includes a
+      parse_url is different when an URL includes a
       delimiter for query or fragment but has no actual query
       or fragment (followed by empty string).
     - Change PHP version requirement in composer.json.
@@ -61,17 +61,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Adapter class Uri that implements the PSR-7 `UriInterface`.
 - New methods in `Url` class:
     - `authority`: Get or set the full authority part of 
-      the url.
+      the URL.
     - `userInfo`: Get or set the full userInfo part of the 
-      url.
+      URL.
     - `isRelativeReference`: Returns true when the current
-      url is a relative reference.
-    - `hasIdn`: Returns true when the current url contains
+      URL is a relative reference.
+    - `hasIdn`: Returns true when the current URL contains
       an internationalized domain name in the host
       component.
-    - `isEqualTo`: Compare the current url to another one.
+    - `isEqualTo`: Compare the current URL to another one.
     - `isComponentEqualIn`: Compare some component of the
-      current url to the same component in another url.
+      current URL to the same component in another URL.
       Also with separate methods for all available
       components:
         - `isSchemeEqualIn`
@@ -109,21 +109,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Required PHP version is now 7.2 because PHP 7.0 and 7.1 are
   no longer actively supported.
-- Instances of the Url class can now be created from relative
+- Instances of the URL class can now be created from relative
   references (without scheme). In v0.1 creating a new instance
   from a relative reference threw an Exception. If your 
   application expects this behavior, you can use the 
   `isRelativeReference` method of the `Url` object to find out
-  if the url in question is a relative reference.
+  if the URL in question is a relative reference.
 - All methods in `Validator` are now static and all the
   component validation methods (scheme, host,...) now return
   `null` instead of `false` for invalid values.
-  Further Validating a full url was split into 4 different
+  Further Validating a full URL was split into 4 different
   methods:
-    - `url`: Returns the validated url as string if input is
+    - `url`: Returns the validated URL as string if input is
       valid (`null` if invalid).
-    - `urlAndComponents`: Returns an array with validated url
-      as string and all single validated url components (
+    - `urlAndComponents`: Returns an array with validated URL
+      as string and all single validated URL components (
       `null` if invalid).
     - `absoluteUrl`: Same as `url` but only absolute URLs are
       considered valid.

@@ -5,15 +5,15 @@ namespace Crwlr\Url;
 /**
  * Class Validator
  *
- * This class has all the validation logic. It validates a full url or single url components.
+ * This class has all the validation logic. It validates a full URL or single URL components.
  */
 
 class Validator
 {
     /**
-     * Validate a url
+     * Validate a URL
      *
-     * Returns a valid url as string or null for invalid URLs.
+     * Returns a valid URL as string or null for invalid URLs.
      *
      * @param string $url
      * @return string|null
@@ -34,9 +34,9 @@ class Validator
     }
 
     /**
-     * Get valid url and all contained components as array
+     * Get valid URL and all contained components as array
      *
-     * Returns an array like ['url' => '...', 'scheme' => '...'] or null for invalid url.
+     * Returns an array like ['url' => '...', 'scheme' => '...'] or null for invalid URL.
      *
      * @param string $url
      * @return null|array|(string|int)[]
@@ -51,9 +51,9 @@ class Validator
     }
 
     /**
-     * Validate an absolute url
+     * Validate an absolute URL
      *
-     * Same as method url() but only an absolute url is valid. Returns null for relative references.
+     * Same as method url() but only an absolute URL is valid. Returns null for relative references.
      *
      * @param string $url
      * @return string|null
@@ -74,9 +74,9 @@ class Validator
     }
 
     /**
-     * Get valid url and all contained components as array
+     * Get valid URL and all contained components as array
      *
-     * Same as method urlAndComponents() but only an absolute url is valid. Returns null for relative references.
+     * Same as method urlAndComponents() but only an absolute URL is valid. Returns null for relative references.
      *
      * @param string $url
      * @return null|array|(string|int)[]
@@ -364,7 +364,7 @@ class Validator
      * Returns path string percent-encoded according to https://tools.ietf.org/html/rfc3986#section-3.3
      * or null for an invalid path.
      *
-     * When the url doesn't contain an authority component, it can't start with more than one slash.
+     * When the URL doesn't contain an authority component, it can't start with more than one slash.
      * If it doesn't start with a slash (relative-path reference) it must not contain a colon in the first segment.
      *
      * @param string $path
@@ -472,9 +472,9 @@ class Validator
     }
 
     /**
-     * Get all valid url components from the provided url string as array.
+     * Get all valid URL components from the provided URL string as array.
      *
-     * In case of an invalid url null is returned.
+     * In case of an invalid URL null is returned.
      *
      * @param string $url
      * @param bool $onlyAbsoluteUrl  When set to true, it will also return null when the input is a relative reference.
@@ -502,7 +502,7 @@ class Validator
     }
 
     /**
-     * Encode internationalized domain names in a url
+     * Encode internationalized domain names in a URL
      *
      * PHPs parse_url method breaks special characters in internationalized domain names. So this method
      * uses the getAuthorityFromUrl method below to find the host part, checks for not allowed characters and handles
@@ -531,10 +531,10 @@ class Validator
     }
 
     /**
-     * Manually find the authority part in a url
+     * Manually find the authority part in a URL
      *
      * PHPs parse_url method breaks special characters in internationalized domain names.
-     * This method manually extracts the authority component from a url (if exists) without breaking special characters.
+     * This method manually extracts the authority component from a URL (if exists) without breaking special characters.
      *
      * @param string $url
      * @return string|null
@@ -564,7 +564,7 @@ class Validator
     }
 
     /**
-     * Manually strip the scheme part from a url
+     * Manually strip the scheme part from a URL
      *
      * Helper method for getAuthorityFromUrl method.
      *
@@ -690,7 +690,7 @@ class Validator
     }
 
     /**
-     * Validate an array of url components.
+     * Validate an array of URL components.
      *
      * Returns an empty array when one of the components is invalid.
      *
@@ -719,7 +719,7 @@ class Validator
     }
 
     /**
-     * Helper method for the url and absoluteUrl methods.
+     * Helper method for the URL and absoluteUrl methods.
      *
      * Because it's the same for both methods.
      *
@@ -1008,7 +1008,7 @@ class Validator
     }
 
     /**
-     * Url encode all characters except those from a certain regex pattern
+     * URL encode all characters except those from a certain regex pattern
      *
      * @param string $encode
      * @param string $exceptRegexPattern

@@ -58,7 +58,7 @@ final class ResolverTest extends TestCase
         $resolved = $resolver->resolve('/some/path', $baseUrlObject);
         $this->assertEquals('https://www.example.com/some/path', $resolved->toString());
 
-        // Base url path is directory (trailing slash)
+        // Base URL path is directory (trailing slash)
         $baseUrlObject = $this->getBaseUrlObject('https://www.example.com/foo/bar/baz/');
 
         $resolved = $resolver->resolve('test', $baseUrlObject);
@@ -102,7 +102,7 @@ final class ResolverTest extends TestCase
     }
 
     /**
-     * When resolve() is called with an absolute url as subject, it should just return this absolute url.
+     * When resolve() is called with an absolute URL as subject, it should just return this absolute URL.
      */
     public function testResolveAbsoluteUrl(): void
     {

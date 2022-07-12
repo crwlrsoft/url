@@ -13,13 +13,13 @@ use Psr\Http\Message\UriInterface;
  * Class Uri
  *
  * This is an adapter class that implements the PSR-7 UriInterface that can't be implemented
- * by the Url class itself because it isn't designed to be immutable.
+ * by the URL class itself because it isn't designed to be immutable.
  */
 
 class Uri implements UriInterface
 {
     /**
-     * @var Url
+     * @var URL
      */
     private $url;
 
@@ -41,7 +41,7 @@ class Uri implements UriInterface
         } elseif (is_string($url)) {
             $this->url = new Url($url);
         } else {
-            throw new InvalidArgumentException('Param url must be either a string or an instance of Crwlr\Url\Url.');
+            throw new InvalidArgumentException('Param URL must be either a string or an instance of Crwlr\Url\Url.');
         }
 
         $this->resolver = $resolver ?? new Resolver();
