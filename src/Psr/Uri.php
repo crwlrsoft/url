@@ -10,7 +10,7 @@ use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
 /**
- * Class Uri
+ * Class URI
  *
  * This is an adapter class that implements the PSR-7 UriInterface that can't be implemented
  * by the URL class itself because it isn't designed to be immutable.

@@ -368,7 +368,7 @@ class Validator
      * If it doesn't start with a slash (relative-path reference) it must not contain a colon in the first segment.
      *
      * @param string $path
-     * @param bool $hasAuthority  Set to false when the uri containing that path has no authority component.
+     * @param bool $hasAuthority  Set to false when the URI containing that path has no authority component.
      * @return string|null
      */
     public static function path(string $path, bool $hasAuthority = true): ?string

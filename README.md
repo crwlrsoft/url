@@ -421,7 +421,7 @@ var_dump($uri->getPath());          // => '/foo/bar'
 var_dump($uri->getQuery());         // => 'some=query'
 var_dump($uri->getFragment());      // => 'fragment'
 
-// Keep in mind an instance of Uri is immutable and all the methods that change
+// Keep in mind an instance of URI is immutable and all the methods that change
 // state (method names starting with "with") return a new instance:
 $newUri = $uri->withScheme('http');
 var_dump($uri->getScheme());        // => 'https'
@@ -447,7 +447,7 @@ var_dump($uri->__toString());
 
 There are two Exceptions that can be thrown by the `Url` class:
 * `InvalidUrlException` when you try to create an instance from a
-  string that isn't a valid Uri.
+  string that isn't a valid URI.
 * `InvalidUrlComponentException` when you try to set an invalid
   new value for a component (scheme, host,...).
 
