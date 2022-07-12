@@ -707,7 +707,7 @@ final class UrlTest extends TestCase
             $url->resolve('/different/path')->toString()
         );
 
-        // More tests on resolving relative to absolute urls => see ResolverTest.php
+        // More tests on resolving relative to absolute URLs => see ResolverTest.php
     }
 
     public function testCompareUrls(): void
@@ -924,7 +924,7 @@ final class UrlTest extends TestCase
     }
 
     /**
-     * Parsing urls containing special characters like umlauts in path, query or fragment percent encodes these
+     * Parsing URLs containing special characters like umlauts in path, query or fragment percent encodes these
      * characters.
      */
     public function testParsingUrlsContainingUmlauts(): void

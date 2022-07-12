@@ -13,7 +13,7 @@ class Validator
     /**
      * Validate a url
      *
-     * Returns a valid url as string or null for invalid urls.
+     * Returns a valid url as string or null for invalid URLs.
      *
      * @param string $url
      * @return string|null
@@ -670,7 +670,7 @@ class Validator
     /**
      * Filter empty string elements from array returned by parse_url()
      *
-     * In PHP 7 parsing urls containing a delimiter for a component followed by nothing or another delimiter
+     * In PHP 7 parsing URLs containing a delimiter for a component followed by nothing or another delimiter
      * (e.g. https://example.com/foo?#) returns an array without the keys (query and fragment). In PHP 8 that changed
      * and the returned array contains query and fragment with empty strings as values.
      * Remove empty string elements for the same outcome in both versions.
