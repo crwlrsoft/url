@@ -1,4 +1,4 @@
-# Swiss Army knife for urls
+# Swiss Army knife for URLs
 
 This package is for you when PHP's parse_url() is not enough.
 
@@ -9,7 +9,7 @@ absolute url__, based on the document's url.
 * Get not only the full __host__ of a url, but also the __registrable domain__,
 the __domain suffix__ and the __subdomain__ parts of the host separately
 (Thanks to the [Mozilla Public Suffix List](https://publicsuffix.org/)).
-* __Compare urls__ or components of urls (e.g. checking if different urls
+* __Compare URLs__ or components of URLs (e.g. checking if different URLs
 point to the same host or domain)
 * Thanks to [symfony/polyfill-intl-idn](https://github.com/symfony/polyfill-intl-idn)
 it's also no problem to parse __internationalized domain names (IDN)__.
@@ -44,7 +44,7 @@ To start using the library include composer's autoload file and import the
 Url class so you don't have to write the full namespace path again and again.
 Further code examples skip the above.
 
-### Parsing urls
+### Parsing URLs
 
 Parsing a url is easy as pie:
 
@@ -75,7 +75,7 @@ Of course you can also get a new instance using the `new` keyword.
 $url = new Url('https://www.steve.jobs/');
 ```
 
-__Relative urls__  
+__Relative URLs__  
 
 New in v1.0 of this package is, that you can obtain an instance of `Url` from
 a relative url as well. Previous versions throw an `InvalidUrlException` when
@@ -195,10 +195,10 @@ var_dump($url->__toString());
 // string(68) "https://www.example.com/listing?page%5Bnumber%5D=4&page%5Bsize%5D=25"
 ```
 
-### Modifying urls
+### Modifying URLs
 
 All methods that are used to get a component's value can also be used to
-replace or set its value. So for example if you have an array of urls and you
+replace or set its value. So for example if you have an array of URLs and you
 want to be sure that they are all on https, you can achieve this simply by
 setting the scheme to `https` for all of them in a loop.
 
@@ -281,11 +281,11 @@ https://www.example.com/foo?param=value&marco=polo
 Btw.: As you can see in the example above, you can use a Url object like
 a string because of its `__toString()` method.
 
-### Resolving relative urls
+### Resolving relative URLs
 
-When you scrape urls from a website you will come across relative urls like
+When you scrape URLs from a website you will come across relative URLs like
 `/path/to/page`, `../path/to/page`, `?param=value`, `#anchor` and alike. This
-package makes it a breeze to resolve these urls to absolute ones with the url
+package makes it a breeze to resolve these URLs to absolute ones with the url
 of the page where they have been found on.
 
 ```php
@@ -321,10 +321,10 @@ array(4) {
 If you pass an absolute url to `resolve()` it will just return that absolute
 url.
 
-### Comparing urls or url components
+### Comparing URLs or url components
 
-You may think to compare two urls you don't need this library, but whenever
-you have urls from an unpredictable input source, I'd recommend to use it.
+You may think to compare two URLs you don't need this library, but whenever
+you have URLs from an unpredictable input source, I'd recommend to use it.
 Imagine a case like this:
 
 ```php
@@ -340,7 +340,7 @@ var_dump(Url::parse($url1)->isEqualTo($url2));
 ```
 
 It's also really easy to compare the same component of two different
-urls.
+URLs.
 
 ```php
 $url1 = Url::parse('https://u:p@www.example.com/foo?q=s#frag');

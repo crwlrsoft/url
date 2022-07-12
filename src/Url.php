@@ -13,7 +13,7 @@ use InvalidArgumentException;
  * Class Url
  *
  * This class is the central unit of this package. It represents a url, gives access to its components and also
- * to further functionality like resolving relative urls to absolute ones and comparing (components of) another url to
+ * to further functionality like resolving relative URLs to absolute ones and comparing (components of) another url to
  * the current instance.
  *
  * @link https://www.crwlr.software/packages/url Documentation
@@ -1003,7 +1003,7 @@ class Url
      * Compares the current instance with another url.
      *
      * @param string|Url $compareToUrl
-     * @param string|null $componentName  Compare either only a certain component of the urls or the whole urls if null.
+     * @param string|null $componentName  Compare either only a certain component of the URLs or the whole URLs if null.
      * @return bool
      * @throws InvalidArgumentException
      */

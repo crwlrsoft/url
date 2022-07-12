@@ -125,10 +125,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     - `urlAndComponents`: Returns an array with validated url
       as string and all single validated url components (
       `null` if invalid).
-    - `absoluteUrl`: Same as `url` but only absolute urls are
+    - `absoluteUrl`: Same as `url` but only absolute URLs are
       considered valid.
     - `absoluteUrlAndComponents`: Same as `urlAndComponents`
-      but only absolute urls are valid.
+      but only absolute URLs are valid.
 - Switch to `idn_to_ascii` and `idn_to_utf8` (respectively
   [symfony/polyfill-intl-idn](https://packagist.org/packages/symfony/polyfill-intl-idn)
   ) to handle parse internationalized domain names. 
