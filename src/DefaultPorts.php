@@ -7,7 +7,7 @@ use Crwlr\Url\Lists\Store;
 /**
  * Class DefaultPorts
  *
- * List of default ports for uri schemes.
+ * List of default ports for URI schemes.
  */
 
 class DefaultPorts extends Store

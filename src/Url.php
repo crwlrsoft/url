@@ -152,7 +152,7 @@ class Url
     }
 
     /**
-     * Parses $url to a new instance of the PSR-7 UriInterface compatible Uri class.
+     * Parses $url to a new instance of the PSR-7 UriInterface compatible URI class.
      *
      * @param string $url
      * @return Uri

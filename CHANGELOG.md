@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2021-01-10
 ### Added
-- Static method to create PSR-7 Uri object
+- Static method to create PSR-7 URI object
   (`Url::parsePsr7('https://...')`).
 
 ### Fixed
@@ -58,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2020-05-11
 
 ### Added
-- Adapter class Uri that implements the PSR-7 `UriInterface`.
+- Adapter class URI that implements the PSR-7 `UriInterface`.
 - New methods in `Url` class:
     - `authority`: Get or set the full authority part of 
       the URL.

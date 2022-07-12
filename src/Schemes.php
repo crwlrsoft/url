@@ -7,7 +7,7 @@ use Crwlr\Url\Lists\Store;
 /**
  * Class Schemes
  *
- * This class gives access to the list of all uri schemes from iana.org.
+ * This class gives access to the list of all URI schemes from iana.org.
  * https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml
  */
 
