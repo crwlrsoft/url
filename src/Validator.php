@@ -719,7 +719,7 @@ class Validator
     }
 
     /**
-     * Helper method for the URL and absoluteUrl methods.
+     * Helper method for the url and absoluteUrl methods.
      *
      * Because it's the same for both methods.
      *
