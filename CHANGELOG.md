@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Support for PHP 8.0
     - Minor change in Validator because output of PHP's
-      parse_url is different when an URL includes a
+      parse_url is different when a URL includes a
       delimiter for query or fragment but has no actual query
       or fragment (followed by empty string).
     - Change PHP version requirement in composer.json.
