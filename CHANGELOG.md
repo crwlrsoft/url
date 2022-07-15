@@ -26,7 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.1.0] - 2021-01-10
 ### Added
-- Static method to create PSR-7 URI object
+- Static method to create PSR-7 `Uri` object
   (`Url::parsePsr7('https://...')`).
 
 ### Fixed
@@ -58,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [1.0.0] - 2020-05-11
 
 ### Added
-- Adapter class URI that implements the PSR-7 `UriInterface`.
+- Adapter class `Uri` that implements the PSR-7 `UriInterface`.
 - New methods in `Url` class:
     - `authority`: Get or set the full authority part of 
       the URL.
@@ -109,7 +109,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Required PHP version is now 7.2 because PHP 7.0 and 7.1 are
   no longer actively supported.
-- Instances of the URL class can now be created from relative
+- Instances of the `Url` class can now be created from relative
   references (without scheme). In v0.1 creating a new instance
   from a relative reference threw an Exception. If your 
   application expects this behavior, you can use the 

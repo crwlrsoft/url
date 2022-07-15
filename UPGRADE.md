@@ -1,7 +1,7 @@
 # Upgrade from 0.x to 1.0.0
 
 - Required minimum PHP version is now 7.2.
-- Instances of the URL class can now be created from relative
+- Instances of the `Url` class can now be created from relative
   references (without scheme). In v0.1 creating a new instance
   from a relative reference threw an Exception. If your 
   application expects this behavior, you can use the 
