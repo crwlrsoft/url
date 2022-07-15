@@ -10,7 +10,7 @@ use Exception;
 use InvalidArgumentException;
 
 /**
- * Class URL
+ * Class Url
  *
  * This class is the central unit of this package. It represents a URL, gives access to its components and also
  * to further functionality like resolving relative URLs to absolute ones and comparing (components of) another URL to
@@ -140,7 +140,7 @@ class Url
     }
 
     /**
-     * Returns a new URL instance with param $url.
+     * Returns a new `Url` instance with param $url.
      *
      * @param string $url
      * @return Url
@@ -657,7 +657,7 @@ class Url
     }
 
     /**
-     * Returns true if the current instance URL is equal to the URL you want to compare.
+     * Returns true if the current instance `Url` is equal to the URL you want to compare.
      *
      * @param Url|string $url
      * @return bool
@@ -895,7 +895,7 @@ class Url
     }
 
     /**
-     * Parse and validate $url in case it's a string, return when it's an instance of URL or throw an Exception.
+     * Parse and validate $url in case it's a string, return when it's an instance of `Url` or throw an Exception.
      *
      * @param string|Url $url
      * @return Url|array|(string|int)[]
@@ -906,7 +906,7 @@ class Url
     {
         /** @phpstan-ignore-next-line */
         if (!is_string($url) && !$url instanceof Url) {
-            throw new InvalidArgumentException('Param $url must either be of type string or an instance of URL.');
+            throw new InvalidArgumentException('Param $url must either be of type string or an instance of Crwlr\Url\Url.');
         }
 
         if ($url instanceof Url) {
@@ -1014,11 +1014,11 @@ class Url
                 $compareToUrl = new Url($compareToUrl);
             } catch (InvalidUrlException $exception) {
                 // When the URL to compare is invalid (and thereby has no valid components) it (or any component)
-                // can't be equal to this URL instance, so return false.
+                // can't be equal to this `Url` instance, so return false.
                 return false;
             }
         } elseif (!$compareToUrl instanceof Url) {
-            throw new InvalidArgumentException('Param must be either string or instance of URL.');
+            throw new InvalidArgumentException('Param must be either string or instance of Crwlr\Url\Url.');
         }
 
         if ($componentName === null) {

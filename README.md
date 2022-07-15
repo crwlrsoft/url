@@ -41,7 +41,7 @@ use Crwlr\Url\Url;
 ```
 
 To start using the library include composer's autoload file and import the
-URL class so you don't have to write the full namespace path again and again.
+`Url` class so you don't have to write the full namespace path again and again.
 Further code examples skip the above.
 
 ### Parsing URLs
@@ -278,7 +278,7 @@ __Output__
 https://www.example.com/foo?param=value&marco=polo
 ```
 
-Btw.: As you can see in the example above, you can use a URL object like
+Btw.: As you can see in the example above, you can use a `Url` object like
 a string because of its `__toString()` method.
 
 ### Resolving relative URLs
@@ -336,7 +336,7 @@ var_dump($url1 === $url2);
 
 var_dump(Url::parse($url1)->isEqualTo($url2));
 // Returns true, because the path /foo/bár/báz is percent-encoded
-// in the URL class to /foo/b%C3%A1r/b%C3%A1z
+// in the `Url` class to /foo/b%C3%A1r/b%C3%A1z
 ```
 
 It's also really easy to compare the same component of two different
@@ -421,7 +421,7 @@ var_dump($uri->getPath());          // => '/foo/bar'
 var_dump($uri->getQuery());         // => 'some=query'
 var_dump($uri->getFragment());      // => 'fragment'
 
-// Keep in mind an instance of URI is immutable and all the methods that change
+// Keep in mind an instance of Ùri` is immutable and all the methods that change
 // state (method names starting with "with") return a new instance:
 $newUri = $uri->withScheme('http');
 var_dump($uri->getScheme());        // => 'https'
