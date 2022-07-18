@@ -657,7 +657,7 @@ class Url
     }
 
     /**
-     * Returns true if the current instance `Url` is equal to the URL you want to compare.
+     * Returns true if the current instance URL is equal to the URL you want to compare.
      *
      * @param Url|string $url
      * @return bool
