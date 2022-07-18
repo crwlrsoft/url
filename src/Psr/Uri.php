@@ -19,7 +19,7 @@ use Psr\Http\Message\UriInterface;
 class Uri implements UriInterface
 {
     /**
-     * @var Uri
+     * @var Url
      */
     private $url;
 
