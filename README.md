@@ -421,7 +421,7 @@ var_dump($uri->getPath());          // => '/foo/bar'
 var_dump($uri->getQuery());         // => 'some=query'
 var_dump($uri->getFragment());      // => 'fragment'
 
-// Keep in mind an instance of Ùri` is immutable and all the methods that change
+// Keep in mind an instance of `Uri` is immutable and all the methods that change
 // state (method names starting with "with") return a new instance:
 $newUri = $uri->withScheme('http');
 var_dump($uri->getScheme());        // => 'https'
