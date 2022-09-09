@@ -31,14 +31,15 @@
         "docs": "https://www.crwlr.software/packages/url"
     },
     "require": {
-        "php" : "^7.2|^8.0",
+        "php" : "^8.0",
         "psr/http-message": "^1.0",
-        "symfony/polyfill-intl-idn": "^1.11"
+        "symfony/polyfill-intl-idn": "^1.11",
+        "crwlr/query-string": "^1.0"
     },
     "require-dev": {
-        "phpunit/phpunit": "^8.0",
+        "phpunit/phpunit": "^9.0",
         "friendsofphp/php-cs-fixer": "^3.4",
-        "phpstan/phpstan": "^1.3"
+        "phpstan/phpstan": "^1.8"
     },
     "autoload": {
         "psr-4": {
@@ -54,8 +55,5 @@
         "update-schemes": "@php bin/update-schemes",
         "update-default-ports": "@php bin/update-default-ports",
         "add-git-hooks": "@php bin/add-git-hooks"
-    },
-    "suggest": {
-        "crwlr/query-string": "The queryString() method requires this additional package"
     }
 }

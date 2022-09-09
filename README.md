@@ -53,7 +53,7 @@ $url = Url::parse('https://john:123@www.example.com:8080/foo?bar=baz');
 ```
 
 The static `parse` method of the `Url` class provides a convenient way to
-create a new instance and then access all of it's components separately.
+create a new instance and then access all of its components separately.
 
 ```php
 // Accessing url components via method calls
@@ -61,12 +61,6 @@ $port = $url->port();                   // => 8080
 $domainSuffix = $url->domainSuffix();   // => "com"
 $path = $url->path();                   // => "/foo"
 $fragment = $url->fragment();           // => NULL
-
-// Or as properties
-$scheme = $url->scheme;                 // => "https"
-$user = $url->user;                     // => "john"
-$host = $url->host;                     // => "www.example.com"
-$domain = $url->domain;                 // => "example.com"
 ```
 
 Of course you can also get a new instance using the `new` keyword.

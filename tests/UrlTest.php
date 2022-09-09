@@ -77,34 +77,6 @@ final class UrlTest extends TestCase
         $this->assertEquals('/some/path?some=query#fragment', $url->relative());
     }
 
-    public function testClassPropertyAccess(): void
-    {
-        $url = $this->createDefaultUrlObject();
-        $this->assertEquals('https', $url->scheme); // @phpstan-ignore-line
-        $this->assertEquals('user:password@sub.sub.example.com:8080', $url->authority); // @phpstan-ignore-line
-        $this->assertEquals('user', $url->user); // @phpstan-ignore-line
-        $this->assertEquals('password', $url->password); // @phpstan-ignore-line
-        $this->assertEquals('password', $url->pass); // @phpstan-ignore-line
-        $this->assertEquals('user:password', $url->userInfo); // @phpstan-ignore-line
-        $this->assertEquals('sub.sub.example.com', $url->host); // @phpstan-ignore-line
-        $this->assertEquals('example.com', $url->domain); // @phpstan-ignore-line
-        $this->assertEquals('example', $url->domainLabel); // @phpstan-ignore-line
-        $this->assertEquals('com', $url->domainSuffix); // @phpstan-ignore-line
-        $this->assertEquals('sub.sub', $url->subdomain); // @phpstan-ignore-line
-        $this->assertEquals(8080, $url->port); // @phpstan-ignore-line
-        $this->assertEquals('/some/path', $url->path); // @phpstan-ignore-line
-        $this->assertEquals('some=query', $url->query); // @phpstan-ignore-line
-        $this->assertEquals(['some' => 'query'], $url->queryArray); // @phpstan-ignore-line
-        $this->assertEquals('fragment', $url->fragment); // @phpstan-ignore-line
-        $this->assertEquals('https://user:password@sub.sub.example.com:8080', $url->root); // @phpstan-ignore-line
-        $this->assertEquals('/some/path?some=query#fragment', $url->relative); // @phpstan-ignore-line
-
-        // other class properties that aren't components of the parsed url should not be available.
-        $this->assertNull($url->parser); // @phpstan-ignore-line
-        $this->assertNull($url->validator); // @phpstan-ignore-line
-        $this->assertNull($url->resolver); // @phpstan-ignore-line
-    }
-
     public function testParseIdnUrl(): void
     {
         $url = new Url('https://www.юбилейный.онлайн');
