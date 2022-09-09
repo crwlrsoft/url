@@ -57,7 +57,6 @@ class Url
     private $path;
 
     /**
-     * @phpstan-ignore-next-line
      * @var string|Query|null
      */
     private $query;
@@ -110,33 +109,6 @@ class Url
     {
         $url = $this->validate($url);
         $this->populate($url);
-    }
-
-    /**
-     * @param string $name
-     * @return mixed
-     */
-    public function __get(string $name)
-    {
-        if ($this->isValidComponentName($name)) {
-            return $this->$name();
-        }
-
-        return null;
-    }
-
-    /**
-     * @param string $name
-     * @param mixed $value
-     * @return mixed
-     */
-    public function __set(string $name, $value)
-    {
-        if ($this->isValidComponentName($name)) {
-            return $this->$name($value);
-        }
-
-        return null;
     }
 
     /**
@@ -493,7 +465,7 @@ class Url
     public function query(?string $query = null)
     {
         if ($query === null) {
-            return $this->query instanceof Query ? $this->query->toString() : $this->query; // @phpstan-ignore-line
+            return $this->query instanceof Query ? $this->query->toString() : $this->query;
         } elseif ($query === '') {
             $this->query = null;
         } else {
@@ -513,8 +485,8 @@ class Url
     public function queryArray(?array $query = null)
     {
         if ($query === null) {
-            if ($this->query instanceof Query) { // @phpstan-ignore-line
-                return $this->query->toArray();  // @phpstan-ignore-line
+            if ($this->query instanceof Query) {
+                return $this->query->toArray();
             }
 
             return $this->query ? Helpers::queryStringToArray($this->query) : [];
@@ -528,7 +500,7 @@ class Url
     /**
      * @throws Exception
      */
-    public function queryString(): Query // @phpstan-ignore-line
+    public function queryString(): Query
     {
         if (version_compare(PHP_VERSION, '8.0.0', '<')) {
             throw new Exception(
