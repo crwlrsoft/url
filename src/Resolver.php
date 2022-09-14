@@ -3,6 +3,7 @@
 namespace Crwlr\Url;
 
 use Crwlr\Url\Exceptions\InvalidUrlException;
+use Exception;
 
 /**
  * Class Resolver
@@ -22,7 +23,7 @@ class Resolver
      * @param string $subject
      * @param Url $base
      * @return Url
-     * @throws InvalidUrlException
+     * @throws InvalidUrlException|Exception
      */
     public function resolve(string $subject, Url $base): Url
     {
@@ -40,7 +41,7 @@ class Resolver
 
         $subject = $this->resolveDots($subject, $base->path() ?? '/');
 
-        if (substr($subject, 0, 2) === '//') {
+        if (str_starts_with($subject, '//')) {
             return new Url($base->scheme() . ':' . $subject);
         }
 
@@ -49,10 +50,6 @@ class Resolver
 
     /**
      * Resolve a relative reference against a base path.
-     *
-     * @param string $resolvePath
-     * @param string $basePath
-     * @return string
      */
     public function resolvePath(string $resolvePath, string $basePath): string
     {
@@ -66,10 +63,6 @@ class Resolver
      * subject: ./foo/../bar/./baz
      * base path: /one/two/three
      * result: /one/two/bar/baz
-     *
-     * @param string $subject
-     * @param string $basePath
-     * @return string
      */
     private function resolveDots(string $subject = '', string $basePath = ''): string
     {
@@ -91,13 +84,13 @@ class Resolver
             }
         }
 
-        if (substr($subject, 0, 1) === '/') {
+        if (str_starts_with($subject, '/')) {
             $resolvedPath = implode('/', $splitBySlash);
         } else {
             $resolvedPath = $basePathDir . implode('/', $splitBySlash);
         }
 
-        if (substr($subject, -2) === '/.' || substr($subject, -3) === '/..') {
+        if (str_ends_with($subject, '/.') || str_ends_with($subject, '/..')) {
             $resolvedPath .= '/';
         }
 
@@ -107,9 +100,7 @@ class Resolver
     /**
      * Helper method for resolveDots
      *
-     * @param array|string[] $splitPath
-     * @param int $currentKey
-     * @return null|int
+     * @param string[] $splitPath
      */
     private function getParentDirFromArray(array $splitPath, int $currentKey = 0): ?int
     {
@@ -128,13 +119,10 @@ class Resolver
 
     /**
      * Get the path to parent directory of a path.
-     *
-     * @param string $path
-     * @return string
      */
     private function getParentDirectoryPath(string $path = ''): string
     {
-        if (substr($path, -1, 1) !== '/') {
+        if (!str_ends_with($path, '/')) {
             $path = $this->getDirectoryPath($path);
         }
 
@@ -152,13 +140,10 @@ class Resolver
      * Returns the $path until the last slash.
      *
      * /foo/bar => /foo/
-     *
-     * @param string $path
-     * @return string
      */
     private function getDirectoryPath(string $path = ''): string
     {
-        if (substr($path, -1, 1) === '/') {
+        if (str_ends_with($path, '/')) {
             return $path;
         }
 

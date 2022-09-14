@@ -15,7 +15,7 @@ use Crwlr\Url\Helpers;
 
 class Updater extends \Crwlr\Url\Lists\Updater
 {
-    protected $storeValuesAsKeys = false;
+    protected bool $storeValuesAsKeys = false;
 
     /**
      * @return int[]

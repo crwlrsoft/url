@@ -14,15 +14,9 @@ use Crwlr\Url\Schemes;
 
 class Updater extends WebUpdater
 {
-    /**
-     * @var string
-     */
-    protected $url = 'https://www.iana.org/assignments/uri-schemes/uri-schemes-1.csv';
+    protected string $url = 'https://www.iana.org/assignments/uri-schemes/uri-schemes-1.csv';
 
-    /**
-     * @var string
-     */
-    protected $originalFilename = 'uri-schemes.csv';
+    protected string $originalFilename = 'uri-schemes.csv';
 
     /**
      * @param string $content
@@ -33,7 +27,7 @@ class Updater extends WebUpdater
         $schemes = [];
 
         foreach (explode("\n", $content) as $lineNumber => $line) {
-            if ($lineNumber === 0 || substr($line, 0, 1) === ' ') {
+            if ($lineNumber === 0 || str_starts_with($line, ' ')) {
                 continue;
             }
 

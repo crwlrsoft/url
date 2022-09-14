@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace Tests;
+
 use Crwlr\Url\Validator;
 use PHPUnit\Framework\TestCase;
 
@@ -424,10 +426,10 @@ final class ValidatorTest extends TestCase
     }
 
     /**
-     * @param array|mixed $validationResult
-     * @param array|mixed[] $contains
+     * @param mixed $validationResult
+     * @param mixed[] $contains
      */
-    private function assertArrayContains($validationResult, array $contains): void
+    private function assertArrayContains(mixed $validationResult, array $contains): void
     {
         $this->assertIsArray($validationResult);
 

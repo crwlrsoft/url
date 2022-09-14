@@ -13,11 +13,11 @@ abstract class Updater
 {
     /**
      * For simple lists of values, lists are stored with the value as the key and 0 as value for faster search.
-     * When key => value is needed set this to false.
+     * When key => value is needed, set this to false.
      *
      * @var bool
      */
-    protected $storeValuesAsKeys = true;
+    protected bool $storeValuesAsKeys = true;
 
     /**
      * The default procedure for an Updater: get source contents, parse and store them.
@@ -25,7 +25,9 @@ abstract class Updater
     public function update(): void
     {
         $content = $this->getOriginalContent();
+
         $parsed = $this->parseContent($content);
+
         $this->storeList($parsed);
     }
 

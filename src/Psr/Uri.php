@@ -6,6 +6,7 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Resolver;
 use Crwlr\Url\Url;
 use Crwlr\Url\Validator;
+use Exception;
 use InvalidArgumentException;
 use Psr\Http\Message\UriInterface;
 
@@ -18,37 +19,24 @@ use Psr\Http\Message\UriInterface;
 
 class Uri implements UriInterface
 {
-    /**
-     * @var Url
-     */
-    private $url;
+    private Url $url;
 
-    /**
-     * @var Resolver
-     */
-    private $resolver;
+    private Resolver $resolver;
 
     /**
      * @param Url|string $url
      * @param Resolver|null $resolver
      * @throws InvalidUrlException
-     * @throws InvalidArgumentException
      */
-    public function __construct($url, ?Resolver $resolver = null)
+    public function __construct(Url|string $url, ?Resolver $resolver = null)
     {
-        if ($url instanceof Url) {
-            $this->url = $url;
-        } elseif (is_string($url)) {
-            $this->url = new Url($url);
-        } else {
-            throw new InvalidArgumentException('Param $url must be either a string or an instance of Crwlr\Url\Url.');
-        }
+        $this->url = $url instanceof Url ? $url : new Url($url);
 
         $this->resolver = $resolver ?? new Resolver();
     }
 
     /**
-     * @return string
+     * @throws Exception
      */
     public function getScheme(): string
     {
@@ -56,7 +44,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return string
+     * @throws Exception
      */
     public function getUserInfo(): string
     {
@@ -64,7 +52,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return string
+     * @throws Exception
      */
     public function getAuthority(): string
     {
@@ -72,7 +60,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return string
+     * @throws Exception
      */
     public function getHost(): string
     {
@@ -80,7 +68,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return int|null
+     * @throws Exception
      */
     public function getPort(): ?int
     {
@@ -88,7 +76,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return string
+     * @throws Exception
      */
     public function getPath(): string
     {
@@ -96,7 +84,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return string
+     * @throws Exception
      */
     public function getQuery(): string
     {
@@ -104,7 +92,7 @@ class Uri implements UriInterface
     }
 
     /**
-     * @return string
+     * @throws Exception
      */
     public function getFragment(): string
     {
@@ -114,6 +102,7 @@ class Uri implements UriInterface
     /**
      * @param string $scheme
      * @return Uri
+     * @throws Exception
      * @throws InvalidArgumentException
      */
     public function withScheme($scheme): Uri
@@ -129,6 +118,7 @@ class Uri implements UriInterface
      * @param string $user
      * @param null|string $password
      * @return Uri
+     * @throws Exception
      */
     public function withUserInfo($user, $password = null): Uri
     {
@@ -142,6 +132,7 @@ class Uri implements UriInterface
     /**
      * @param string $host
      * @return Uri
+     * @throws Exception
      */
     public function withHost($host): Uri
     {
@@ -154,6 +145,7 @@ class Uri implements UriInterface
     /**
      * @param int|null $port
      * @return Uri
+     * @throws Exception
      * @throws InvalidArgumentException
      */
     public function withPort($port): Uri
@@ -179,6 +171,7 @@ class Uri implements UriInterface
      *
      * @param string $path
      * @return Uri
+     * @throws Exception
      */
     public function withPath($path): Uri
     {
@@ -188,7 +181,7 @@ class Uri implements UriInterface
             $path = '';
         }
 
-        if (substr($path, 0, 1) !== '/' && trim($path) !== '') {
+        if (!str_starts_with($path, '/') && trim($path) !== '') {
             $path = $this->resolver->resolvePath($path, $this->url->path() ?? '');
         }
 
@@ -200,6 +193,7 @@ class Uri implements UriInterface
     /**
      * @param string $query
      * @return Uri
+     * @throws Exception
      */
     public function withQuery($query): Uri
     {
@@ -212,6 +206,7 @@ class Uri implements UriInterface
     /**
      * @param string $fragment
      * @return Uri
+     * @throws Exception
      */
     public function withFragment($fragment): Uri
     {

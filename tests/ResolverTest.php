@@ -1,13 +1,19 @@
 <?php
 declare(strict_types=1);
 
+namespace Tests;
+
 use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Resolver;
 use Crwlr\Url\Url;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 final class ResolverTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     public function testResolveRelativeUrls(): void
     {
         $baseUrlObject = $this->getBaseUrlObject();
@@ -84,6 +90,9 @@ final class ResolverTest extends TestCase
         $this->assertEquals('/foo/one/three', $resolved->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testResolveRelativeUrlAgainstBaseUrlWithEmptyPath(): void
     {
         $baseUrlObject = Url::parse('https://www.crwlr.software');
@@ -92,6 +101,9 @@ final class ResolverTest extends TestCase
         $this->assertEquals('https://www.crwlr.software/privacy', $resolved->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testResolveRelativePathWithoutLeadingSlashAgainstBaseUrlWithEmptyPath(): void
     {
         $resolver = new Resolver();
@@ -103,6 +115,7 @@ final class ResolverTest extends TestCase
 
     /**
      * When resolve() is called with an absolute URL as subject, it should just return this absolute URL.
+     * @throws Exception
      */
     public function testResolveAbsoluteUrl(): void
     {
@@ -141,8 +154,6 @@ final class ResolverTest extends TestCase
     }
 
     /**
-     * @param string $url
-     * @return Url
      * @throws InvalidUrlException
      */
     private function getBaseUrlObject(string $url = ''): Url

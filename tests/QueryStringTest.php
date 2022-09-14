@@ -1,8 +1,11 @@
 <?php
 declare(strict_types=1);
 
+namespace Tests;
+
 use Crwlr\QueryString\Query;
 use Crwlr\Url\Url;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 final class QueryStringTest extends TestCase
@@ -20,6 +23,9 @@ final class QueryStringTest extends TestCase
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function testTheQueryMethodReturnValueIsInSyncWithQueryStringInstance(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
@@ -35,6 +41,9 @@ final class QueryStringTest extends TestCase
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function testTheQueryArrayMethodReturnValueIsInSyncWithQueryStringInstance(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
@@ -50,6 +59,9 @@ final class QueryStringTest extends TestCase
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function testTheQueryStringCanBeAccessedViaMagicGetter(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
@@ -65,6 +77,9 @@ final class QueryStringTest extends TestCase
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function testItStillWorksToSetTheQueryViaQueryMethodAfterQueryStringWasUsed(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
@@ -84,6 +99,9 @@ final class QueryStringTest extends TestCase
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function testItStillWorksToSetTheQueryViaQueryArrayMethodAfterQueryStringWasUsed(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');

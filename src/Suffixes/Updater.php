@@ -13,15 +13,9 @@ use Crwlr\Url\Suffixes;
 
 class Updater extends WebUpdater
 {
-    /**
-     * @var string
-     */
-    protected $url = 'https://publicsuffix.org/list/public_suffix_list.dat';
+    protected string $url = 'https://publicsuffix.org/list/public_suffix_list.dat';
 
-    /**
-     * @var string
-     */
-    protected $originalFilename = 'public_suffix_list.dat';
+    protected string $originalFilename = 'public_suffix_list.dat';
 
     /**
      * @param string $content
@@ -35,7 +29,7 @@ class Updater extends WebUpdater
         foreach ($lines as $line) {
             $line = trim($line);
 
-            if ($line === '' || substr(trim($line), 0, 2) === '//') {
+            if ($line === '' || str_starts_with($line, '//')) {
                 continue;
             }
 

@@ -46,6 +46,11 @@
             "Crwlr\\Url\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests"
+        }
+    },
     "scripts": {
         "test": "@php vendor/bin/phpunit",
         "cs": "@php vendor/bin/php-cs-fixer fix -v --dry-run",

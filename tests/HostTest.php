@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace Tests;
+
 use Crwlr\Url\Host;
 use PHPUnit\Framework\TestCase;
 

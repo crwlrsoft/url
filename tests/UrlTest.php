@@ -1,10 +1,13 @@
 <?php
 declare(strict_types=1);
 
+namespace Tests;
+
 use Crwlr\Url\Exceptions\InvalidUrlComponentException;
 use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Psr\Uri;
 use Crwlr\Url\Url;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 final class UrlTest extends TestCase
@@ -54,6 +57,9 @@ final class UrlTest extends TestCase
         $this->assertInstanceOf(Uri::class, $uri);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrl(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -77,6 +83,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('/some/path?some=query#fragment', $url->relative());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseIdnUrl(): void
     {
         $url = new Url('https://www.юбилейный.онлайн');
@@ -94,6 +103,9 @@ final class UrlTest extends TestCase
         Url::parse('https://www.exclamation!mark.co');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceScheme(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -109,6 +121,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlComponentException
+     * @throws Exception
      */
     public function testSetInvalidSchemeThrowsException(): void
     {
@@ -117,24 +130,36 @@ final class UrlTest extends TestCase
         $url->scheme('1nvalidSch3m3');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testSchemeContainingPlus(): void
     {
         $url = Url::parse('coap+tcp://example.com');
         $this->assertEquals('coap+tcp', $url->scheme());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testSchemeContainingDash(): void
     {
         $url = Url::parse('chrome-extension://extension-id/page.html');
         $this->assertEquals('chrome-extension', $url->scheme());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testSchemeContainingDot(): void
     {
         $url = Url::parse('soap.beep://stockquoteserver.example.com/StockQuote');
         $this->assertEquals('soap.beep', $url->scheme());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithoutScheme(): void
     {
         $url = Url::parse('//www.example.com/test.html');
@@ -144,6 +169,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('http://www.example.com/test.html', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceAuthority(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -187,6 +215,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlComponentException
+     * @throws Exception
      */
     public function testSetInvalidAuthorityThrowsException(): void
     {
@@ -195,6 +224,9 @@ final class UrlTest extends TestCase
         $url->authority('example.com:100000');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceUser(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -208,6 +240,9 @@ final class UrlTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplacePassword(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -231,6 +266,9 @@ final class UrlTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceUserInfo(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -258,6 +296,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://a:b%3Ac@sub.sub.example.com:8080/some/path?some=query#fragment', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testUrlWithEmptyUserInfo(): void
     {
         $url = Url::parse('https://@example.com');
@@ -265,6 +306,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('', $url->userInfo());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceHost(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -281,6 +325,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlComponentException
+     * @throws Exception
      */
     public function testSetInvalidHostThrowsException(): void
     {
@@ -289,12 +334,18 @@ final class UrlTest extends TestCase
         $url->host('crw!r.software');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testPercentEncodedCharactersInHost(): void
     {
         $url = Url::parse('https://www.m%C3%A4nnersalon.at');
         $this->assertEquals('www.xn--mnnersalon-q5a.at', $url->host());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testIpAddressHost(): void
     {
         $url = Url::parse('https://192.168.0.1/foo/bar');
@@ -308,6 +359,8 @@ final class UrlTest extends TestCase
 
     /**
      * Example addresses from https://tools.ietf.org/html/rfc2732#section-2
+     *
+     * @throws Exception
      */
     public function testIpV6AddressHost(): void
     {
@@ -342,6 +395,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('http://[2010:836b:4179::836b:4179]', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceSubdomain(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -358,6 +414,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlComponentException
+     * @throws Exception
      */
     public function testSetInvalidSubdomainThrowsException(): void
     {
@@ -366,6 +423,9 @@ final class UrlTest extends TestCase
         $url->subdomain('crw!r');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceDomain(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -393,6 +453,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlComponentException
+     * @throws Exception
      */
     public function testSetInvalidDomainThrowsException(): void
     {
@@ -401,6 +462,9 @@ final class UrlTest extends TestCase
         $url->domain('"example".com');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceDomainLabel(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -414,6 +478,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlComponentException
+     * @throws Exception
      */
     public function testSetInvalidDomainLabelThrowsException(): void
     {
@@ -422,6 +487,9 @@ final class UrlTest extends TestCase
         $url->domainLabel('invalid.label');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceDomainSuffix(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -448,6 +516,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlComponentException
+     * @throws Exception
      */
     public function testSetInvalidDomainSuffixThrowsException(): void
     {
@@ -456,6 +525,9 @@ final class UrlTest extends TestCase
         $url->domainSuffix('invalid.suffix');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplacePort(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -471,6 +543,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlComponentException
+     * @throws Exception
      */
     public function testSetInvalidPortThrowsException(): void
     {
@@ -479,6 +552,9 @@ final class UrlTest extends TestCase
         $url->port(-3);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testUrlWithEmptyPort(): void
     {
         $url = Url::parse('https://www.example.com:/foo/bar');
@@ -486,6 +562,9 @@ final class UrlTest extends TestCase
         $this->assertEquals(null, $url->port());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplacePath(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -499,6 +578,9 @@ final class UrlTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithEmptyPath(): void
     {
         $url = Url::parse('https://www.example.com?foo=bar');
@@ -511,6 +593,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://www.example.com#foo', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceQueryString(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -534,6 +619,9 @@ final class UrlTest extends TestCase
         );
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithEmptyQuery(): void
     {
         $url = Url::parse('https://www.example.com/path?#fragment');
@@ -554,6 +642,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://www.example.com', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testReplaceFragment(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -566,7 +657,9 @@ final class UrlTest extends TestCase
             $url->toString()
         );
     }
-
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithEmptyFragment(): void
     {
         $url = Url::parse('https://www.example.com/path?query=string#');
@@ -584,6 +677,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://www.example.com', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testChainReplacementCalls(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -603,6 +699,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('http://john:god@www.crwlr.software:8081/foo/bar?key=value#anchor', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseRelativeReferences(): void
     {
         $url = Url::parse('/path?query#fragment');
@@ -655,6 +754,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('https', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testIsRelativeReference(): void
     {
         $url = Url::parse('/relative/reference?query=string#fragment');
@@ -670,6 +772,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isRelativeReference());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testResolveRelativeReference(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -682,6 +787,9 @@ final class UrlTest extends TestCase
         // More tests on resolving relative to absolute URLs => see ResolverTest.php
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareUrls(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -692,6 +800,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isEqualTo($equalUrl->__toString()));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareScheme(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -704,6 +815,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isSchemeEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareAuthority(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -716,6 +830,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isAuthorityEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareUser(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -728,6 +845,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isUserEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testComparePassword(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -742,6 +862,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isPasswordEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareUserInfo(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -754,6 +877,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isUserInfoEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareHost(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -767,6 +893,9 @@ final class UrlTest extends TestCase
         $equalUrl->host('sub.sub.example.com');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareDomain(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -780,6 +909,9 @@ final class UrlTest extends TestCase
         $equalUrl->domain('example.com');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareDomainLabel(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -792,6 +924,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isDomainLabelEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareDomainSuffix(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -804,6 +939,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isDomainSuffixEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareSubdomain(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -816,6 +954,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isSubdomainEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testComparePort(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -828,6 +969,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isPortEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testComparePath(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -840,6 +984,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isPathEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareQuery(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -854,6 +1001,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isQueryEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareFragment(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -866,6 +1016,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isFragmentEqualIn($equalUrl));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareRoot(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -876,6 +1029,9 @@ final class UrlTest extends TestCase
         $this->assertFalse($url->isComponentEqualIn($equalUrl, 'root'));
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCompareRelative(): void
     {
         $url = $this->createDefaultUrlObject();
@@ -943,6 +1099,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlException
+     * @throws Exception
      */
     public function testCreateRelativePathReferenceWithAuthority(): void
     {
@@ -953,6 +1110,9 @@ final class UrlTest extends TestCase
         $url->authority('www.example.com');
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithSchemeAndPathButWithoutAuthority(): void
     {
         $url = Url::parse('http:/foo/bar');
@@ -967,6 +1127,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('http:path#fragment', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithoutSchemeAndPathButPortQueryAndFragment(): void
     {
         $url = Url::parse('//www.example.com:80?query=string#fragment');
@@ -977,6 +1140,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('//www.example.com:80?query=string#fragment', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithEmptyQueryAndFragment(): void
     {
         $url = Url::parse('https://www.example.com/?#');
@@ -991,6 +1157,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://www.example.com', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithHostWithTrailingDot(): void
     {
         $url = Url::parse('https://www.example.com./path');
@@ -999,6 +1168,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://www.example.com./path', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithPathInFragment(): void
     {
         $url = Url::parse('https://www.example.com#fragment/foo/bar');
@@ -1006,6 +1178,9 @@ final class UrlTest extends TestCase
         $this->assertEquals('https://www.example.com#fragment/foo/bar', $url->toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testParseUrlWithColonInPath(): void
     {
         $url = Url::parse('https://www.example.com/path:foo/bar');
@@ -1015,6 +1190,7 @@ final class UrlTest extends TestCase
 
     /**
      * @throws InvalidUrlException
+     * @throws Exception
      */
     public function testCreateRelativePathReferenceWithHost(): void
     {

@@ -20,7 +20,7 @@ abstract class WebUpdater extends Updater
      *
      * @var string
      */
-    protected $url = '';
+    protected string $url = '';
 
     /**
      * In a child class a filename for the original list file needs to be defined,
@@ -28,7 +28,7 @@ abstract class WebUpdater extends Updater
      *
      * @var string
      */
-    protected $originalFilename = '';
+    protected string $originalFilename = '';
 
     /**
      * Path where the original source file will be stored.
@@ -36,7 +36,7 @@ abstract class WebUpdater extends Updater
      * @var string
      * @see Updater::setOriginalPath()
      */
-    protected $originalPath = '';
+    protected string $originalPath = '';
 
     /**
      * @throws ListUpdaterException
@@ -74,7 +74,7 @@ abstract class WebUpdater extends Updater
     }
 
     /**
-     * @param array|(string|int)[] $parsed
+     * @param array<string|int> $parsed
      */
     protected function storeList(array $parsed = []): void
     {
@@ -94,7 +94,7 @@ abstract class WebUpdater extends Updater
      */
     private function checkUrl(): void
     {
-        if (!is_string($this->url) || trim($this->url) === '') {
+        if (trim($this->url) === '') {
             throw new ListUpdaterException('No URL to load the original list from is defined.');
         }
     }
@@ -104,7 +104,7 @@ abstract class WebUpdater extends Updater
      */
     private function setOriginalPath(): void
     {
-        if (!is_string($this->originalFilename) || trim($this->originalFilename) === '') {
+        if (trim($this->originalFilename) === '') {
             throw new ListUpdaterException(
                 get_called_class() . ' has no filename where the original list content should be stored.'
             );

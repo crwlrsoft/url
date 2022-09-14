@@ -13,17 +13,14 @@ use Crwlr\Url\Lists\Store;
 
 class Schemes extends Store
 {
-    /**
-     * @var string
-     */
-    protected $storeFilename = 'schemes.php';
+    protected string $storeFilename = 'schemes.php';
 
     /**
      * Fallback list if list file loading fails.
      *
      * @var int[]
      */
-    protected $fallbackList = [
+    protected array $fallbackList = [
         'cvs' => 0,
         'data' => 0,
         'dns' => 0,
