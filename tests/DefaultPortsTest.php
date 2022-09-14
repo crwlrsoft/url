@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+namespace Tests;
+
 use Crwlr\Url\DefaultPorts;
 use PHPUnit\Framework\TestCase;
 

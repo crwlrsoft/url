@@ -12,12 +12,12 @@ use Crwlr\Url\Lists\Store;
 
 class DefaultPorts extends Store
 {
-    protected $storeFilename = 'default-ports.php';
+    protected string $storeFilename = 'default-ports.php';
 
     /**
      * @var int[]
      */
-    protected $fallbackList = [
+    protected array $fallbackList = [
         'ftp' => 21,
         'git' => 9418,
         'http' => 80,

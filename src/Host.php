@@ -11,25 +11,14 @@ namespace Crwlr\Url;
 
 class Host
 {
-    /**
-     * @var string
-     */
-    private $host;
+    private string $host;
 
-    /**
-     * @var string|null
-     */
-    private $subdomain;
+    private ?string $subdomain = null;
 
-    /**
-     * @var Domain|null
-     */
-    private $domain;
+    private ?Domain $domain = null;
 
     /**
      * If you use this class directly, please validate the $host string first with Validator->host().
-     *
-     * @param string $host
      */
     public function __construct(string $host)
     {
@@ -42,9 +31,6 @@ class Host
         }
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->host;
@@ -52,9 +38,6 @@ class Host
 
     /**
      * (Set and/or) Get the registrable domain.
-     *
-     * @param string|null $domain
-     * @return string|null
      */
     public function domain(?string $domain = null): ?string
     {
@@ -68,9 +51,6 @@ class Host
 
     /**
      * (Set and/or) Get the subdomain part of the host.
-     *
-     * @param string|null $subdomain
-     * @return string|null
      */
     public function subdomain(?string $subdomain = null): ?string
     {
@@ -84,9 +64,6 @@ class Host
 
     /**
      * (Set and/or) Get the domain label (registrable domain without suffix).
-     *
-     * @param string|null $domainLabel
-     * @return string|null
      */
     public function domainLabel(?string $domainLabel = null): ?string
     {
@@ -100,9 +77,6 @@ class Host
 
     /**
      * (Set and/or) Get the public suffix of the registrable domain.
-     *
-     * @param string|null $domainSuffix
-     * @return string|null
      */
     public function domainSuffix(?string $domainSuffix = null): ?string
     {
@@ -116,8 +90,6 @@ class Host
 
     /**
      * Returns true when the host contains an internationalized domain name.
-     *
-     * @return bool
      */
     public function hasIdn(): bool
     {
@@ -138,8 +110,6 @@ class Host
 
     /**
      * True when this class has an instance of domain that is not empty.
-     *
-     * @return bool
      */
     private function domainNotEmpty(): bool
     {

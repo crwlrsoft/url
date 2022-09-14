@@ -21,59 +21,32 @@ use InvalidArgumentException;
 
 class Url
 {
-    /**
-     * @var string|null
-     */
-    private $url;
+    private ?string $url = null;
 
-    /**
-     * @var string|null
-     */
-    private $scheme;
+    private ?string $scheme = null;
 
-    /**
-     * @var string|null
-     */
-    private $user;
+    private ?string $user = null;
 
-    /**
-     * @var string|null
-     */
-    private $pass;
+    private ?string $pass = null;
 
-    /**
-     * @var Host|null
-     */
-    private $host;
+    private ?Host $host = null;
 
-    /**
-     * @var int|null
-     */
-    private $port;
+    private ?int $port = null;
 
-    /**
-     * @var string|null
-     */
-    private $path;
+    private ?string $path = null;
 
-    /**
-     * @var string|Query|null
-     */
-    private $query;
+    private string|Query|null $query = null;
 
-    /**
-     * @var string|null
-     */
-    private $fragment;
+    private ?string $fragment = null;
 
     /**
      * List of all components including alias method names.
      *
      * Used to verify if a private property (or host component) can be accessed via magic __get() and __set().
      *
-     * @var string[]|array
+     * @var string[]
      */
-    private $components = [
+    private array $components = [
         'scheme',
         'authority',
         'user',
@@ -95,27 +68,24 @@ class Url
         'relative',
     ];
 
-    /**
-     * @var Resolver|null
-     */
-    private $resolver;
+    private ?Resolver $resolver = null;
 
     /**
-     * @param string|Url $url
      * @throws InvalidUrlException
      * @throws InvalidArgumentException
      */
-    public function __construct($url)
+    public function __construct(string|Url $url)
     {
-        $url = $this->validate($url);
+        if (!$url instanceof Url) {
+            $url = $this->validate($url);
+        }
+
         $this->populate($url);
     }
 
     /**
      * Returns a new `Url` instance with param $url.
      *
-     * @param string $url
-     * @return Url
      * @throws InvalidUrlException
      */
     public static function parse(string $url = ''): Url
@@ -126,8 +96,6 @@ class Url
     /**
      * Parses $url to a new instance of the PSR-7 UriInterface compatible `Uri` class.
      *
-     * @param string $url
-     * @return Uri
      * @throws InvalidUrlException
      */
     public static function parsePsr7(string $url = ''): Uri
@@ -138,11 +106,9 @@ class Url
     /**
      * Get or set the scheme component.
      *
-     * @param null|string $scheme
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function scheme(?string $scheme = null)
+    public function scheme(?string $scheme = null): string|null|Url
     {
         if ($scheme === null) {
             return $this->scheme;
@@ -158,11 +124,9 @@ class Url
     /**
      * Get or set the URL authority (= [userinfo"@"]host[":"port]).
      *
-     * @param null|string $authority
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function authority(?string $authority = null)
+    public function authority(?string $authority = null): string|null|Url
     {
         if ($authority === null && $this->host()) {
             return Helpers::buildAuthorityFromComponents($this->authorityComponents());
@@ -192,11 +156,9 @@ class Url
      *
      * When param $user is an empty string, the pass(word) component will also be reset.
      *
-     * @param null|string $user
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function user(?string $user = null)
+    public function user(?string $user = null): string|null|Url
     {
         if ($user === null) {
             return $this->user;
@@ -212,11 +174,9 @@ class Url
     /**
      * Get or set the password component.
      *
-     * @param null|string $password
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function password(?string $password = null)
+    public function password(?string $password = null): string|null|Url
     {
         if ($password === null) {
             return $this->pass;
@@ -232,11 +192,9 @@ class Url
     /**
      * Alias for method password().
      *
-     * @param null|string $pass
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function pass(?string $pass = null)
+    public function pass(?string $pass = null): string|null|Url
     {
         return $this->password($pass);
     }
@@ -244,11 +202,9 @@ class Url
     /**
      * Get or set user information (user, password as one string) user[:password]
      *
-     * @param string|null $userInfo
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function userInfo(?string $userInfo = null)
+    public function userInfo(?string $userInfo = null): string|null|Url
     {
         if ($userInfo === null) {
             return $this->user ? Helpers::buildUserInfoFromComponents($this->userInfoComponents()) : null;
@@ -271,11 +227,9 @@ class Url
     /**
      * Get or set the host component.
      *
-     * @param null|string $host
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function host(?string $host = null)
+    public function host(?string $host = null): string|null|Url
     {
         if ($host === null) {
             return $this->host instanceof Host ? $this->host->__toString() : null;
@@ -296,11 +250,9 @@ class Url
      * As all component names are rather short it's just called domain() instead of registrableDomain().
      * When the current instance has no host component, the domain will also be the full new host.
      *
-     * @param null|string $domain
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function domain(?string $domain = null)
+    public function domain(?string $domain = null): string|null|Url
     {
         if ($domain === null) {
             return $this->host instanceof Host ? $this->host->domain() : null;
@@ -323,11 +275,9 @@ class Url
      * That's the registrable domain without the domain suffix (e.g. domain: "crwlr.software" => domain label: "crwlr").
      * It can only be set when the current URL contains a host with a registrable domain.
      *
-     * @param null|string $domainLabel
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function domainLabel(?string $domainLabel = null)
+    public function domainLabel(?string $domainLabel = null): string|null|Url
     {
         if ($domainLabel === null) {
             return $this->host instanceof Host ? $this->host->domainLabel() : null;
@@ -352,11 +302,9 @@ class Url
      * domain: "crwlr.software" => domain suffix: "software"
      * It can only be set when the current URL contains a host with a registrable domain.
      *
-     * @param null|string $domainSuffix
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function domainSuffix(?string $domainSuffix = null)
+    public function domainSuffix(?string $domainSuffix = null): string|null|Url
     {
         if ($domainSuffix === null) {
             return $this->host instanceof Host ? $this->host->domainSuffix() : null;
@@ -381,11 +329,9 @@ class Url
      * host: "www.crwlr.software" => subdomain: "www"
      * It can only be set when the current URL contains a host with a registrable domain.
      *
-     * @param null|string $subdomain
-     * @return string|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function subdomain(?string $subdomain = null)
+    public function subdomain(?string $subdomain = null): string|null|Url
     {
         if ($subdomain === null) {
             return $this->host instanceof Host ? $this->host->subdomain() : null;
@@ -409,11 +355,9 @@ class Url
      *
      * Returns the set port component only when it's not the standard port of the current scheme.
      *
-     * @param null|int $port
-     * @return int|null|Url
      * @throws InvalidUrlComponentException|Exception
      */
-    public function port(?int $port = null)
+    public function port(?int $port = null): int|null|Url
     {
         if ($port === null) {
             $scheme = $this->scheme();
@@ -440,11 +384,9 @@ class Url
     /**
      * Get or set the path component.
      *
-     * @param null|string $path
-     * @return string|null|Url
      * @throws Exception
      */
-    public function path(?string $path = null)
+    public function path(?string $path = null): string|null|Url
     {
         if ($path === null) {
             return $this->path;
@@ -458,11 +400,9 @@ class Url
     /**
      * Get or set the query component (as string).
      *
-     * @param null|string $query
-     * @return string|null|Url
      * @throws Exception
      */
-    public function query(?string $query = null)
+    public function query(?string $query = null): string|null|Url
     {
         if ($query === null) {
             return $this->query instanceof Query ? $this->query->toString() : $this->query;
@@ -478,11 +418,11 @@ class Url
     /**
      * Get or set the query component as array.
      *
-     * @param null|array|string[] $query
-     * @return string[]|Url
+     * @param null|mixed[] $query
+     * @return mixed[]|Url
      * @throws Exception
      */
-    public function queryArray(?array $query = null)
+    public function queryArray(?array $query = null): array|Url
     {
         if ($query === null) {
             if ($this->query instanceof Query) {
@@ -497,25 +437,8 @@ class Url
         return $this->updateFullUrlAndReturnInstance();
     }
 
-    /**
-     * @throws Exception
-     */
     public function queryString(): Query
     {
-        if (version_compare(PHP_VERSION, '8.0.0', '<')) {
-            throw new Exception(
-                'The queryString() method uses the crwlr/query-string composer package under the hood, which ' .
-                'requires PHP version 8.0.0 or above.'
-            );
-        }
-
-        if (!class_exists(Query::class)) {
-            throw new Exception(
-                'The queryString() method uses the crwlr/query-string composer package under the hood, but it isn\'t ' .
-                'installed yet. Install it by running: composer require crwlr/query-string.'
-            );
-        }
-
         if (!$this->query instanceof Query) {
             $this->query = Query::fromString($this->query ?? '');
 
@@ -532,11 +455,9 @@ class Url
     /**
      * Get or set the fragment component.
      *
-     * @param null|string $fragment
-     * @return string|null|Url
      * @throws Exception
      */
-    public function fragment(?string $fragment = null)
+    public function fragment(?string $fragment = null): string|null|Url
     {
         if ($fragment === null) {
             return $this->fragment;
@@ -579,7 +500,7 @@ class Url
     {
         $path = $this->path();
 
-        if ($path && !$this->authority() && substr($path, 0, 2) === '//') {
+        if ($path && !$this->authority() && str_starts_with($path, '//')) {
             $path = preg_replace('/^\/{2,}/', '/', $path);
         }
 
@@ -612,6 +533,7 @@ class Url
      *
      * @param string $relativeUrl
      * @return Url
+     * @throws Exception
      */
     public function resolve(string $relativeUrl = ''): Url
     {
@@ -631,11 +553,9 @@ class Url
     /**
      * Returns true if the current instance URL is equal to the URL you want to compare.
      *
-     * @param Url|string $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isEqualTo($url): bool
+    public function isEqualTo(Url|string $url): bool
     {
         return $this->compare($url);
     }
@@ -643,12 +563,9 @@ class Url
     /**
      * Returns true when some component is the same in the current instance and the URL you want to compare.
      *
-     * @param Url|string $url
-     * @param string $componentName
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isComponentEqualIn($url, string $componentName): bool
+    public function isComponentEqualIn(Url|string $url, string $componentName): bool
     {
         return $this->compare($url, $componentName);
     }
@@ -656,11 +573,9 @@ class Url
     /**
      * Returns true when the scheme component is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isSchemeEqualIn($url): bool
+    public function isSchemeEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'scheme');
     }
@@ -668,11 +583,9 @@ class Url
     /**
      * Returns true when the authority is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isAuthorityEqualIn($url): bool
+    public function isAuthorityEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'authority');
     }
@@ -680,11 +593,9 @@ class Url
     /**
      * Returns true when the user is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isUserEqualIn($url): bool
+    public function isUserEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'user');
     }
@@ -692,11 +603,9 @@ class Url
     /**
      * Returns true when the password is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isPasswordEqualIn($url): bool
+    public function isPasswordEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'password');
     }
@@ -705,11 +614,9 @@ class Url
      * Returns true when the user information (both user and password) is the same in the current instance and the
      * URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isUserInfoEqualIn($url): bool
+    public function isUserInfoEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'userInfo');
     }
@@ -717,11 +624,9 @@ class Url
     /**
      * Returns true when the host component is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isHostEqualIn($url): bool
+    public function isHostEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'host');
     }
@@ -729,11 +634,9 @@ class Url
     /**
      * Returns true when the registrable domain is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isDomainEqualIn($url): bool
+    public function isDomainEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'domain');
     }
@@ -741,11 +644,9 @@ class Url
     /**
      * Returns true when the domain label is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isDomainLabelEqualIn($url): bool
+    public function isDomainLabelEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'domainLabel');
     }
@@ -753,11 +654,9 @@ class Url
     /**
      * Returns true when the domain suffix is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isDomainSuffixEqualIn($url): bool
+    public function isDomainSuffixEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'domainSuffix');
     }
@@ -765,11 +664,9 @@ class Url
     /**
      * Returns true when the subdomain is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isSubdomainEqualIn($url): bool
+    public function isSubdomainEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'subdomain');
     }
@@ -777,11 +674,9 @@ class Url
     /**
      * Returns true when the port component is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isPortEqualIn($url): bool
+    public function isPortEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'port');
     }
@@ -789,11 +684,9 @@ class Url
     /**
      * Returns true when the path component is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isPathEqualIn($url): bool
+    public function isPathEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'path');
     }
@@ -801,11 +694,9 @@ class Url
     /**
      * Returns true when the query component is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isQueryEqualIn($url): bool
+    public function isQueryEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'query');
     }
@@ -813,26 +704,18 @@ class Url
     /**
      * Returns true when the fragment component is the same in the current instance and the URL you want to compare.
      *
-     * @param string|Url $url
-     * @return bool
      * @throws InvalidArgumentException
      */
-    public function isFragmentEqualIn($url): bool
+    public function isFragmentEqualIn(Url|string $url): bool
     {
         return $this->compare($url, 'fragment');
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->toString();
     }
 
-    /**
-     * @return string
-     */
     public function toString(): string
     {
         return $this->url;
@@ -842,12 +725,12 @@ class Url
      * Populate the URL components from an array or another instance of this class
      *
      * This method does no validation so the components coming in via an array need to be valid!
-     * Population from another instance is just like cloning and it's necessary for the PSR-7 UriInterface Adapter
+     * Population from another instance is just like cloning, and it's necessary for the PSR-7 UriInterface Adapter
      * class.
      *
-     * @param array|(string|int)[]|Url $components
+     * @param array<string|int>|Url $components
      */
-    private function populate($components): void
+    private function populate(array|Url $components): void
     {
         $this->url = $components instanceof Url ? $components->toString() : $components['url'];
 
@@ -869,22 +752,12 @@ class Url
     /**
      * Parse and validate $url in case it's a string, return when it's an instance of `Url` or throw an Exception.
      *
-     * @param string|Url $url
-     * @return Url|array|(string|int)[]
+     * @return array<string|int>
      * @throws InvalidArgumentException
      * @throws InvalidUrlException
      */
-    private function validate($url)
+    private function validate(string $url): array
     {
-        /** @phpstan-ignore-next-line */
-        if (!is_string($url) && !$url instanceof Url) {
-            throw new InvalidArgumentException('Param $url must either be of type string or an instance of Crwlr\Url\Url.');
-        }
-
-        if ($url instanceof Url) {
-            return $url;
-        }
-
         $validComponents = Validator::urlAndComponents($url);
 
         if (!is_array($validComponents)) {
@@ -894,22 +767,15 @@ class Url
         return $validComponents;
     }
 
-    /**
-     * @param string $componentName
-     * @return bool
-     */
     private function isValidComponentName(string $componentName): bool
     {
         return in_array($componentName, $this->components, true);
     }
 
     /**
-     * @param string $componentName
-     * @param mixed $componentValue
-     * @return int|string
      * @throws InvalidUrlComponentException
      */
-    private function validateComponentValue(string $componentName, $componentValue)
+    private function validateComponentValue(string $componentName, string|int $componentValue): string|int
     {
         $validComponentValue = Validator::callValidationByComponentName($componentName, $componentValue);
 
@@ -931,7 +797,6 @@ class Url
     }
 
     /**
-     * @return Url
      * @throws Exception
      */
     private function updateFullUrlAndReturnInstance(): Url
@@ -959,9 +824,6 @@ class Url
         }
     }
 
-    /**
-     * @return Resolver
-     */
     private function resolver(): Resolver
     {
         if (!$this->resolver) {
@@ -974,17 +836,15 @@ class Url
     /**
      * Compares the current instance with another URL.
      *
-     * @param string|Url $compareToUrl
      * @param string|null $componentName  Compare either only a certain component of the URLs or the whole URLs if null.
-     * @return bool
      * @throws InvalidArgumentException
      */
-    private function compare($compareToUrl, ?string $componentName = null): bool
+    private function compare(string|Url $compareToUrl, ?string $componentName = null): bool
     {
         if (is_string($compareToUrl)) {
             try {
                 $compareToUrl = new Url($compareToUrl);
-            } catch (InvalidUrlException $exception) {
+            } catch (InvalidUrlException) {
                 // When the URL to compare is invalid (and thereby has no valid components) it (or any component)
                 // can't be equal to this `Url` instance, so return false.
                 return false;
@@ -1003,7 +863,7 @@ class Url
     }
 
     /**
-     * @return array|(string|int)[]
+     * @return array<string|int>
      * @throws Exception
      */
     private function authorityComponents(): array
@@ -1012,7 +872,7 @@ class Url
     }
 
     /**
-     * @return array|string[]
+     * @return string[]
      */
     private function userInfoComponents(): array
     {

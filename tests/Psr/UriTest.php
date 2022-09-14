@@ -1,12 +1,19 @@
 <?php
 declare(strict_types=1);
 
+namespace Tests\Psr;
+
 use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Psr\Uri;
+use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 final class UriTest extends TestCase
 {
+    /**
+     * @throws Exception
+     */
     public function testScheme(): void
     {
         $uri = $this->getUri();
@@ -26,6 +33,9 @@ final class UriTest extends TestCase
         $this->assertEquals('sftp', $uri->getScheme());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testAuthority(): void
     {
         $uri = $this->getUri();
@@ -56,6 +66,9 @@ final class UriTest extends TestCase
         $this->assertEquals('http://example.com/foo/bar?query=string#fragment', $uri->__toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testUserInfo(): void
     {
         $uri = $this->getUri();
@@ -77,6 +90,9 @@ final class UriTest extends TestCase
         $this->assertEquals('http://www.example.com/foo/bar?query=string#fragment', $uri->__toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testHost(): void
     {
         $uri = $this->getUri();
@@ -96,6 +112,9 @@ final class UriTest extends TestCase
         $this->assertEquals('sub.domain.example.com', $uri->getHost());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testPort(): void
     {
         $uri = $this->getUri();
@@ -131,6 +150,9 @@ final class UriTest extends TestCase
         $this->assertEquals('http://www.example.com/foo/bar?query=string#fragment', $uri->__toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testPortAboveRange(): void
     {
         $uri = $this->getUri();
@@ -138,6 +160,9 @@ final class UriTest extends TestCase
         $uri->withPort(65536);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testNegativePort(): void
     {
         $uri = $this->getUri();
@@ -145,6 +170,9 @@ final class UriTest extends TestCase
         $uri->withPort(-1);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testPath(): void
     {
         $uri = $this->getUri();
@@ -181,6 +209,9 @@ final class UriTest extends TestCase
         $this->assertEquals('http://www.example.com/?query=string#fragment', $uri->__toString());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testQuery(): void
     {
         $uri = $this->getUri();
@@ -196,6 +227,9 @@ final class UriTest extends TestCase
         $this->assertEquals('', $uri->getQuery());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testFragment(): void
     {
         $uri = $this->getUri();
@@ -220,6 +254,9 @@ final class UriTest extends TestCase
         $this->assertEquals('fragm%E2%82%ACnt', $uri->getFragment());
     }
 
+    /**
+     * @throws Exception
+     */
     public function testToString(): void
     {
         $uri = new Uri('/foo/bar?query=string#fragment');

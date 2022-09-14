@@ -11,8 +11,8 @@ use Crwlr\Url\Exceptions\ListStoreException;
  * These lists are loaded from an external source, parsed and stored in a php file in the data directory at
  * the root level.
  *
- * This is a parent class for the objects that are used to look-up these parsed lists. It provides functionality
- * for loading the list from it's file in the data directory and basic get() and exists() methods.
+ * This is a parent class for the objects that are used to look up these parsed lists. It provides functionality
+ * for loading the list from its file in the data directory and basic get() and exists() methods.
  *
  * You can define a fallback list in the child class to ensure basic look-ups will work even if loading of the
  * list in the data directory fails. It can also be useful for performance if the full list is very big.
@@ -25,31 +25,27 @@ abstract class Store
      * The list as an array, with the values as the keys for fast search
      * (in_array would be slow with a large number of values).
      *
-     * @var array|int[]
+     * @var array<string|int>
      */
-    protected $list = [];
+    protected array $list = [];
 
     /**
      * Fallback list if list file loading fails.
      *
-     * @var array|int[]
+     * @var array<string|int>
      */
-    protected $fallbackList = [];
+    protected array $fallbackList = [];
 
     /**
      * In a child class the filename where the list is stored needs to be declared,
      * otherwise instantiating the child class will throw a ListStoreException.
-     *
-     * @var string
      */
-    protected $storeFilename = '';
+    protected string $storeFilename = '';
 
     /**
      * The full store path is generated in the setStorePath() method, no need to declare it manually.
-     *
-     * @var string
      */
-    protected $storePath = '';
+    protected string $storePath = '';
 
     /**
      * @throws ListStoreException
@@ -64,10 +60,7 @@ abstract class Store
         return $this->get($key) !== null;
     }
 
-    /**
-     * @return string|int|null
-     */
-    public function get(string $key)
+    public function get(string $key): string|int|null
     {
         if (isset($this->fallbackList[$key])) {
             return $this->fallbackList[$key];
@@ -84,8 +77,6 @@ abstract class Store
 
     /**
      * Returns the full path where the parsed list is stored.
-     *
-     * @return string
      */
     public function getStorePath(): string
     {
@@ -100,7 +91,7 @@ abstract class Store
      */
     private function setStorePath(): void
     {
-        if (is_string($this->storeFilename) && trim($this->storeFilename) !== '') {
+        if (trim($this->storeFilename) !== '') {
             $storePath = realpath(dirname(__DIR__) . '/../data/' . $this->storeFilename);
 
             if ($storePath === false) {
@@ -120,8 +111,6 @@ abstract class Store
     {
         if (empty($this->list) && !empty($this->storePath)) {
             $this->list = include($this->storePath);
-        } elseif (!is_array($this->list)) {
-            $this->list = [];
         }
     }
 }

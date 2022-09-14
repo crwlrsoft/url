@@ -14,9 +14,6 @@ class Validator
      * Validate a URL
      *
      * Returns a valid URL as string or null for invalid URLs.
-     *
-     * @param string $url
-     * @return string|null
      */
     public static function url(string $url): ?string
     {
@@ -38,8 +35,7 @@ class Validator
      *
      * Returns an array like ['url' => '...', 'scheme' => '...'] or null for invalid URL.
      *
-     * @param string $url
-     * @return null|array|(string|int)[]
+     * @return null|array<string|int>
      */
     public static function urlAndComponents(string $url): ?array
     {
@@ -54,9 +50,6 @@ class Validator
      * Validate an absolute URL
      *
      * Same as method url() but only an absolute URL is valid. Returns null for relative references.
-     *
-     * @param string $url
-     * @return string|null
      */
     public static function absoluteUrl(string $url): ?string
     {
@@ -78,8 +71,7 @@ class Validator
      *
      * Same as method urlAndComponents() but only an absolute URL is valid. Returns null for relative references.
      *
-     * @param string $url
-     * @return null|array|(string|int)[]
+     * @return null|array<string|int>
      */
     public static function absoluteUrlAndComponents(string $url): ?array
     {
@@ -94,9 +86,6 @@ class Validator
      * Validate a scheme
      *
      * Returns the valid lowercase scheme or null when input scheme is invalid.
-     *
-     * @param string $scheme
-     * @return string|null
      */
     public static function scheme(string $scheme): ?string
     {
@@ -114,9 +103,6 @@ class Validator
      *
      * Percent-encodes user information (user, password) and encodes internationalized domain names.
      * Returns null if any component is invalid.
-     *
-     * @param string $authority
-     * @return string|null
      */
     public static function authority(string $authority): ?string
     {
@@ -137,8 +123,7 @@ class Validator
      * So you get the userInfo as one string (<user>:<password>) and also the user and password separately.
      * Returns null if any component is invalid.
      *
-     * @param string $authority
-     * @return null|array|(string|int)[]
+     * @return null|array<string|int>
      */
     public static function authorityComponents(string $authority): ?array
     {
@@ -155,9 +140,6 @@ class Validator
      * Validate user information
      *
      * Percent-encodes special characters. Returns null for invalid user information.
-     *
-     * @param string $userInfo
-     * @return string|null
      */
     public static function userInfo(string $userInfo): ?string
     {
@@ -175,7 +157,6 @@ class Validator
      *
      * Percent-encodes special characters. Returns null for invalid user information.
      *
-     * @param string $userInfo
      * @return string[]|null
      */
     public static function userInfoComponents(string $userInfo): ?array
@@ -191,9 +172,6 @@ class Validator
 
     /**
      * Validate (only) the user from the user info
-     *
-     * @param string $user
-     * @return string
      */
     public static function user(string $user): string
     {
@@ -202,9 +180,6 @@ class Validator
 
     /**
      * Validate (only) the password from the user info
-     *
-     * @param string $password
-     * @return string
      */
     public static function password(string $password): string
     {
@@ -213,9 +188,6 @@ class Validator
 
     /**
      * Alias for method password
-     *
-     * @param string $pass
-     * @return string
      */
     public static function pass(string $pass): string
     {
@@ -227,9 +199,6 @@ class Validator
      *
      * Returns the valid host string or null for invalid host.
      * Internationalized domain names will be encoded.
-     *
-     * @param string $host
-     * @return string|null
      */
     public static function host(string $host): ?string
     {
@@ -253,9 +222,6 @@ class Validator
      *
      * Returns a valid registrable domain or null if invalid.
      * Returns null when a subdomain is included, so don't use this method to validate a host.
-     *
-     * @param string $domain
-     * @return string|null
      */
     public static function domain(string $domain): ?string
     {
@@ -270,7 +236,7 @@ class Validator
                     // without the public suffix contains a ".", it's not a valid registrable domain.
                     $domainWithoutSuffix = Helpers::stripFromEnd($domain, '.' . $suffix);
 
-                    if ($domainWithoutSuffix !== '' && strpos($domainWithoutSuffix, '.') === false) {
+                    if ($domainWithoutSuffix !== '' && !str_contains($domainWithoutSuffix, '.')) {
                         return $domain;
                     }
                 }
@@ -282,9 +248,6 @@ class Validator
 
     /**
      * Validate the label of a registrable domain (domain without suffix)
-     *
-     * @param string $domainLabel
-     * @return string|null
      */
     public static function domainLabel(string $domainLabel): ?string
     {
@@ -304,9 +267,6 @@ class Validator
      *
      * Returns the valid domain suffix or null if invalid.
      * Suffixes of internationalized domain names will be encoded.
-     *
-     * @param string $domainSuffix
-     * @return string|null
      */
     public static function domainSuffix(string $domainSuffix): ?string
     {
@@ -328,9 +288,6 @@ class Validator
      * Validate a subdomain
      *
      * Returns the valid subdomain or null if invalid. Disallowed characters will be encoded.
-     *
-     * @param string $subdomain
-     * @return string|null
      */
     public static function subdomain(string $subdomain): ?string
     {
@@ -349,9 +306,6 @@ class Validator
      * Validate a port
      *
      * Returns the valid port as int or null when port is not in allowed range (0 to 65535).
-     *
-     * @param int $port
-     * @return int|null
      */
     public static function port(int $port): ?int
     {
@@ -367,9 +321,7 @@ class Validator
      * When the URL doesn't contain an authority component, it can't start with more than one slash.
      * If it doesn't start with a slash (relative-path reference) it must not contain a colon in the first segment.
      *
-     * @param string $path
      * @param bool $hasAuthority  Set to false when the URI containing that path has no authority component.
-     * @return string|null
      */
     public static function path(string $path, bool $hasAuthority = true): ?string
     {
@@ -392,13 +344,10 @@ class Validator
      * Validate query string
      *
      * Returns query string percent-encoded according to https://tools.ietf.org/html/rfc3986#section-3.4
-     *
-     * @param string $query
-     * @return string
      */
     public static function query(string $query = ''): string
     {
-        if (substr($query, 0, 1) === '?') {
+        if (str_starts_with($query, '?')) {
             $query = substr($query, 1);
         }
 
@@ -411,13 +360,10 @@ class Validator
      * Validate fragment component
      *
      * Returns fragment percent-encoded according to https://tools.ietf.org/html/rfc3986#section-3.5
-     *
-     * @param string $fragment
-     * @return string
      */
     public static function fragment(string $fragment = ''): string
     {
-        if (substr($fragment, 0, 1) === '#') {
+        if (str_starts_with($fragment, '#')) {
             $fragment = substr($fragment, 1);
         }
 
@@ -431,12 +377,8 @@ class Validator
      *
      * This method is here to avoid calling validation like self::$componentName() and thereby loosing traceability
      * of method calls for IDEs.
-     *
-     * @param string $componentName
-     * @param mixed $value
-     * @return string|int|null
      */
-    public static function callValidationByComponentName(string $componentName, $value)
+    public static function callValidationByComponentName(string $componentName, mixed $value): string|int|null
     {
         if ($componentName === 'scheme') {
             return self::scheme($value);
@@ -476,9 +418,8 @@ class Validator
      *
      * In case of an invalid URL null is returned.
      *
-     * @param string $url
      * @param bool $onlyAbsoluteUrl  When set to true, it will also return null when the input is a relative reference.
-     * @return null|array|(string|int)[]
+     * @return null|array<string|int>
      */
     private static function getValidUrlComponents(string $url, bool $onlyAbsoluteUrl = false): ?array
     {
@@ -507,9 +448,6 @@ class Validator
      * PHPs parse_url method breaks special characters in internationalized domain names. So this method
      * uses the getAuthorityFromUrl method below to find the host part, checks for not allowed characters and handles
      * encoding if needed.
-     *
-     * @param string $url
-     * @return string
      */
     private static function encodeIdnHostInUrl(string $url): string
     {
@@ -536,8 +474,6 @@ class Validator
      * PHPs parse_url method breaks special characters in internationalized domain names.
      * This method manually extracts the authority component from a URL (if exists) without breaking special characters.
      *
-     * @param string $url
-     * @return string|null
      * @see self::encodeIdnHostInUrl()
      */
     private static function getAuthorityFromUrl(string $url = ''): ?string
@@ -568,8 +504,6 @@ class Validator
      *
      * Helper method for getAuthorityFromUrl method.
      *
-     * @param string $url
-     * @return string
      * @see self::getAuthorityFromUrl()
      */
     private static function stripSchemeFromUrl(string $url = ''): string
@@ -587,10 +521,6 @@ class Validator
 
     /**
      * Strip the user information at the beginning of an authority (if it contains user information)
-     *
-     * @param string $authority
-     * @param null|string $userInfo
-     * @return string
      */
     private static function stripUserInfoFromAuthority(string $authority, ?string $userInfo = null): string
     {
@@ -607,13 +537,10 @@ class Validator
 
     /**
      * Get the user info part from an authority.
-     *
-     * @param string $authority
-     * @return string
      */
     private static function getUserInfoFromAuthority(string $authority): string
     {
-        if (strpos($authority, '@') !== false) {
+        if (str_contains($authority, '@')) {
             $splitAtAt = explode('@', $authority);
 
             if (count($splitAtAt) > 1) {
@@ -627,9 +554,7 @@ class Validator
     /**
      * Strip the port at the end of an authority if there is one.
      *
-     * @param string $authority
      * @param null|int $port  When the port is already known it doesn't have to be extracted again.
-     * @return string
      */
     private static function stripPortFromAuthority(string $authority, ?int $port = null): string
     {
@@ -648,9 +573,6 @@ class Validator
      * Get the port from an authority string
      *
      * Returns null if the authority does not include a port.
-     *
-     * @param string $authority
-     * @return int|null
      */
     private static function getPortFromAuthority(string $authority): ?int
     {
@@ -675,8 +597,8 @@ class Validator
      * and the returned array contains query and fragment with empty strings as values.
      * Remove empty string elements for the same outcome in both versions.
      *
-     * @param array|(string|int)[] $components
-     * @return array|(string|int)[]
+     * @param array<string|int> $components
+     * @return array<string|int>
      */
     private static function filterEmptyStringComponents(array $components = []): array
     {
@@ -694,8 +616,8 @@ class Validator
      *
      * Returns an empty array when one of the components is invalid.
      *
-     * @param array|(string|int)[] $components
-     * @return array|(string|int)[]
+     * @param array<string|int> $components
+     * @return array<string|int>
      */
     private static function validateUrlComponents(array $components): array
     {
@@ -723,8 +645,8 @@ class Validator
      *
      * Because it's the same for both methods.
      *
-     * @param null|array|(string|int)[] $validComponents
-     * @return null|array|(string|int)[]
+     * @param null|array<string|int> $validComponents
+     * @return null|array<string|int>
      */
     private static function returnValidUrlAndComponentsArray(?array $validComponents): ?array
     {
@@ -740,8 +662,7 @@ class Validator
     /**
      * Get an array of valid authority components (host, userInfo, user, password, port) from an authority string
      *
-     * @param string $authority
-     * @return null|array|(string|int)[]
+     * @return null|array<string|int>
      */
     private static function getValidAuthorityComponents(string $authority): ?array
     {
@@ -763,8 +684,7 @@ class Validator
     /**
      * Split an authority string to components (host, userInfo, port)
      *
-     * @param string $authority
-     * @return null|array|(string|int)[]
+     * @return null|array<string|int>
      */
     private static function splitAuthorityToComponents(string $authority): ?array
     {
@@ -798,7 +718,6 @@ class Validator
     /**
      * Split user info string <user>:<password> to user and password
      *
-     * @param string $userInfo
      * @return string[]|null
      */
     private static function splitUserInfoToComponents(string $userInfo): ?array
@@ -823,8 +742,8 @@ class Validator
     /**
      * Validate authority components (host, userInfo, port)
      *
-     * @param array|(string|int)[] $components
-     * @return null|array|(string|int)[]
+     * @param array<string|int> $components
+     * @return null|array<string|int>
      */
     private static function validateAuthorityComponents(array $components): ?array
     {
@@ -848,8 +767,7 @@ class Validator
     /**
      * Split user info string to user and password and validate.
      *
-     * @param string $userInfo
-     * @return array|string[]|null
+     * @return string[]|null
      */
     private static function getValidUserInfoComponents(string $userInfo): ?array
     {
@@ -875,9 +793,6 @@ class Validator
      *
      * As this method only validates either a user or a password, the : is not allowed, because it's used to separate
      * user and password.
-     *
-     * @param string $string
-     * @return string
      */
     private static function userOrPassword(string $string): string
     {
@@ -888,13 +803,10 @@ class Validator
 
     /**
      * Returns true when host is an IP address
-     *
-     * @param string $host
-     * @return bool
      */
     private static function isIpHost(string $host): bool
     {
-        if (Helpers::startsWith($host, '[', 1) && substr($host, -1, 1) === ']') {
+        if (Helpers::startsWith($host, '[', 1) && str_ends_with($host, ']')) {
             $host = substr($host, 1, strlen($host) - 2);
         }
 
@@ -907,9 +819,6 @@ class Validator
 
     /**
      * Encode a (potential) internationalized domain name and convert to lowercase
-     *
-     * @param string $string
-     * @return string
      */
     private static function encodeIdnAndLowercase(string $string): string
     {
@@ -920,9 +829,6 @@ class Validator
      * Encode a (potential) internationalized domain name
      *
      * Also decode percent encoded characters first.
-     *
-     * @param string $string
-     * @return string
      */
     private static function encodeIdn(string $string): string
     {
@@ -940,9 +846,7 @@ class Validator
     /**
      * Returns true when subject string contains only characters matching the characters in regex pattern.
      *
-     * @param string $subject
      * @param string $regexPattern  Only characters, no square brackets for character class or delimiters.
-     * @return bool
      */
     private static function containsOnly(string $subject, string $regexPattern): bool
     {
@@ -955,7 +859,6 @@ class Validator
      * Without delimiters and square brackets for character class.
      *
      * @param bool $noDot  Set to true in case you want to match only labels not including "."
-     * @return string
      */
     private static function hostCharacters(bool $noDot = false): string
     {
@@ -967,9 +870,6 @@ class Validator
      *
      * Checks for empty labels within a host name and if each labels starts and ends with alphanumeric character.
      * https://tools.ietf.org/html/rfc3986#section-3.2.2
-     *
-     * @param string $host
-     * @return bool
      */
     private static function hostLabelsAreValid(string $host): bool
     {
@@ -998,9 +898,6 @@ class Validator
      * If the string (path, query, fragment) contains a percent character that is not part of an already percent
      * encoded character it must be encoded (% => %25). So this method replaces all percent characters that are not
      * followed by a hex code.
-     *
-     * @param string $string
-     * @return string
      */
     private static function encodePercentCharacter(string $string = ''): string
     {
@@ -1009,10 +906,6 @@ class Validator
 
     /**
      * URL encode all characters except those from a certain regex pattern
-     *
-     * @param string $encode
-     * @param string $exceptRegexPattern
-     * @return string
      */
     private static function urlEncodeExcept(string $encode, string $exceptRegexPattern): string
     {
@@ -1031,7 +924,6 @@ class Validator
      * https://tools.ietf.org/html/rfc3986#appendix-A
      *
      * @param string[] $additionalCharacters
-     * @return string
      */
     private static function pcharRegexPattern(array $additionalCharacters = []): string
     {

@@ -14,25 +14,14 @@ namespace Crwlr\Url;
 
 class Helpers
 {
-    /**
-     * @var null|Suffixes
-     */
-    private static $suffixes;
+    private static ?Suffixes $suffixes = null;
 
-    /**
-     * @var null|Schemes
-     */
-    private static $schemes;
+    private static ?Schemes $schemes = null;
 
-    /**
-     * @var null|DefaultPorts
-     */
-    private static $defaultPorts;
+    private static ?DefaultPorts $defaultPorts = null;
 
     /**
      * Get an instance of the Suffixes class.
-     *
-     * @return Suffixes
      */
     public static function suffixes(): Suffixes
     {
@@ -45,8 +34,6 @@ class Helpers
 
     /**
      * Get an instance of the Schemes class.
-     *
-     * @return Schemes
      */
     public static function schemes(): Schemes
     {
@@ -59,8 +46,6 @@ class Helpers
 
     /**
      * Get an instance of the DefaultPorts class.
-     *
-     * @return DefaultPorts
      */
     public static function defaultPorts(): DefaultPorts
     {
@@ -76,8 +61,7 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array|(int|string)[] $components
-     * @return string
+     * @param array<int|string> $components
      */
     public static function buildUrlFromComponents(array $components): string
     {
@@ -108,8 +92,7 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array|(int|string)[] $components
-     * @return string
+     * @param array<int|string> $components
      */
     public static function buildAuthorityFromComponents(array $components): string
     {
@@ -137,8 +120,7 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array|(int|string)[] $components
-     * @return string
+     * @param array<int|string> $components
      */
     public static function buildUserInfoFromComponents(array $components): string
     {
@@ -160,7 +142,6 @@ class Helpers
     /**
      * Converts a URL query string to array.
      *
-     * @param string $query
      * @return string[]
      */
     public static function queryStringToArray(string $query = ''): array
@@ -179,9 +160,6 @@ class Helpers
      *
      * Uses the DefaultPorts list class or tries as fallback PHPs built-in getservbyname() function that get's
      * default ports from the /etc/services file. If no standard port is found it returns null.
-     *
-     * @param string $scheme
-     * @return int|null
      */
     public static function getStandardPortByScheme(string $scheme): ?int
     {
@@ -216,10 +194,6 @@ class Helpers
      * Strip some string B from the end of a string A that ends with string B.
      *
      * Example: 'some.example' - '.example' = 'some'
-     *
-     * @param string $string
-     * @param string $strip
-     * @return string
      */
     public static function stripFromEnd(string $string = '', string $strip = ''): string
     {
@@ -243,14 +217,10 @@ class Helpers
      * Strip some string B from the start of a string A that starts with string B.
      *
      * Example: 'some-example' - 'some-' = 'example'
-     *
-     * @param string $string
-     * @param string $strip
-     * @return string
      */
     public static function stripFromStart(string $string = '', string $strip = ''): string
     {
-        if (strpos($string, $strip) === 0) {
+        if (str_starts_with($string, $strip)) {
             return substr($string, strlen($strip));
         }
 
@@ -261,11 +231,6 @@ class Helpers
      * Replace the first occurrence of string A with string B in string C.
      *
      * Example: A: 'bar', B: 'boo', C: 'foo.bar.baz.bar' = 'foo.boo.baz.boo'
-     *
-     * @param string $replace
-     * @param string $replacement
-     * @param string $string
-     * @return string
      */
     public static function replaceFirstOccurrence(string $replace, string $replacement, string $string): string
     {
@@ -284,10 +249,7 @@ class Helpers
     /**
      * Returns true when string $string starts with string $startsWith.
      *
-     * @param string $string
-     * @param string $startsWith
      * @param int|null $length  When known, providing the length of the string $startsWith saves a call to strlen.
-     * @return bool
      */
     public static function startsWith(string $string, string $startsWith, ?int $length = null): bool
     {
@@ -296,21 +258,16 @@ class Helpers
 
     /**
      * Returns true when $string contains $x before the first appearance of $y (even if $y is not contained at all).
-     *
-     * @param string $string
-     * @param string $x
-     * @param string $y
-     * @return bool
      */
     public static function containsXBeforeFirstY(string $string, string $x, string $y): bool
     {
         if ($y === '') {
-            return strpos($string, $x) !== false;
+            return str_contains($string, $x);
         }
 
         $untilFirstY = explode($y, $string)[0];
 
-        return strpos($untilFirstY, $x) !== false;
+        return str_contains($untilFirstY, $x);
     }
 
     /**
@@ -318,9 +275,6 @@ class Helpers
      *
      * Wrapper method for idn_to_ascii because from PHP 7.2 on variant INTL_IDNA_VARIANT_2003 is deprecated,
      * but still the default value for argument variant (PHP 7.4 uses INTL_IDNA_VARIANT_UTS46 as default).
-     *
-     * @param string $string
-     * @return string
      */
     public static function idn_to_ascii(string $string): string
     {
@@ -334,9 +288,6 @@ class Helpers
      *
      * Wrapper method for idn_to_utf8 because from PHP 7.2 on variant INTL_IDNA_VARIANT_2003 is deprecated,
      * but still the default value for argument variant (PHP 7.4 uses INTL_IDNA_VARIANT_UTS46 as default).
-     *
-     * @param string $string
-     * @return string
      */
     public static function idn_to_utf8(string $string): string
     {
@@ -351,7 +302,6 @@ class Helpers
      * When keys within a URL query string contain dots, PHP's parse_str() method converts them to underscores. This
      * method works around this issue so the requested query array returns the proper keys with dots.
      *
-     * @param string $query
      * @param string[] $array
      * @return string[]
      */
@@ -363,7 +313,7 @@ class Helpers
 
         // Create mapping of broken keys to original proper keys.
         foreach ($matches[1] as $value) {
-            if (strpos($value, '.') !== false) {
+            if (str_contains($value, '.')) {
                 $brokenKeys[str_replace('.', '_', $value)] = $value;
             }
         }
