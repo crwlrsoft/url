@@ -30,22 +30,15 @@ guarantee that your feature will be merged.
 
 This package follows the 
 [PSR-12](https://www.php-fig.org/psr/psr-12/) coding standard.
-Linting can be executed using the `composer cs` command.
-
-### Branching
-
-The repo contains branches for every minor version and a master
-branch up to date with the latest tagged version. For a bugfix
-please send your pull request to the branch of the latest version
-affected by the issue. If you're developing a new feature, branch
-out from the master branch.
+Linting can be executed using the `composer cs` (or
+`composer cs-fix` to automatically fix issues) command.
 
 ### Code quality tools
 
 When you're making changes to this package please always run
 tests and linting. Commands:  
 `composer test`  
-`composer cs`
+`composer cs-fix`
 `composer stan`
 
 Ideally you add the pre-commit git hook that is shipped with
@@ -53,7 +46,7 @@ this repo that will run tests and linting. Add it to your local
 clone by running:  
 `composer add-git-hooks`
 
-Also please don't forget to add new test cases if necessary.
+Also, please don't forget to add new test cases if necessary.
 
 ### Documentation
 
@@ -64,5 +57,5 @@ For any code change please don't forget to add an entry to the
 ## Appreciation
 
 When your pull request is merged I will show some love and tweet
-about it. Also if you meet me in person I will be glad to buy you
+about it. Also, if you meet me in person I will be glad to buy you
 a beer.
