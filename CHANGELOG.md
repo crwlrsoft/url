@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0] - 2022-09-15
+### Removed
+- BREAKING: Removed access to URL components (scheme, host, path,...) via magic class properties (`$this->scheme`, `$this->host`,...). Use method calls instead (`$this->scheme()`, `$this->host()`,...).
+
+### Changed
+- Required PHP version is now 8.0.
+- Updated schemes and suffixes lists.
+
+### Added
+- As the PHP version requirement allows it now, the `crwlr/query-string` package now is a dependency of this package and doesn't have to be required separately anymore in order for the `Url::queryString()` method to work.
+
 ## [1.2.0] - 2022-06-01
 ### Added
 - The new `queryString()` method can be used to access and
