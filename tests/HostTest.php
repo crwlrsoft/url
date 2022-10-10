@@ -49,6 +49,17 @@ final class HostTest extends TestCase
         $this->assertEquals('foo.bar.yololo.example.com', $host->__toString());
     }
 
+    public function testEmptySubdomain(): void
+    {
+        $host = new Host('crwlr.software');
+
+        $this->assertNull($host->subdomain());
+
+        $host = new Host('www.crwlr.software');
+
+        $this->assertEquals('www', $host->subdomain());
+    }
+
     public function testDomain(): void
     {
         $host = new Host('www.example.com');

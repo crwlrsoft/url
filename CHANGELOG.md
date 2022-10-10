@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.1] - 2022-10-11
+### Fixed
+- When a URL doesn't contain a subdomain part, the `subdomain()` method returns `null`.
+
 ## [2.0.0] - 2022-09-15
 ### Removed
 - BREAKING: Removed access to URL components (scheme, host, path,...) via magic class properties (`$this->scheme`, `$this->host`,...). Use method calls instead (`$this->scheme()`, `$this->host()`,...).

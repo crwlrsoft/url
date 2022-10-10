@@ -412,6 +412,13 @@ final class UrlTest extends TestCase
         );
     }
 
+    public function testEmptySubdomain(): void
+    {
+        $this->assertNull(Url::parse('https://crwlr.software')->subdomain());
+
+        $this->assertEquals('www', Url::parse('https://www.crwlr.software')->subdomain());
+    }
+
     /**
      * @throws InvalidUrlComponentException
      * @throws Exception
