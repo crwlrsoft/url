@@ -27,7 +27,10 @@ class Host
 
         if ($domainSuffix) {
             $this->domain = new Domain($this->host, $domainSuffix);
-            $this->subdomain = Helpers::stripFromEnd($this->host, '.' . $this->domain);
+
+            if ($this->host !== (string) $this->domain) {
+                $this->subdomain = Helpers::stripFromEnd($this->host, '.' . $this->domain);
+            }
         }
     }
 
