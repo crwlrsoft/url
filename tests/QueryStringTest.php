@@ -10,17 +10,11 @@ use PHPUnit\Framework\TestCase;
 
 final class QueryStringTest extends TestCase
 {
-    public function testReturnsAnInstanceOfQueryWhenPhpVersion8OrAboveOtherwiseThrowsException(): void
+    public function testReturnsAnInstance(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
-            $this->assertInstanceOf(Query::class, $url->queryString());
-        } else {
-            $this->expectException(Exception::class);
-
-            $url->queryString();
-        }
+        $this->assertInstanceOf(Query::class, $url->queryString());
     }
 
     /**
@@ -29,16 +23,10 @@ final class QueryStringTest extends TestCase
     public function testTheQueryMethodReturnValueIsInSyncWithQueryStringInstance(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
+        $url->queryString()->set('baz', 'quz');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
-            $url->queryString()->set('baz', 'quz');
-
-            $this->assertEquals('foo=bar&baz=quz', $url->query());
-
-            $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertEquals('foo=bar&baz=quz', $url->query());
+        $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
     }
 
     /**
@@ -47,16 +35,10 @@ final class QueryStringTest extends TestCase
     public function testTheQueryArrayMethodReturnValueIsInSyncWithQueryStringInstance(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
+        $url->queryString()->set('baz', 'quz');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
-            $url->queryString()->set('baz', 'quz');
-
-            $this->assertEquals(['foo' => 'bar', 'baz' => 'quz'], $url->queryArray());
-
-            $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertEquals(['foo' => 'bar', 'baz' => 'quz'], $url->queryArray());
+        $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
     }
 
     /**
@@ -65,16 +47,10 @@ final class QueryStringTest extends TestCase
     public function testTheQueryStringCanBeAccessedViaMagicGetter(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
+        $url->queryString()->set('baz', 'quz');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
-            $url->queryString()->set('baz', 'quz');
-
-            $this->assertEquals(['foo' => 'bar', 'baz' => 'quz'], $url->queryArray());
-
-            $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertEquals(['foo' => 'bar', 'baz' => 'quz'], $url->queryArray());
+        $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
     }
 
     /**
@@ -83,20 +59,12 @@ final class QueryStringTest extends TestCase
     public function testItStillWorksToSetTheQueryViaQueryMethodAfterQueryStringWasUsed(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
+        $url->queryString()->set('baz', 'quz');
+        $url->query('yo=lo');
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
-            $url->queryString()->set('baz', 'quz');
-
-            $url->query('yo=lo');
-
-            $this->assertEquals('yo=lo', $url->query());
-
-            $this->assertEquals(['yo' => 'lo'], $url->queryArray());
-
-            $this->assertEquals('https://www.example.com/path?yo=lo', $url->toString());
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertEquals('yo=lo', $url->query());
+        $this->assertEquals(['yo' => 'lo'], $url->queryArray());
+        $this->assertEquals('https://www.example.com/path?yo=lo', $url->toString());
     }
 
     /**
@@ -105,19 +73,11 @@ final class QueryStringTest extends TestCase
     public function testItStillWorksToSetTheQueryViaQueryArrayMethodAfterQueryStringWasUsed(): void
     {
         $url = Url::parse('https://www.example.com/path?foo=bar');
+        $url->queryString()->set('baz', 'quz');
+        $url->queryArray(['boo' => 'yah']);
 
-        if (version_compare(PHP_VERSION, '8.0.0', '>=') && class_exists(Query::class)) {
-            $url->queryString()->set('baz', 'quz');
-
-            $url->queryArray(['boo' => 'yah']);
-
-            $this->assertEquals('boo=yah', $url->query());
-
-            $this->assertEquals(['boo' => 'yah'], $url->queryArray());
-
-            $this->assertEquals('https://www.example.com/path?boo=yah', $url->toString());
-        } else {
-            $this->assertTrue(true);
-        }
+        $this->assertEquals('boo=yah', $url->query());
+        $this->assertEquals(['boo' => 'yah'], $url->queryArray());
+        $this->assertEquals('https://www.example.com/path?boo=yah', $url->toString());
     }
 }
