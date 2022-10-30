@@ -3,6 +3,8 @@
 use Crwlr\Url\Resolver;
 use Crwlr\Url\Url;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('ResolveRelativeUrls', function () {
     $baseUrlObject = new Url('https://www.example.com/foo/bar/baz');
     $resolver = new Resolver();

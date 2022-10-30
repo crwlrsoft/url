@@ -3,6 +3,8 @@
 use Crwlr\Url\Validator;
 use PHPUnit\Framework\Assert;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('ValidateUrl', function () {
     $this->assertEquals(
         'https://www.crwlr.software/packages/url/v0.1.2#installation',

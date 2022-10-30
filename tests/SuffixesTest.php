@@ -2,6 +2,8 @@
 
 use Crwlr\Url\Suffixes;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('Exists', function () {
     $suffixes = new Suffixes();
 

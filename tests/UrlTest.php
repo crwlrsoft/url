@@ -5,6 +5,8 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Psr\Uri;
 use Crwlr\Url\Url;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('CanBeCreatedFromValidUrl', function () {
     $url = createDefaultUrlObject();
     $this->assertInstanceOf(Url::class, $url);
