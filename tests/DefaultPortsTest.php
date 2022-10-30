@@ -2,6 +2,8 @@
 
 use Crwlr\Url\DefaultPorts;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('GetFallbackDefaultPorts', function () {
     $this->assertEquals(21, (new DefaultPorts())->get('ftp'));
     $this->assertEquals(9418, (new DefaultPorts())->get('git'));

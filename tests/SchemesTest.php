@@ -2,6 +2,8 @@
 
 use Crwlr\Url\Schemes;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('Exists', function () {
     $schemes = new Schemes();
 

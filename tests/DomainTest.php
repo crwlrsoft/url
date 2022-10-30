@@ -1,8 +1,8 @@
 <?php
 
-namespace Tests;
-
 use Crwlr\Url\Domain;
+
+/** @var \PHPUnit\Framework\TestCase $this */
 
 /**
  * The domain class is really simple and assumes input validation happens somewhere else, so this test

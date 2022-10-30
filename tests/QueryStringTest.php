@@ -3,6 +3,8 @@
 use Crwlr\QueryString\Query;
 use Crwlr\Url\Url;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('ReturnsAnInstance', function () {
     $url = Url::parse('https://www.example.com/path?foo=bar');
 

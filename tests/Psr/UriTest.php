@@ -2,6 +2,8 @@
 
 use Crwlr\Url\Psr\Uri;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 beforeEach(function () {
     $this->uri = new Uri('http://www.example.com/foo/bar?query=string#fragment');
 });

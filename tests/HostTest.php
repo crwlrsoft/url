@@ -2,6 +2,8 @@
 
 use Crwlr\Url\Host;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('ParseHost', function () {
     $host = new Host('www.example.com');
     $this->assertInstanceOf(Host::class, $host);

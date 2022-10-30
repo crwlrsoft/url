@@ -4,6 +4,8 @@ use Crwlr\Url\Helpers;
 use Crwlr\Url\Schemes;
 use Crwlr\Url\Suffixes;
 
+/** @var \PHPUnit\Framework\TestCase $this */
+
 test('GetHelperClassInstancesStatically', function () {
     $this->assertInstanceOf(Suffixes::class, Helpers::suffixes());
     $this->assertInstanceOf(Schemes::class, Helpers::schemes());
