@@ -4,12 +4,8 @@ use Crwlr\Url\Psr\Uri;
 
 /** @var \PHPUnit\Framework\TestCase $this */
 
-beforeEach(function () {
-    $this->uri = new Uri('http://www.example.com/foo/bar?query=string#fragment');
-});
-
 test('Scheme', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->assertEquals('http', $uri->getScheme());
 
     $uri = $uri->withScheme('https');
@@ -27,7 +23,7 @@ test('Scheme', function () {
 });
 
 test('Authority', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->assertEquals('www.example.com', $uri->getAuthority());
 
     $uri = $uri->withUserInfo('crwlr', 'password');
@@ -56,7 +52,7 @@ test('Authority', function () {
 });
 
 test('UserInfo', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->assertEquals('', $uri->getUserInfo());
 
     $uri = $uri->withUserInfo('otsch', 'crwlr');
@@ -76,7 +72,7 @@ test('UserInfo', function () {
 });
 
 test('Host', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->assertEquals('www.example.com', $uri->getHost());
 
     $uri = $uri->withHost('www.eggsample.com');
@@ -94,7 +90,7 @@ test('Host', function () {
 });
 
 test('Port', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->assertNull($uri->getPort());
 
     $uri = $uri->withPort(2345);
@@ -128,19 +124,19 @@ test('Port', function () {
 });
 
 test('PortAboveRange', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->expectException(InvalidArgumentException::class);
     $uri->withPort(65536);
 });
 
 test('NegativePort', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->expectException(InvalidArgumentException::class);
     $uri->withPort(-1);
 });
 
 test('Path', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->assertEquals('/foo/bar', $uri->getPath());
 
     $uri = $uri->withPath('baz');
@@ -172,7 +168,7 @@ test('Path', function () {
 });
 
 test('Query', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->assertEquals('query=string', $uri->getQuery());
 
     $uri = $uri->withQuery('key=value&key2=value2');
@@ -186,7 +182,7 @@ test('Query', function () {
 });
 
 test('Fragment', function () {
-    $uri = $this->uri;
+    $uri = getUri();
     $this->assertEquals('fragment', $uri->getFragment());
 
     $uri = $uri->withFragment('differentfragment');
@@ -240,3 +236,8 @@ test('ToString', function () {
     $uri = $uri->withQuery('');
     $this->assertEquals('#fragment', $uri->__toString());
 });
+
+function getUri(): Uri
+{
+    return new Uri('http://www.example.com/foo/bar?query=string#fragment');
+}
