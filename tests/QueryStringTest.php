@@ -3,54 +3,56 @@
 use Crwlr\QueryString\Query;
 use Crwlr\Url\Url;
 
-/** @var \PHPUnit\Framework\TestCase $this */
-
-test('ReturnsAnInstance', function () {
-    $url = Url::parse('https://www.example.com/path?foo=bar');
-
-    $this->assertInstanceOf(Query::class, $url->queryString());
+it('returns an instance of query', function () {
+    expect(Url::parse('https://www.example.com/path?foo=bar'))
+        ->queryString()->toBeInstanceOf(Query::class);
 });
 
-test('TheQueryMethodReturnValueIsInSyncWithQueryStringInstance', function () {
+test('the query method return value is in sync with query string instance', function () {
     $url = Url::parse('https://www.example.com/path?foo=bar');
     $url->queryString()->set('baz', 'quz');
 
-    $this->assertEquals('foo=bar&baz=quz', $url->query());
-    $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
+    expect($url)
+        ->query()->toBe('foo=bar&baz=quz')
+        ->toString()->toBe('https://www.example.com/path?foo=bar&baz=quz');
 });
 
-test('TheQueryArrayMethodReturnValueIsInSyncWithQueryStringInstance', function () {
+test('the query array method return value is in sync with query string instance', function () {
     $url = Url::parse('https://www.example.com/path?foo=bar');
     $url->queryString()->set('baz', 'quz');
 
-    $this->assertEquals(['foo' => 'bar', 'baz' => 'quz'], $url->queryArray());
-    $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
+    expect($url)
+        ->queryArray()->toBe(['foo' => 'bar', 'baz' => 'quz'])
+        ->toString()->toBe('https://www.example.com/path?foo=bar&baz=quz');
 });
 
-test('TheQueryStringCanBeAccessedViaMagicGetter', function () {
+test('the query string can be accessed via magic getter', function () {
     $url = Url::parse('https://www.example.com/path?foo=bar');
     $url->queryString()->set('baz', 'quz');
 
-    $this->assertEquals(['foo' => 'bar', 'baz' => 'quz'], $url->queryArray());
-    $this->assertEquals('https://www.example.com/path?foo=bar&baz=quz', $url->__toString());
+    expect($url)
+        ->queryArray()->toBe(['foo' => 'bar', 'baz' => 'quz'])
+        ->toString()->toBe('https://www.example.com/path?foo=bar&baz=quz');
 });
 
-test('ItStillWorksToSetTheQueryViaQueryMethodAfterQueryStringWasUsed', function () {
+it('still works to set the query via query method after query string was used', function () {
     $url = Url::parse('https://www.example.com/path?foo=bar');
     $url->queryString()->set('baz', 'quz');
     $url->query('yo=lo');
 
-    $this->assertEquals('yo=lo', $url->query());
-    $this->assertEquals(['yo' => 'lo'], $url->queryArray());
-    $this->assertEquals('https://www.example.com/path?yo=lo', $url->toString());
+    expect($url)
+        ->query()->toBe('yo=lo')
+        ->queryArray()->toBe(['yo' => 'lo'])
+        ->toString()->toBe('https://www.example.com/path?yo=lo');
 });
 
-test('ItStillWorksToSetTheQueryViaQueryArrayMethodAfterQueryStringWasUsed', function () {
+it('still works to set the query via query array method after query string was used', function () {
     $url = Url::parse('https://www.example.com/path?foo=bar');
     $url->queryString()->set('baz', 'quz');
     $url->queryArray(['boo' => 'yah']);
 
-    $this->assertEquals('boo=yah', $url->query());
-    $this->assertEquals(['boo' => 'yah'], $url->queryArray());
-    $this->assertEquals('https://www.example.com/path?boo=yah', $url->toString());
+    expect($url)
+        ->query()->toBe('boo=yah')
+        ->queryArray()->toBe(['boo' => 'yah'])
+        ->toString()->toBe('https://www.example.com/path?boo=yah');
 });
