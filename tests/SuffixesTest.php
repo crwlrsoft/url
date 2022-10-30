@@ -1,28 +1,19 @@
 <?php
-declare(strict_types=1);
-
-namespace Tests;
 
 use Crwlr\Url\Suffixes;
-use PHPUnit\Framework\TestCase;
 
-final class SuffixesTest extends TestCase
-{
-    public function testExists(): void
-    {
-        $suffixes = new Suffixes();
+test('Exists', function () {
+    $suffixes = new Suffixes();
 
-        $this->assertTrue($suffixes->exists('com'));
-        $this->assertTrue($suffixes->exists('org'));
-        $this->assertTrue($suffixes->exists('com.nr'));
-        $this->assertTrue($suffixes->exists('edu.mx'));
+    $this->assertTrue($suffixes->exists('com'));
+    $this->assertTrue($suffixes->exists('org'));
+    $this->assertTrue($suffixes->exists('com.nr'));
+    $this->assertTrue($suffixes->exists('edu.mx'));
 
-        $this->assertFalse($suffixes->exists('does.not.exist'));
-    }
+    $this->assertFalse($suffixes->exists('does.not.exist'));
+});
 
-    public function testGetStorePath(): void
-    {
-        $schemes = new Suffixes();
-        $this->assertEquals(realpath(dirname(__DIR__) . '/data/suffixes.php'), $schemes->getStorePath());
-    }
-}
+test('GetStorePath', function () {
+    $schemes = new Suffixes();
+    $this->assertEquals(realpath(dirname(__DIR__) . '/data/suffixes.php'), $schemes->getStorePath());
+});
