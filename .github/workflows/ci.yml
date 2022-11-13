@@ -26,7 +26,7 @@ jobs:
         run: composer cs
 
   tests8x:
-    name: PHPUnit tests
+    name: Unit tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
