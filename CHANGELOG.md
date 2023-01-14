@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.2] - 2023-01-14
+### Changed
+- Updated lists of schemes, suffixes and default ports.
+
 ## [2.0.1] - 2022-10-11
 ### Fixed
 - When a URL doesn't contain a subdomain part, the `subdomain()` method returns `null`.
