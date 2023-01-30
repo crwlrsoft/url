@@ -427,9 +427,13 @@ class Url
         if ($query === null) {
             if ($this->query instanceof Query) {
                 return $this->query->toArray();
+            } elseif ($this->query) {
+                $this->query = Query::fromString($this->query);
+
+                return $this->query->toArray();
             }
 
-            return $this->query ? Helpers::queryStringToArray($this->query) : [];
+            return [];
         } else {
             $this->query = $this->validateComponentValue('query', http_build_query($query));
         }
@@ -437,6 +441,9 @@ class Url
         return $this->updateFullUrlAndReturnInstance();
     }
 
+    /**
+     * @throws Exception
+     */
     public function queryString(): Query
     {
         if (!$this->query instanceof Query) {

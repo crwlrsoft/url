@@ -446,6 +446,28 @@ test('ParseUrlWithEmptyPath', function () {
     $this->assertEquals('https://www.example.com#foo', $url->toString());
 });
 
+it('parses a query string with percent encoded brackets and keys containing dots', function () {
+    $url = Url::parse('https://www.example.com/path?foo.bar%5B0%5D=v1&foo.bar_extra%5B0%5D=v2&foo.bar.extra%5B0%5D=v3');
+
+    expect($url->queryArray())->toBe([
+        'foo.bar' => ['v1'],
+        'foo.bar_extra' => ['v2'],
+        'foo.bar.extra' => ['v3'],
+    ]);
+});
+
+it('correctly parses a query where keys contain dots', function () {
+    $url = Url::parse('https://www.example.com/path?foo.bar[0]=v1&foo.bar_extra[0]=v2&foo.bar.extra[0]=v3');
+
+    expect($url->query())->toBe('foo.bar%5B0%5D=v1&foo.bar_extra%5B0%5D=v2&foo.bar.extra%5B0%5D=v3');
+
+    expect($url->queryArray())->toBe([
+        'foo.bar' => ['v1'],
+        'foo.bar_extra' => ['v2'],
+        'foo.bar.extra' => ['v3'],
+    ]);
+});
+
 test('ReplaceQueryString', function () {
     $url = createDefaultUrlObject();
     $this->assertEquals('some=query', $url->query());
