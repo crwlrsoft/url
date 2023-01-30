@@ -2,6 +2,9 @@
 
 namespace Crwlr\Url;
 
+use Crwlr\QueryString\Query;
+use Exception;
+
 /**
  * Class Helpers
  *
@@ -143,16 +146,11 @@ class Helpers
      * Converts a URL query string to array.
      *
      * @return string[]
+     * @throws Exception
      */
     public static function queryStringToArray(string $query = ''): array
     {
-        parse_str($query, $array);
-
-        if (preg_match('/(?:^|&)([^\[=&]*\.)/', $query)) { // Matches keys in the query that contain a dot
-            return self::replaceKeysContainingDots($query, $array);
-        }
-
-        return $array;
+        return Query::fromString($query)->toArray();
     }
 
     /**
@@ -294,39 +292,5 @@ class Helpers
         $converted = idn_to_utf8($string, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46);
 
         return $converted !== false ? $converted : $string;
-    }
-
-    /**
-     * Helper method for queryStringToArray
-     *
-     * When keys within a URL query string contain dots, PHP's parse_str() method converts them to underscores. This
-     * method works around this issue so the requested query array returns the proper keys with dots.
-     *
-     * @param string[] $array
-     * @return string[]
-     */
-    private static function replaceKeysContainingDots(string $query, array $array): array
-    {
-        // Regex to find keys in query string.
-        preg_match_all('/(?:^|&)([^=&\[]+)(?:[=&\[]|$)/', $query, $matches);
-        $brokenKeys = $fixedArray = [];
-
-        // Create mapping of broken keys to original proper keys.
-        foreach ($matches[1] as $value) {
-            if (str_contains($value, '.')) {
-                $brokenKeys[str_replace('.', '_', $value)] = $value;
-            }
-        }
-
-        // Recreate the array with the proper keys.
-        foreach ($array as $key => $value) {
-            if (isset($brokenKeys[$key])) {
-                $fixedArray[$brokenKeys[$key]] = $value;
-            } else {
-                $fixedArray[$key] = $value;
-            }
-        }
-
-        return $fixedArray;
     }
 }
