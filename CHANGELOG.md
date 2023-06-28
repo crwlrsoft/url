@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.4] - 2023-06-28
+### Fixed
+- Support psr/http-message v2.0.
+
 ## [2.0.3] - 2023-01-30
 ### Fixed
 - As there is the new query string package, replace the last usage of the `Helpers::queryStringToArray()` method with the `Query` class from the package, to not have duplicate logic. Also, the package already contains some fixes.
