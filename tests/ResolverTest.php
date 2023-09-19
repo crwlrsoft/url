@@ -78,6 +78,10 @@ test('ResolveRelativeUrls', function () {
     $relativeBaseUrl = new Url('/foo/bar/baz?query=string#fragment');
     $resolved = $resolver->resolve('.././one/./two/./../three', $relativeBaseUrl);
     $this->assertEquals('/foo/one/three', $resolved->toString());
+
+    $relativeBaseUrl = new Url('/overview/languages/');
+    $resolved = $resolver->resolve('../..', $relativeBaseUrl);
+    $this->assertEquals('/', $resolved->toString());
 });
 
 test('ResolveRelativeUrlAgainstBaseUrlWithEmptyPath', function () {

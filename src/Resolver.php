@@ -90,7 +90,10 @@ class Resolver
             $resolvedPath = $basePathDir . implode('/', $splitBySlash);
         }
 
-        if (str_ends_with($subject, '/.') || str_ends_with($subject, '/..')) {
+        if (
+            (str_ends_with($subject, '/.') || str_ends_with($subject, '/..')) &&
+            !str_ends_with($resolvedPath, '/')
+        ) {
             $resolvedPath .= '/';
         }
 

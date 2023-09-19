@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.5] - 2023-09-19
+### Fixed
+- Issue with resolving relative URLs.
+- Update schemes and suffixes lists.
+
 ## [2.0.4] - 2023-06-28
 ### Fixed
 - Support psr/http-message v2.0.
