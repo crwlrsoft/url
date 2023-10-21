@@ -1,5 +1,4 @@
 /bin/ export-ignore
-/CHANGELOG.md export-ignore
 /CONTRIBUTING.md export-ignore
 /.editorconfig export-ignore
 /.gitattributes export-ignore
@@ -10,4 +9,3 @@
 /phpstan.neon export-ignore
 /phpunit.xml export-ignore
 /tests/ export-ignore
-/UPGRADE.md export-ignore
