@@ -1,15 +1,16 @@
-name: CI (tests and code style)
+name: Integrate
 
-on: pull_request
+on:
+  pull_request: null
 
 jobs:
   cs:
-    name: PHP CS Fixer
+    name: Coding Standards
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -18,21 +19,21 @@ jobs:
           coverage: none
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-progress
 
       - name: Run PHP CS Fixer
-        run: composer cs
+        run: composer run cs
 
-  tests8x:
-    name: Tests
+  tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
         php-versions: ['8.0', '8.1', '8.2']
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -40,18 +41,18 @@ jobs:
           php-version: ${{ matrix.php-versions }}
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-progress
 
-      - name: Run tests
-        run: composer test
+      - name: Execute unit tests
+        run: composer run test
 
   stan:
-    name: PHPStan
+    name: Static Analysis
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
@@ -59,7 +60,7 @@ jobs:
           php-version: '8.0'
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer update --prefer-dist --no-progress
 
       - name: Run PHPStan
-        run: composer stan
+        run: composer run stan
