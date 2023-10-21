@@ -20,7 +20,7 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Run PHP CS Fixer
         run: composer cs
@@ -45,7 +45,7 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Install query-string package
         run: composer require crwlr/query-string
@@ -70,7 +70,7 @@ jobs:
         run: php -v
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest
+        run: composer install --prefer-dist --no-progress
 
       - name: Run PHPStan
         run: composer stan
