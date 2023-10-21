@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.0] - 2023-10-21
+### Added
+- Method `toPsr7()` to conveniently get a PSR-7 compatible instance from an `Url` instance. Basically wrapper for `new Uri($urlInstance)`.
+
 ## [2.0.5] - 2023-09-19
 ### Fixed
 - Issue with resolving relative URLs.

@@ -4,6 +4,7 @@ use Crwlr\Url\Exceptions\InvalidUrlComponentException;
 use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Psr\Uri;
 use Crwlr\Url\Url;
+use Psr\Http\Message\UriInterface;
 
 /** @var \PHPUnit\Framework\TestCase $this */
 
@@ -946,6 +947,16 @@ test('EncodingEdgeCases', function () {
         'b%C3%A1r%20b%C3%A0z?qu%C3%A4r.y=str%C3%AFng#fr%C3%A4gm%C3%A4nt',
         $url->__toString()
     );
+});
+
+it('converts an Url instance into a PSR-7 compatible instance', function () {
+    $url = Url::parse('https://www.crwl.io/en/home');
+
+    expect($url)
+        ->not()
+        ->toBeInstanceOf(UriInterface::class)
+        ->and($url->toPsr7())
+        ->toBeInstanceOf(UriInterface::class);
 });
 
 function createDefaultUrlObject(): Url
