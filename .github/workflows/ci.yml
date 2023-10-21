@@ -9,15 +9,13 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.0'
-
-      - name: Check PHP Version
-        run: php -v
+          php-version: '8.1'
+          coverage: none
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
@@ -26,7 +24,7 @@ jobs:
         run: composer cs
 
   tests8x:
-    name: Unit tests
+    name: Tests
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -34,21 +32,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
 
-      - name: Check PHP Version
-        run: php -v
-
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
-
-      - name: Install query-string package
-        run: composer require crwlr/query-string
 
       - name: Run tests
         run: composer test
@@ -59,15 +51,12 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.0'
-
-      - name: Check PHP Version
-        run: php -v
 
       - name: Install dependencies
         run: composer install --prefer-dist --no-progress
