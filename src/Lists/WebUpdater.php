@@ -56,7 +56,7 @@ abstract class WebUpdater extends Updater
         $context = stream_context_create(['http' =>
             [
                 'method' => 'GET',
-                'header'  => [
+                'header' => [
                     'User-Agent: https://github.com/crwlrsoft/url/blob/master/src/Lists/WebUpdater.php',
                 ]
             ]

@@ -105,7 +105,7 @@ class Host
     private function updateHost(): void
     {
         if ($this->domainNotEmpty()) {
-            $this->host =  ($this->subdomain ? $this->subdomain . '.' : '') . $this->domain->__toString();
+            $this->host = ($this->subdomain ? $this->subdomain . '.' : '') . $this->domain->__toString();
         } else {
             $this->host = '';
         }
