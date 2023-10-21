@@ -14,4 +14,4 @@
   if the URL in question is a relative reference.
 - If you're using any other class than the `Url` class directly in
   your code, please take a look at the `CHANGELOG.md` entry for
-  v1.0.0. 
+  v1.0.0.
