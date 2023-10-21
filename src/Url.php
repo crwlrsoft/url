@@ -8,6 +8,7 @@ use Crwlr\Url\Exceptions\InvalidUrlException;
 use Crwlr\Url\Psr\Uri;
 use Exception;
 use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
 
 /**
  * Class Url
@@ -726,6 +727,11 @@ class Url
     public function toString(): string
     {
         return $this->url;
+    }
+
+    public function toPsr7(): UriInterface
+    {
+        return new Uri($this);
     }
 
     /**
