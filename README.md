@@ -15,7 +15,7 @@ the __domain suffix__ and the __subdomain__ parts of the host separately
 * __Compare URLs__ or components of URLs (e.g. checking if different URLs
 point to the same host or domain)
 * Thanks to [symfony/polyfill-intl-idn](https://github.com/symfony/polyfill-intl-idn)
-it's also no problem to parse __internationalized domain names (IDN)__.
+it's also now problem to parse __internationalized domain names (IDN)__.
 * Includes an adapter class which implements the
 [PSR-7 UriInterface](https://github.com/php-fig/http-message/blob/master/src/UriInterface.php).
 
