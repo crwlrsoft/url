@@ -429,7 +429,7 @@ class Validator
         if (
             is_array($components) &&
             !empty($components) &&
-            ($onlyAbsoluteUrl === false || filter_var($url, FILTER_VALIDATE_URL) !== false)
+            ($onlyAbsoluteUrl === false || (array_key_exists('scheme', $components) && !empty($components['scheme'])))
         ) {
             $components = self::filterEmptyStringComponents($components);
             $validComponents = self::validateUrlComponents($components);

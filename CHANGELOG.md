@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.1] - 2024-01-31
+### Fixed
+- An issue in the Validator, when trying to validate an absolute input URL that contains non ASCII characters.
+
 ## [2.1.0] - 2023-10-21
 ### Added
 - Method `toPsr7()` to conveniently get a PSR-7 compatible instance from an `Url` instance. Basically wrapper for `new Uri($urlInstance)`.

@@ -116,6 +116,10 @@ test('ResolveAbsoluteUrl', function () {
     $relativeBaseUrl = new Url('/foo/bar?query=string#fragment');
     $resolved = $resolver->resolve('https://www.example.com/examples', $relativeBaseUrl);
     $this->assertEquals('https://www.example.com/examples', $resolved);
+
+    $baseUrl = new Url('https://www.example.com/foo');
+    $resolved = $resolver->resolve('https://www.example.com/foo/bar-bür-bör', $baseUrl);
+    $this->assertEquals('https://www.example.com/foo/bar-b%C3%BCr-b%C3%B6r', $resolved);
 });
 
 test('ResolvePaths', function () {
