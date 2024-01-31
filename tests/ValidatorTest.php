@@ -120,6 +120,13 @@ test('ValidateAbsoluteUrl', function () {
     $this->assertNull(Validator::absoluteUrl('/foo/bar?query=string#fragment'));
 });
 
+test('validate an absolute URL containing non ASCII characters', function () {
+    $this->assertEquals(
+        'https://www.example.com/f%C3%B6%C3%B6',
+        Validator::absoluteUrl('https://www.example.com/föö')
+    );
+});
+
 test('ValidateAbsoluteUrlAndComponents', function () {
     assertArrayContains(
         Validator::absoluteUrlAndComponents('https://www.crwlr.software/packages/url/v0.1.2#installation'),
