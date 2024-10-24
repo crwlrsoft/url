@@ -3,5 +3,8 @@ parameters:
     paths:
         - src
         - tests
+    reportUnmatchedIgnoredErrors: false
     ignoreErrors:
         - "#^Call to an undefined method Pest\\\\Expectation\\|Pest\\\\Support\\\\Extendable\\:\\:\\S+\\(\\)\\.$#"
+        - "#^Call to an undefined method Pest\\\\Expectation<Crwlr\\\\Url\\\\Url\\|null>\\:\\:query(String|Array)?\\(\\)\\.$#"
+        - "#^Call to protected method [a-zA-Z]{5,30}\\(\\) of class PHPUnit\\\\Framework\\\\TestCase.#"
