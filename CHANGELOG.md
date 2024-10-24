@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.2] - 2024-10-24
+### Fixed
+- Update schemes and suffixes lists.
+
 ## [2.1.1] - 2024-01-31
 ### Fixed
 - An issue in the Validator, when trying to validate an absolute input URL that contains non ASCII characters.
