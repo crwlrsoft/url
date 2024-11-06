@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.1.3] - 2024-11-06
+### Fixed
+- Improvement for PHP 8.4.
+- Update schemes and suffixes lists.
+
 ## [2.1.2] - 2024-10-24
 ### Fixed
 - Update schemes and suffixes lists.
