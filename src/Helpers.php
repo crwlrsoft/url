@@ -289,6 +289,10 @@ class Helpers
      */
     public static function idn_to_utf8(string $string): string
     {
+        if (empty($string)) {
+            return $string;
+        }
+
         $converted = idn_to_utf8($string, IDNA_NONTRANSITIONAL_TO_ASCII, INTL_IDNA_VARIANT_UTS46);
 
         return $converted !== false ? $converted : $string;
