@@ -49,7 +49,7 @@ class Host
             $this->updateHost();
         }
 
-        return $this->domainNotEmpty() ? $this->domain->__toString() : null;
+        return $this->domainNotEmpty() ? $this->domain?->__toString() : null;
     }
 
     /**
@@ -105,7 +105,7 @@ class Host
     private function updateHost(): void
     {
         if ($this->domainNotEmpty()) {
-            $this->host = ($this->subdomain ? $this->subdomain . '.' : '') . $this->domain->__toString();
+            $this->host = ($this->subdomain ? $this->subdomain . '.' : '') . $this->domain?->__toString();
         } else {
             $this->host = '';
         }

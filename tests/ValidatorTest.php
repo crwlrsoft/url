@@ -302,7 +302,7 @@ test('ValidateDomainSuffix', function () {
     $this->assertEquals('co.uk', Validator::domainSuffix('co.uk'));
     $this->assertEquals('co.at', Validator::domainSuffix('co.at'));
     $this->assertEquals('or.at', Validator::domainSuffix('or.at'));
-    $this->assertEquals('anything.bd', Validator::domainSuffix('anything.bd'));
+    $this->assertEquals('co.bd', Validator::domainSuffix('co.bd'));
 
     $this->assertNull(Validator::domainSuffix('süffix'));
     $this->assertNull(Validator::domainSuffix('idk'));

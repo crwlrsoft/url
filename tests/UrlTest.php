@@ -301,6 +301,7 @@ test('IpV6AddressHost', function () {
 });
 
 test('ReplaceSubdomain', function () {
+    // https://user:password@sub.sub.example.com:8080/some/path?some=query#fragment
     $url = createDefaultUrlObject();
     $this->assertEquals('sub.sub', $url->subdomain());
 
