@@ -8,6 +8,8 @@ use Crwlr\Url\Lists\Store;
  * Class DefaultPorts
  *
  * List of default ports for URI schemes.
+ *
+ * @method int|null get(string $key)
  */
 
 class DefaultPorts extends Store

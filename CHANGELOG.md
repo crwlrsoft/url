@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.2.0] - 2026-01-06
+### Added
+- New `*OrThrow()` methods in the `Validator` class that throw an `InvalidUrlComponentException` on invalid values, complementing the existing methods which return `null` (e.g. `Validator::schemeOrThrow()`, `Validator::userOrThrow()`, `Validator::passwordOrThrow()`, `Validator::hostOrThrow()`, `Validator::pathOrThrow()`, etc.).
+
+### Fixed
+- Potential issues found with PHPStan 2 on level 8.
+- Updated lists of public suffixes, schemes and default ports.
+
+### Deprecated
+- `Validator::callValidationByComponentName()` – This method dynamically dispatches to component-specific validation methods (e.g. `callValidationByComponentName('scheme', 'https')` => `Validator::scheme('https')`) and is no longer needed. Call the corresponding validation method directly instead (e.g. `Validator::scheme()`).
+
 ## [2.1.3] - 2024-11-06
 ### Fixed
 - Improvement for PHP 8.4.

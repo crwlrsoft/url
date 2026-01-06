@@ -108,6 +108,8 @@ class Url
      * Get or set the scheme component.
      *
      * @throws InvalidUrlComponentException|Exception
+     *
+     * @phpstan-return ($scheme is null ? null|string : Url)
      */
     public function scheme(?string $scheme = null): string|null|Url
     {
@@ -116,7 +118,7 @@ class Url
         } elseif ($scheme === '') {
             $this->scheme = null;
         } else {
-            $this->scheme = $this->validateComponentValue('scheme', $scheme);
+            $this->scheme = Validator::schemeOrThrow($scheme);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -139,7 +141,7 @@ class Url
             $this->validatePathStartsWithSlash();
             $validAuthorityComponents = Validator::authorityComponents($authority);
 
-            if ($validAuthorityComponents === null) {
+            if ($validAuthorityComponents === null || empty($validAuthorityComponents['host'])) {
                 throw new InvalidUrlComponentException('Invalid authority.');
             }
 
@@ -158,6 +160,8 @@ class Url
      * When param $user is an empty string, the pass(word) component will also be reset.
      *
      * @throws InvalidUrlComponentException|Exception
+     *
+     * @phpstan-return ($user is null ? null|string : Url)
      */
     public function user(?string $user = null): string|null|Url
     {
@@ -166,7 +170,7 @@ class Url
         } elseif ($user === '') {
             $this->user = $this->pass = null;
         } else {
-            $this->user = $this->validateComponentValue('user', $user);
+            $this->user = Validator::userOrThrow($user);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -176,6 +180,8 @@ class Url
      * Get or set the password component.
      *
      * @throws InvalidUrlComponentException|Exception
+     *
+     * @phpstan-return ($password is null ? null|string : Url)
      */
     public function password(?string $password = null): string|null|Url
     {
@@ -184,7 +190,7 @@ class Url
         } elseif ($password === '') {
             $this->pass = null;
         } else {
-            $this->pass = $this->validateComponentValue('password', $password);
+            $this->pass = Validator::passwordOrThrow($password);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -194,6 +200,8 @@ class Url
      * Alias for method password().
      *
      * @throws InvalidUrlComponentException|Exception
+     *
+     * @phpstan-return ($pass is null ? null|string : Url)
      */
     public function pass(?string $pass = null): string|null|Url
     {
@@ -238,8 +246,7 @@ class Url
             $this->host = null;
         } else {
             $this->validatePathStartsWithSlash();
-            $validHost = $this->validateComponentValue('host', $host);
-            $this->host = new Host($validHost);
+            $this->host = new Host(Validator::hostOrThrow($host));
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -259,7 +266,7 @@ class Url
             return $this->host instanceof Host ? $this->host->domain() : null;
         }
 
-        $validDomain = $this->validateComponentValue('domain', $domain);
+        $validDomain = Validator::domainOrThrow($domain);
 
         if ($this->host instanceof Host) {
             $this->host->domain($validDomain);
@@ -277,6 +284,8 @@ class Url
      * It can only be set when the current URL contains a host with a registrable domain.
      *
      * @throws InvalidUrlComponentException|Exception
+     *
+     * @phpstan-return ($domainLabel is null ? null|string : Url)
      */
     public function domainLabel(?string $domainLabel = null): string|null|Url
     {
@@ -290,9 +299,7 @@ class Url
             );
         }
 
-        $this->host->domainLabel(
-            $this->validateComponentValue('domainLabel', $domainLabel)
-        );
+        $this->host->domainLabel(Validator::domainLabelOrThrow($domainLabel));
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -304,6 +311,8 @@ class Url
      * It can only be set when the current URL contains a host with a registrable domain.
      *
      * @throws InvalidUrlComponentException|Exception
+     *
+     * @phpstan-return ($domainSuffix is null ? null|string : Url)
      */
     public function domainSuffix(?string $domainSuffix = null): string|null|Url
     {
@@ -317,9 +326,7 @@ class Url
             );
         }
 
-        $this->host->domainSuffix(
-            $this->validateComponentValue('domainSuffix', $domainSuffix)
-        );
+        $this->host->domainSuffix(Validator::domainSuffixOrThrow($domainSuffix));
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -331,6 +338,8 @@ class Url
      * It can only be set when the current URL contains a host with a registrable domain.
      *
      * @throws InvalidUrlComponentException|Exception
+     *
+     * @phpstan-return ($subdomain is null ? string|null : Url)
      */
     public function subdomain(?string $subdomain = null): string|null|Url
     {
@@ -344,9 +353,7 @@ class Url
             );
         }
 
-        $this->host->subdomain(
-            $this->validateComponentValue('subdomain', $subdomain)
-        );
+        $this->host->subdomain(Validator::subdomainOrThrow($subdomain));
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -355,6 +362,8 @@ class Url
      * Get or set the port component.
      *
      * Returns the set port component only when it's not the standard port of the current scheme.
+     *
+     * @phpstan-return ($port is null ? int|null : Url)
      *
      * @throws InvalidUrlComponentException|Exception
      */
@@ -366,7 +375,7 @@ class Url
             return ($scheme && $this->port === Helpers::getStandardPortByScheme($scheme)) ? null : $this->port;
         }
 
-        $this->port = $this->validateComponentValue('port', $port);
+        $this->port = Validator::portOrThrow($port);
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -385,7 +394,9 @@ class Url
     /**
      * Get or set the path component.
      *
-     * @throws Exception
+     * @throws InvalidUrlComponentException|Exception
+     *
+     * @phpstan-return ($path is null ? string|null : Url)
      */
     public function path(?string $path = null): string|null|Url
     {
@@ -393,7 +404,7 @@ class Url
             return $this->path;
         }
 
-        $this->path = $this->validateComponentValue('path', $path);
+        $this->path = Validator::pathOrThrow($path);
 
         return $this->updateFullUrlAndReturnInstance();
     }
@@ -402,6 +413,8 @@ class Url
      * Get or set the query component (as string).
      *
      * @throws Exception
+     *
+     * @phpstan-return ($query is null ? string|null : Url)
      */
     public function query(?string $query = null): string|null|Url
     {
@@ -410,7 +423,7 @@ class Url
         } elseif ($query === '') {
             $this->query = null;
         } else {
-            $this->query = $this->validateComponentValue('query', $query);
+            $this->query = Validator::query($query);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -436,7 +449,7 @@ class Url
 
             return [];
         } else {
-            $this->query = $this->validateComponentValue('query', http_build_query($query));
+            $this->query = Validator::query(http_build_query($query));
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -464,6 +477,8 @@ class Url
      * Get or set the fragment component.
      *
      * @throws Exception
+     *
+     * @phpstan-return ($fragment is null ? null|string : Url)
      */
     public function fragment(?string $fragment = null): string|null|Url
     {
@@ -472,7 +487,7 @@ class Url
         } elseif ($fragment === '') {
             $this->fragment = null;
         } else {
-            $this->fragment = $this->validateComponentValue('fragment', $fragment);
+            $this->fragment = Validator::fragment($fragment);
         }
 
         return $this->updateFullUrlAndReturnInstance();
@@ -726,7 +741,7 @@ class Url
 
     public function toString(): string
     {
-        return $this->url;
+        return $this->url ?? '';
     }
 
     public function toPsr7(): UriInterface
@@ -745,7 +760,7 @@ class Url
      */
     private function populate(array|Url $components): void
     {
-        $this->url = $components instanceof Url ? $components->toString() : $components['url'];
+        $this->url = $components instanceof Url ? $components->toString() : (string) $components['url'];
 
         foreach ($this->components as $componentName) {
             if (property_exists($this, $componentName)) {
@@ -753,7 +768,7 @@ class Url
                     $this->{$componentName} = $components->{$componentName};
                 } elseif (isset($components[$componentName])) {
                     if ($componentName === 'host') {
-                        $this->{$componentName} = new Host($components[$componentName]);
+                        $this->{$componentName} = new Host((string) $components[$componentName]);
                     } else {
                         $this->{$componentName} = $components[$componentName];
                     }
@@ -786,20 +801,6 @@ class Url
     }
 
     /**
-     * @throws InvalidUrlComponentException
-     */
-    private function validateComponentValue(string $componentName, string|int $componentValue): string|int
-    {
-        $validComponentValue = Validator::callValidationByComponentName($componentName, $componentValue);
-
-        if ($validComponentValue === null) {
-            throw new InvalidUrlComponentException('Invalid ' . $componentName . '.');
-        }
-
-        return $validComponentValue;
-    }
-
-    /**
      * Regenerate the full URL after changing components.
      *
      * @throws Exception
@@ -829,7 +830,7 @@ class Url
      */
     private function validatePathStartsWithSlash(): void
     {
-        if ($this->path() && $this->path() !== '' && !Helpers::startsWith($this->path(), '/', 1)) {
+        if ($this->path() && !Helpers::startsWith($this->path(), '/', 1)) {
             throw new InvalidUrlComponentException(
                 'The current path doesn\'t start with a slash which is why an authority component can\'t be ' .
                 'added to the URL.'
@@ -862,8 +863,6 @@ class Url
                 // can't be equal to this `Url` instance, so return false.
                 return false;
             }
-        } elseif (!$compareToUrl instanceof Url) {
-            throw new InvalidArgumentException('Param must be either string or instance of Crwlr\Url\Url.');
         }
 
         if ($componentName === null) {
@@ -876,7 +875,7 @@ class Url
     }
 
     /**
-     * @return array<string|int>
+     * @return array{ host: ?string, user: ?string, password: ?string, port: ?int }
      * @throws Exception
      */
     private function authorityComponents(): array
@@ -885,7 +884,7 @@ class Url
     }
 
     /**
-     * @return string[]
+     * @return array{ user: ?string, password: ?string }
      */
     private function userInfoComponents(): array
     {

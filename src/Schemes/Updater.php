@@ -31,10 +31,10 @@ class Updater extends WebUpdater
                 continue;
             }
 
-            $parsedLine = str_getcsv($line, ',', '', '');
+            $parsedLine = str_getcsv($line, escape: "\\");
 
             if (count($parsedLine) > 1) {
-                $schemes[] = $parsedLine[0];
+                $schemes[] = $parsedLine[0] ?? '';
             }
         }
 

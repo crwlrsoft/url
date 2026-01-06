@@ -70,7 +70,7 @@ class Helpers
     {
         $url = '';
 
-        if (isset($components['scheme'])) {
+        if (isset($components['scheme']) && is_string($components['scheme'])) {
             $url .= $components['scheme'] . ':';
 
             if (
@@ -95,7 +95,7 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array<int|string> $components
+     * @param array<int|string|null> $components
      */
     public static function buildAuthorityFromComponents(array $components): string
     {
@@ -123,13 +123,13 @@ class Helpers
      *
      * It doesn't do any validation and assumes the provided component values are valid!
      *
-     * @param array<int|string> $components
+     * @param array<int|string|null> $components
      */
     public static function buildUserInfoFromComponents(array $components): string
     {
         $userInfo = '';
 
-        if (isset($components['user']) && $components['user']) {
+        if (array_key_exists('user', $components) && is_string($components['user']) && $components['user'] !== '') {
             $userInfo = $components['user'];
 
             if (isset($components['password']) && $components['password']) {

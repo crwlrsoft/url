@@ -2,6 +2,8 @@
 
 namespace Crwlr\Url;
 
+use Crwlr\Url\Exceptions\InvalidUrlComponentException;
+
 /**
  * Class Validator
  *
@@ -99,6 +101,20 @@ class Validator
     }
 
     /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function schemeOrThrow(string $scheme): string
+    {
+        $scheme = self::scheme($scheme);
+
+        if ($scheme === null) {
+            throw new InvalidUrlComponentException('Invalid scheme.');
+        }
+
+        return $scheme;
+    }
+
+    /**
      * Validate an authority
      *
      * Percent-encodes user information (user, password) and encodes internationalized domain names.
@@ -123,7 +139,7 @@ class Validator
      * So you get the userInfo as one string (<user>:<password>) and also the user and password separately.
      * Returns null if any component is invalid.
      *
-     * @return null|array<string|int>
+     * @return null|array{ userInfo: ?string, user: ?string, password: ?string, host: ?string, port: ?int }
      */
     public static function authorityComponents(string $authority): ?array
     {
@@ -146,7 +162,7 @@ class Validator
         $components = self::getValidUserInfoComponents($userInfo);
 
         if ($components) {
-            return ($components['user'] ?? '') . ($components['password'] ? ':' . $components['password'] : '');
+            return $components['user'] . ($components['password'] ? ':' . $components['password'] : '');
         }
 
         return null;
@@ -157,7 +173,7 @@ class Validator
      *
      * Percent-encodes special characters. Returns null for invalid user information.
      *
-     * @return string[]|null
+     * @return array{ user: string, password: ?string }|null
      */
     public static function userInfoComponents(string $userInfo): ?array
     {
@@ -179,6 +195,20 @@ class Validator
     }
 
     /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function userOrThrow(string $user): string
+    {
+        $user = self::userOrPassword($user);
+
+        if (empty($user)) {
+            throw new InvalidUrlComponentException('Invalid user.');
+        }
+
+        return $user;
+    }
+
+    /**
      * Validate (only) the password from the user info
      */
     public static function password(string $password): string
@@ -187,11 +217,33 @@ class Validator
     }
 
     /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function passwordOrThrow(string $pass): string
+    {
+        $password = self::password($pass);
+
+        if (empty($password)) {
+            throw new InvalidUrlComponentException('Invalid password.');
+        }
+
+        return $password;
+    }
+
+    /**
      * Alias for method password
      */
     public static function pass(string $pass): string
     {
         return self::password($pass);
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function passOrThrow(string $pass): string
+    {
+        return self::passwordOrThrow($pass);
     }
 
     /**
@@ -215,6 +267,20 @@ class Validator
         }
 
         return null;
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function hostOrThrow(string $host): string
+    {
+        $host = self::host($host);
+
+        if ($host === null) {
+            throw new InvalidUrlComponentException('Invalid host.');
+        }
+
+        return $host;
     }
 
     /**
@@ -247,6 +313,20 @@ class Validator
     }
 
     /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function domainOrThrow(string $domain): string
+    {
+        $domain = self::domain($domain);
+
+        if ($domain === null) {
+            throw new InvalidUrlComponentException('Invalid domain.');
+        }
+
+        return $domain;
+    }
+
+    /**
      * Validate the label of a registrable domain (domain without suffix)
      */
     public static function domainLabel(string $domainLabel): ?string
@@ -260,6 +340,20 @@ class Validator
         }
 
         return null;
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function domainLabelOrThrow(string $domainLabel): string
+    {
+        $domainLabel = self::domainLabel($domainLabel);
+
+        if ($domainLabel === null) {
+            throw new InvalidUrlComponentException('Invalid domainLabel.');
+        }
+
+        return $domainLabel;
     }
 
     /**
@@ -285,6 +379,20 @@ class Validator
     }
 
     /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function domainSuffixOrThrow(string $domainSuffix): string
+    {
+        $domainSuffix = self::domainSuffix($domainSuffix);
+
+        if ($domainSuffix === null) {
+            throw new InvalidUrlComponentException('Invalid domainSuffix.');
+        }
+
+        return $domainSuffix;
+    }
+
+    /**
      * Validate a subdomain
      *
      * Returns the valid subdomain or null if invalid. Disallowed characters will be encoded.
@@ -303,6 +411,20 @@ class Validator
     }
 
     /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function subdomainOrThrow(string $subdomain): string
+    {
+        $subdomain = self::subdomain($subdomain);
+
+        if ($subdomain === null) {
+            throw new InvalidUrlComponentException('Invalid subdomain.');
+        }
+
+        return $subdomain;
+    }
+
+    /**
      * Validate a port
      *
      * Returns the valid port as int or null when port is not in allowed range (0 to 65535).
@@ -310,6 +432,20 @@ class Validator
     public static function port(int $port): ?int
     {
         return $port >= 0 && $port <= 65535 ? $port : null;
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function portOrThrow(int $port): int
+    {
+        $port = self::port($port);
+
+        if ($port === null) {
+            throw new InvalidUrlComponentException('Invalid port.');
+        }
+
+        return $port;
     }
 
     /**
@@ -338,6 +474,20 @@ class Validator
         $path = self::encodePercentCharacter($path);
 
         return self::urlEncodeExcept($path, self::pcharRegexPattern(['/', '%']));
+    }
+
+    /**
+     * @throws InvalidUrlComponentException
+     */
+    public static function pathOrThrow(string $path): string
+    {
+        $path = self::path($path);
+
+        if ($path === null) {
+            throw new InvalidUrlComponentException('Invalid path.');
+        }
+
+        return $path;
     }
 
     /**
@@ -373,10 +523,7 @@ class Validator
     }
 
     /**
-     * Validate a component value by a variable component name
-     *
-     * This method is here to avoid calling validation like self::$componentName() and thereby loosing traceability
-     * of method calls for IDEs.
+     * @deprecated will be removed in v3.0. Please call validation method directly.
      */
     public static function callValidationByComponentName(string $componentName, mixed $value): string|int|null
     {
@@ -624,9 +771,9 @@ class Validator
         foreach ($components as $componentName => $componentValue) {
             if (method_exists(self::class, $componentName)) {
                 if ($componentName === 'path') {
-                    $validComponent = self::path($componentValue, isset($components['host']));
+                    $validComponent = self::path((string) $componentValue, isset($components['host']));
                 } else {
-                    $validComponent = self::callValidationByComponentName($componentName, $componentValue);
+                    $validComponent = self::{$componentName}($componentValue);
                 }
 
                 if ($validComponent === null) {
@@ -662,7 +809,7 @@ class Validator
     /**
      * Get an array of valid authority components (host, userInfo, user, password, port) from an authority string
      *
-     * @return null|array<string|int>
+     * @return null|array{ userInfo: ?string, user: ?string, password: ?string, host: ?string, port: ?int }
      */
     private static function getValidAuthorityComponents(string $authority): ?array
     {
@@ -684,7 +831,7 @@ class Validator
     /**
      * Split an authority string to components (host, userInfo, port)
      *
-     * @return null|array<string|int>
+     * @return null|array{ userInfo: string, user: ?string, password: ?string, host: string, port: ?int }
      */
     private static function splitAuthorityToComponents(string $authority): ?array
     {
@@ -705,8 +852,8 @@ class Validator
         if (!empty($authority)) {
             return [
                 'userInfo' => $userInfo,
-                'user' => $userInfoArray['user'],
-                'password' => $userInfoArray['password'],
+                'user' => $userInfoArray['user'] ?? null,
+                'password' => $userInfoArray['password'] ?? null,
                 'host' => $authority,
                 'port' => $port
             ];
@@ -718,7 +865,7 @@ class Validator
     /**
      * Split user info string <user>:<password> to user and password
      *
-     * @return string[]|null
+     * @return null|array{ user: string, password: ?string }
      */
     private static function splitUserInfoToComponents(string $userInfo): ?array
     {
@@ -742,8 +889,8 @@ class Validator
     /**
      * Validate authority components (host, userInfo, port)
      *
-     * @param array<string|int> $components
-     * @return null|array<string|int>
+     * @param array{ userInfo: string, user: ?string, password: ?string, host: string, port: ?int } $components
+     * @return null|array{ userInfo: ?string, user: ?string, password: ?string, host: ?string, port: ?int }
      */
     private static function validateAuthorityComponents(array $components): ?array
     {
@@ -753,7 +900,17 @@ class Validator
 
         foreach ($components as $componentName => $value) {
             if ($value) {
-                $components[$componentName] = self::callValidationByComponentName($componentName, $value);
+                if ($componentName === 'userInfo') {
+                    $components[$componentName] = self::userInfo($value);
+                } elseif ($componentName === 'user') {
+                    $components[$componentName] = self::user($value);
+                } elseif ($componentName === 'password') {
+                    $components[$componentName] = self::password($value);
+                } elseif ($componentName === 'host') {
+                    $components[$componentName] = self::host($value);
+                } elseif ($componentName === 'port') {
+                    $components[$componentName] = self::port($value);
+                }
 
                 if (!$components[$componentName]) {
                     return null;
@@ -767,7 +924,7 @@ class Validator
     /**
      * Split user info string to user and password and validate.
      *
-     * @return string[]|null
+     * @return null|array{ user: string, password: ?string }
      */
     private static function getValidUserInfoComponents(string $userInfo): ?array
     {
@@ -915,7 +1072,7 @@ class Validator
                 return rawurlencode($match[0]);
             },
             $encode
-        );
+        ) ?? $encode;
     }
 
     /**
